@@ -139,47 +139,27 @@ public class GUI extends JFrame {
 		gbl_panel_13.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		panel_13.setLayout(gbl_panel_13);
 		
-		JLabel lblNewLabel_2 = new JLabel("Date:");
-		GridBagConstraints gbc_lblNewLabel_2 = new GridBagConstraints();
-		gbc_lblNewLabel_2.anchor = GridBagConstraints.WEST;
-		gbc_lblNewLabel_2.insets = new Insets(0, 0, 5, 0);
-		gbc_lblNewLabel_2.gridx = 0;
-		gbc_lblNewLabel_2.gridy = 0;
-		panel_13.add(lblNewLabel_2, gbc_lblNewLabel_2);
-		
 		UtilDateModel model = new UtilDateModel();
 		Properties p = new Properties();
 		p.put("text.today", "Day");
 		p.put("text.month", "Month");
 		p.put("text.year", "Year");
 		JDatePanelImpl datePanel = new JDatePanelImpl(model, p);
+		
+		JLabel lblNewLabel_2 = new JLabel("Date:");
+		GridBagConstraints gbc_lblNewLabel_2 = new GridBagConstraints();
+		gbc_lblNewLabel_2.anchor = GridBagConstraints.WEST;
+		gbc_lblNewLabel_2.insets = new Insets(0, 0, 5, 0);
+		gbc_lblNewLabel_2.gridx = 0;
+		gbc_lblNewLabel_2.gridy = 1;
+		panel_13.add(lblNewLabel_2, gbc_lblNewLabel_2);
 		JDatePickerImpl datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
-		 
+		
 		GridBagConstraints gbc_datePicker = new GridBagConstraints();
 		gbc_datePicker.insets = new Insets(0, 0, 5, 0);
 		gbc_datePicker.gridx = 0;
-		gbc_datePicker.gridy = 1;
+		gbc_datePicker.gridy = 2;
 		panel_13.add(datePicker, gbc_datePicker);
-		
-		JLabel lblNewLabel_9 = new JLabel("Employee type:");
-		GridBagConstraints gbc_lblNewLabel_9 = new GridBagConstraints();
-		gbc_lblNewLabel_9.anchor = GridBagConstraints.WEST;
-		gbc_lblNewLabel_9.insets = new Insets(0, 0, 5, 0);
-		gbc_lblNewLabel_9.gridx = 0;
-		gbc_lblNewLabel_9.gridy = 2;
-		panel_13.add(lblNewLabel_9, gbc_lblNewLabel_9);
-		
-		JComboBox<String> comboBoxEmployeeType = new JComboBox<>();
-		GridBagConstraints gbc_comboBoxEmployeeType = new GridBagConstraints();
-		gbc_comboBoxEmployeeType.insets = new Insets(0, 0, 5, 0);
-		gbc_comboBoxEmployeeType.fill = GridBagConstraints.BOTH;
-		gbc_comboBoxEmployeeType.gridx = 0;
-		gbc_comboBoxEmployeeType.gridy = 3;
-		panel_13.add(comboBoxEmployeeType, gbc_comboBoxEmployeeType);
-		comboBoxEmployeeType.addItem("");
-		comboBoxEmployeeType.addItem("Part-time");
-		comboBoxEmployeeType.addItem("Full-time");
-		comboBoxEmployeeType.addItem("All");
 		
 		JLabel lblNewLabel_10 = new JLabel("From time:");
 		GridBagConstraints gbc_lblNewLabel_10 = new GridBagConstraints();
@@ -362,9 +342,9 @@ public class GUI extends JFrame {
 		panel_4_1.add(panel_5);
 		GridBagLayout gbl_panel_5 = new GridBagLayout();
 		gbl_panel_5.columnWidths = new int[]{0, 0};
-		gbl_panel_5.rowHeights = new int[]{0, 0, 0};
+		gbl_panel_5.rowHeights = new int[]{0, 0, 0, 0};
 		gbl_panel_5.columnWeights = new double[]{1.0, Double.MIN_VALUE};
-		gbl_panel_5.rowWeights = new double[]{1.0, 1.0, Double.MIN_VALUE};
+		gbl_panel_5.rowWeights = new double[]{1.0, 1.0, 1.0, Double.MIN_VALUE};
 		panel_5.setLayout(gbl_panel_5);
 		
 		JButton btnNewButton = new JButton("Work schedule");
@@ -379,18 +359,27 @@ public class GUI extends JFrame {
 		JButton btnNewButton_1 = new JButton("Employee");
 		btnNewButton_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		GridBagConstraints gbc_btnNewButton_1 = new GridBagConstraints();
+		gbc_btnNewButton_1.insets = new Insets(0, 0, 5, 0);
 		gbc_btnNewButton_1.fill = GridBagConstraints.BOTH;
 		gbc_btnNewButton_1.gridx = 0;
 		gbc_btnNewButton_1.gridy = 1;
 		panel_5.add(btnNewButton_1, gbc_btnNewButton_1);
 		
+		JButton btnMeeting = new JButton("Meeting");
+		btnMeeting.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		GridBagConstraints gbc_btnMeeting = new GridBagConstraints();
+		gbc_btnMeeting.fill = GridBagConstraints.BOTH;
+		gbc_btnMeeting.gridx = 0;
+		gbc_btnMeeting.gridy = 2;
+		panel_5.add(btnMeeting, gbc_btnMeeting);
+		
 		JPanel panel_6 = new JPanel();
 		panel_4_1.add(panel_6);
 		GridBagLayout gbl_panel_6 = new GridBagLayout();
 		gbl_panel_6.columnWidths = new int[]{0, 0};
-		gbl_panel_6.rowHeights = new int[]{0, 0, 0};
+		gbl_panel_6.rowHeights = new int[]{0, 0, 0, 0};
 		gbl_panel_6.columnWeights = new double[]{1.0, Double.MIN_VALUE};
-		gbl_panel_6.rowWeights = new double[]{1.0, 1.0, Double.MIN_VALUE};
+		gbl_panel_6.rowWeights = new double[]{1.0, 1.0, 1.0, Double.MIN_VALUE};
 		panel_6.setLayout(gbl_panel_6);
 		
 		JButton btnWorkShifts = new JButton("Work shifts");
@@ -406,10 +395,19 @@ public class GUI extends JFrame {
 		JButton btnNewButton_3 = new JButton("Data");
 		btnNewButton_3.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		GridBagConstraints gbc_btnNewButton_3 = new GridBagConstraints();
+		gbc_btnNewButton_3.insets = new Insets(0, 0, 5, 0);
 		gbc_btnNewButton_3.fill = GridBagConstraints.BOTH;
 		gbc_btnNewButton_3.gridx = 0;
 		gbc_btnNewButton_3.gridy = 1;
 		panel_6.add(btnNewButton_3, gbc_btnNewButton_3);
+		
+		JButton btnHoliday = new JButton("Holiday");
+		btnHoliday.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		GridBagConstraints gbc_btnHoliday = new GridBagConstraints();
+		gbc_btnHoliday.fill = GridBagConstraints.BOTH;
+		gbc_btnHoliday.gridx = 0;
+		gbc_btnHoliday.gridy = 2;
+		panel_6.add(btnHoliday, gbc_btnHoliday);
 		
 		
 		JPanel panel_7 = new JPanel();
