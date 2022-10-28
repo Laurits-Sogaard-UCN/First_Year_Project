@@ -51,6 +51,11 @@ public class GUI extends JFrame {
 	private JPanel contentPane;
 	private JTextField textField;
 	private JTextField textField_1;
+	private JPanel panelLogin;
+	private JPanel panelManagerMainMenu;
+	private JPanel panelManagerShiftMenu;
+	private JPanel panelReleaseNewWorkShifts;
+	private JPanel panelTakeShift;
 
 	/**
 	 * Launch the application.
@@ -86,10 +91,10 @@ public class GUI extends JFrame {
 		cardLayout = new CardLayout(0, 0);
 		contentPane.setLayout(cardLayout);
 		
-		JPanel panelLogin = new JPanel();
+		panelLogin = new JPanel();
 		contentPane.add(panelLogin, "name_1005522058002500");
 		
-		JPanel panelManagerMainMenu = new JPanel();
+		panelManagerMainMenu = new JPanel();
 		contentPane.add(panelManagerMainMenu, "name_1005555845259100");
 		panelManagerMainMenu.setLayout(new BorderLayout(0, 0));
 		
@@ -101,7 +106,7 @@ public class GUI extends JFrame {
 		btnLogout.setFont(new Font("Tahoma", Font.PLAIN, 9));
 		panel_3.add(btnLogout);
 		
-		JPanel panelManagerShiftMenu = new JPanel();
+		panelManagerShiftMenu = new JPanel();
 		contentPane.add(panelManagerShiftMenu, "name_1007777309751200");
 		panelManagerShiftMenu.setLayout(new BorderLayout(0, 0));
 		
@@ -114,7 +119,7 @@ public class GUI extends JFrame {
 		btnNewButton_4.setFont(new Font("Tahoma", Font.PLAIN, 9));
 		panel_1.add(btnNewButton_4);
 		
-		JPanel panelReleaseNewWorkShifts = new JPanel();
+		panelReleaseNewWorkShifts = new JPanel();
 		contentPane.add(panelReleaseNewWorkShifts, "name_1008271951056900");
 		panelReleaseNewWorkShifts.setLayout(new BorderLayout(0, 0));
 		
@@ -238,7 +243,6 @@ public class GUI extends JFrame {
 		panelReleaseNewWorkShifts.add(scrollPane, BorderLayout.CENTER);
 		scrollPane.setViewportView(list);
 		
-		
 		panelLogin.setLayout(new BorderLayout(0, 0));
 		
 		JPanel panel_14 = new JPanel();
@@ -293,11 +297,7 @@ public class GUI extends JFrame {
 		panelLogin.add(panel_18, BorderLayout.SOUTH);
 		
 		JButton btnLogin = new JButton("Login");
-		btnLogin.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getNextCard();
-			}
-		});
+		btnLogin.addActionListener(this::btnLoginClicked);
 		panel_18.add(btnLogin);
 		
 		JPanel panel = new JPanel();
@@ -393,19 +393,15 @@ public class GUI extends JFrame {
 		gbl_panel_6.rowWeights = new double[]{1.0, 1.0, Double.MIN_VALUE};
 		panel_6.setLayout(gbl_panel_6);
 		
-		JButton btnNewButton_2 = new JButton("Work shifts");
-		btnNewButton_2.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getNextCard();
-			}
-		});
-		btnNewButton_2.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		GridBagConstraints gbc_btnNewButton_2 = new GridBagConstraints();
-		gbc_btnNewButton_2.fill = GridBagConstraints.BOTH;
-		gbc_btnNewButton_2.insets = new Insets(0, 0, 5, 0);
-		gbc_btnNewButton_2.gridx = 0;
-		gbc_btnNewButton_2.gridy = 0;
-		panel_6.add(btnNewButton_2, gbc_btnNewButton_2);
+		JButton btnWorkShifts = new JButton("Work shifts");
+		btnWorkShifts.addActionListener(this::btnWorkShiftsClicked);
+		btnWorkShifts.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		GridBagConstraints gbc_btnWorkShifts = new GridBagConstraints();
+		gbc_btnWorkShifts.fill = GridBagConstraints.BOTH;
+		gbc_btnWorkShifts.insets = new Insets(0, 0, 5, 0);
+		gbc_btnWorkShifts.gridx = 0;
+		gbc_btnWorkShifts.gridy = 0;
+		panel_6.add(btnWorkShifts, gbc_btnWorkShifts);
 		
 		JButton btnNewButton_3 = new JButton("Data");
 		btnNewButton_3.setFont(new Font("Tahoma", Font.PLAIN, 14));
@@ -469,19 +465,15 @@ public class GUI extends JFrame {
 		gbl_panel_10.rowWeights = new double[]{1.0, 1.0, 1.0, Double.MIN_VALUE};
 		panel_10.setLayout(gbl_panel_10);
 		
-		JButton btnNewButton_5 = new JButton("Release New");
-		btnNewButton_5.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getThisCard("ReleaseNewWorkShifts");
-			}
-		});
-		btnNewButton_5.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		GridBagConstraints gbc_btnNewButton_5 = new GridBagConstraints();
-		gbc_btnNewButton_5.fill = GridBagConstraints.BOTH;
-		gbc_btnNewButton_5.insets = new Insets(0, 0, 5, 0);
-		gbc_btnNewButton_5.gridx = 0;
-		gbc_btnNewButton_5.gridy = 0;
-		panel_10.add(btnNewButton_5, gbc_btnNewButton_5);
+		JButton btnReleaseNew = new JButton("Release New");
+		btnReleaseNew.addActionListener(this::btnReleaseNewClicked);
+		btnReleaseNew.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		GridBagConstraints gbc_btnReleaseNew = new GridBagConstraints();
+		gbc_btnReleaseNew.fill = GridBagConstraints.BOTH;
+		gbc_btnReleaseNew.insets = new Insets(0, 0, 5, 0);
+		gbc_btnReleaseNew.gridx = 0;
+		gbc_btnReleaseNew.gridy = 0;
+		panel_10.add(btnReleaseNew, gbc_btnReleaseNew);
 		
 		JButton btnSeeReleased = new JButton("See Released");
 		btnSeeReleased.setFont(new Font("Tahoma", Font.PLAIN, 14));
@@ -492,18 +484,14 @@ public class GUI extends JFrame {
 		gbc_btnSeeReleased.gridy = 1;
 		panel_10.add(btnSeeReleased, gbc_btnSeeReleased);
 		
-		JButton btnNewButton_6 = new JButton("Take Shift");
-		btnNewButton_6.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getThisCard("TakeShift");
-			}
-		});
-		btnNewButton_6.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		GridBagConstraints gbc_btnNewButton_6 = new GridBagConstraints();
-		gbc_btnNewButton_6.fill = GridBagConstraints.BOTH;
-		gbc_btnNewButton_6.gridx = 0;
-		gbc_btnNewButton_6.gridy = 2;
-		panel_10.add(btnNewButton_6, gbc_btnNewButton_6);
+		JButton btnTakeShifts = new JButton("Take Shift");
+		btnTakeShifts.addActionListener(this::btnTakeShiftsClicked);
+		btnTakeShifts.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		GridBagConstraints gbc_btnTakeShifts = new GridBagConstraints();
+		gbc_btnTakeShifts.fill = GridBagConstraints.BOTH;
+		gbc_btnTakeShifts.gridx = 0;
+		gbc_btnTakeShifts.gridy = 2;
+		panel_10.add(btnTakeShifts, gbc_btnTakeShifts);
 		
 		JPanel panel_19 = new JPanel();
 		FlowLayout flowLayout_2 = (FlowLayout) panel_19.getLayout();
@@ -525,7 +513,7 @@ public class GUI extends JFrame {
 		btnCancelShiftMenu.setHorizontalAlignment(SwingConstants.RIGHT);
 		panel_11.add(btnCancelShiftMenu);
 		
-		JPanel panelTakeShift = new JPanel();
+		panelTakeShift = new JPanel();
 		contentPane.add(panelTakeShift, "name_1023562824879300");
 		panelTakeShift.setLayout(new BorderLayout(0, 0));
 		
@@ -580,13 +568,18 @@ public class GUI extends JFrame {
 		JLabel lblNewLabel_13 = new JLabel("  ");
 		panel_23.add(lblNewLabel_13);
 		
+		// Adds all panels to the cardlayout of the JFrame.
+		addPanelsToCardLayout();
+		
+	}
+	
+	private void addPanelsToCardLayout() {
 		Container container = getContentPane();
 		container.add("Login", panelLogin);
 		container.add("MainMenu", panelManagerMainMenu);
 		container.add("WorkShiftsMenu", panelManagerShiftMenu);
 		container.add("ReleaseNewWorkShifts", panelReleaseNewWorkShifts);
 		container.add("TakeShift", panelTakeShift);
-		
 	}
 	
 	/**
@@ -599,4 +592,24 @@ public class GUI extends JFrame {
 	private void getThisCard(String cardName) {
 		cardLayout.show(contentPane, cardName);
 	}
+	
+	
+	// Methods to handle what to do when buttons are clicked. 
+	
+	private void btnLoginClicked(ActionEvent e) {
+		getNextCard();
+	}
+	
+	private void btnWorkShiftsClicked(ActionEvent e) {
+		getNextCard();
+	}
+	
+	private void btnReleaseNewClicked(ActionEvent e) {
+		getThisCard("ReleaseNewWorkShifts");
+	}
+	
+	private void btnTakeShiftsClicked(ActionEvent e) {
+		getThisCard("TakeShift");
+	}
+	
 }
