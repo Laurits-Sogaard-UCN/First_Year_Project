@@ -10,6 +10,7 @@ import model.FullTimeEmployee;
 import model.Manager;
 import model.PartTimeEmployee;
 import model.Shop;
+import utility.DBMessages;
 import utility.DataAccessException;
 
 public class EmployeeDB implements EmployeeDBIF {
@@ -34,7 +35,7 @@ public class EmployeeDB implements EmployeeDBIF {
 		try {
 			findEmployeeOnUsernameAndPassword = con.prepareStatement(FIND_EMPLOYEE_ON_USERNAME_AND_PASSWORD);
 		} catch(SQLException e) {
-			throw new DataAccessException("Could not prepare statement", e);
+			throw new DataAccessException(DBMessages.COULD_NOT_PREPARE_STATEMENT, e);
 		}
 	}
 	
@@ -57,7 +58,7 @@ public class EmployeeDB implements EmployeeDBIF {
 				}
 			}
 		} catch(SQLException e) {
-			throw new DataAccessException("No resultset was found", e);
+			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
 		}
 		return employee;
 	}
@@ -77,7 +78,7 @@ public class EmployeeDB implements EmployeeDBIF {
 			Shop shop = new Shop(rs.getInt("ShopID"));
 			employee = new Employee(CPR, lname, fname, email, address, phone, username, password, employeeType, shop);
 		} catch(SQLException e) {
-			throw new DataAccessException("Could not build object", e);
+			throw new DataAccessException(DBMessages.COULD_NOT_READ_RESULTSET, e);
 		}
 		return employee;
 	}
@@ -88,7 +89,7 @@ public class EmployeeDB implements EmployeeDBIF {
 			double hourlyWage = rs.getFloat("HourlyWage");
 			employee.setHourlyWage(hourlyWage);
 		} catch(SQLException e) {
-			throw new DataAccessException("Could not build object", e);
+			throw new DataAccessException(DBMessages.COULD_NOT_READ_RESULTSET, e);
 		}
 		return employee;
 	}
@@ -99,7 +100,7 @@ public class EmployeeDB implements EmployeeDBIF {
 			double monthlyWage = rs.getFloat("MonthlyWage");
 			employee.setMonthlyWage(monthlyWage);
 		} catch(SQLException e) {
-			throw new DataAccessException("Could not build object", e);
+			throw new DataAccessException(DBMessages.COULD_NOT_READ_RESULTSET, e);
 		}
 		return employee;
 	}
@@ -110,7 +111,7 @@ public class EmployeeDB implements EmployeeDBIF {
 			int managerNumber = rs.getInt("ManagerNumber");
 			employee.setManagerNumber(managerNumber);
 		} catch(SQLException e) {
-			throw new DataAccessException("Could not build object", e);
+			throw new DataAccessException(DBMessages.COULD_NOT_READ_RESULTSET, e);
 		}
 		return employee;
 	}

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import model.Copy;
 import model.Shift;
 import model.WorkShift;
+import utility.DBMessages;
 import utility.DataAccessException;
 
 public class ShiftDB implements ShiftDBIF {
@@ -38,7 +39,7 @@ public class ShiftDB implements ShiftDBIF {
 			findShiftOnFromAndTo = con.prepareStatement(FIND_SHIFT_ON_FROM_AND_TO);
 			insertWorkShiftCopy = con.prepareStatement(INSERT_WORKSHIFT_COPY);
 		} catch(SQLException e) {
-			throw new DataAccessException("Could not prepare statement", e);
+			throw new DataAccessException(DBMessages.COULD_NOT_PREPARE_STATEMENT, e);
 		}
 	}
 	
@@ -53,7 +54,7 @@ public class ShiftDB implements ShiftDBIF {
 				shift = buildWorkShiftObject(rs);
 			}
 		} catch(SQLException e) {
-			throw new DataAccessException("No resultset", e);
+			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
 		}
 		return shift;
 	}
@@ -77,7 +78,7 @@ public class ShiftDB implements ShiftDBIF {
 			DBConnection.getInstance().commitTransaction();
 		} catch(SQLException e) {
 			DBConnection.getInstance().rollbackTransaction();
-			throw new DataAccessException("", e);
+			throw new DataAccessException(DBMessages.COULD_NOT_INSERT, e);
 		}
 		if(rowsAffected >= 0) {
 			completed = true;
@@ -94,7 +95,7 @@ public class ShiftDB implements ShiftDBIF {
 			int id = rs.getInt("ID");
 			shift = new Shift(fromHour, toHour, shiftType, id);
 		} catch(SQLException e) {
-			throw new DataAccessException("Could not build object", e);
+			throw new DataAccessException(DBMessages.COULD_NOT_READ_RESULTSET, e);
 		}
 		return shift;
 	}
@@ -105,7 +106,7 @@ public class ShiftDB implements ShiftDBIF {
 			String state = rs.getString("State");
 			workShift.setState(state);
 		} catch(SQLException e) {
-			throw new DataAccessException("Could not build object", e);
+			throw new DataAccessException(DBMessages.COULD_NOT_READ_RESULTSET, e);
 		}
 		return workShift;
 	}

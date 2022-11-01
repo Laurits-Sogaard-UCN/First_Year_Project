@@ -7,6 +7,7 @@ import java.sql.SQLException;
 
 import model.Employee;
 import model.Shop;
+import utility.DBMessages;
 import utility.DataAccessException;
 
 public class ShopDB implements ShopDBIF {
@@ -31,7 +32,7 @@ public class ShopDB implements ShopDBIF {
 		try {
 			findShopOnID = con.prepareStatement(FIND_SHOP_ON_ID);
 		} catch(SQLException e) {
-			throw new DataAccessException("Could not prepare statement", e);
+			throw new DataAccessException(DBMessages.COULD_NOT_PREPARE_STATEMENT, e);
 		}
 	}
 	
@@ -45,7 +46,7 @@ public class ShopDB implements ShopDBIF {
 				shop = buildShopObject(rs);
 			}
 		} catch(SQLException e) {
-			throw new DataAccessException("No resultset", e);
+			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
 		}
 		return shop;
 	}
@@ -58,7 +59,7 @@ public class ShopDB implements ShopDBIF {
 			int id = rs.getInt("ID");
 			shop = new Shop(address, name, id);
 		} catch(SQLException e) {
-			throw new DataAccessException("Could not build object", e);
+			throw new DataAccessException(DBMessages.COULD_NOT_READ_RESULTSET, e);
 		}
 		return shop;
 	}
