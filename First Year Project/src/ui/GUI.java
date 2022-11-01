@@ -32,12 +32,21 @@ import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
 
+import controller.EmployeeController;
+import controller.ShiftController;
+import model.Copy;
+import model.Employee;
+import model.Manager;
+import model.WorkShift;
+import utility.DataAccessException;
+
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JPasswordField;
 import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Properties;
 import java.awt.event.ActionEvent;
@@ -49,13 +58,18 @@ public class GUI extends JFrame {
 
 	private CardLayout cardLayout;
 	private JPanel contentPane;
-	private JTextField textField;
-	private JTextField textField_1;
+	private JTextField textFieldUsername;
+	private JTextField textFieldPassword;
 	private JPanel panelLogin;
 	private JPanel panelManagerMainMenu;
 	private JPanel panelManagerShiftMenu;
 	private JPanel panelReleaseNewWorkShifts;
 	private JPanel panelTakeShift;
+	private ShiftController shiftController;
+	private EmployeeController employeeController;
+	private JDatePickerImpl datePicker;
+	private JComboBox<String> comboBoxShiftTo;
+	private JComboBox<String> comboBoxShiftFrom;
 
 	/**
 	 * Launch the application.
@@ -75,8 +89,12 @@ public class GUI extends JFrame {
 
 	/**
 	 * Create the frame.
+	 * @throws DataAccessException 
 	 */
-	public GUI() {
+	public GUI() throws DataAccessException {
+		shiftController = new ShiftController();
+		employeeController = new EmployeeController();
+		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
@@ -153,7 +171,7 @@ public class GUI extends JFrame {
 		gbc_lblNewLabel_2.gridx = 0;
 		gbc_lblNewLabel_2.gridy = 1;
 		panel_13.add(lblNewLabel_2, gbc_lblNewLabel_2);
-		JDatePickerImpl datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
+		datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
 		
 		GridBagConstraints gbc_datePicker = new GridBagConstraints();
 		gbc_datePicker.insets = new Insets(0, 0, 5, 0);
@@ -169,7 +187,7 @@ public class GUI extends JFrame {
 		gbc_lblNewLabel_10.gridy = 4;
 		panel_13.add(lblNewLabel_10, gbc_lblNewLabel_10);
 		
-		JComboBox<String> comboBoxShiftFrom = new JComboBox<>();
+		comboBoxShiftFrom = new JComboBox<>();
 		GridBagConstraints gbc_comboBoxShiftFrom = new GridBagConstraints();
 		gbc_comboBoxShiftFrom.insets = new Insets(0, 0, 5, 0);
 		gbc_comboBoxShiftFrom.fill = GridBagConstraints.HORIZONTAL;
@@ -189,7 +207,7 @@ public class GUI extends JFrame {
 		gbc_lblNewLabel_11.gridy = 6;
 		panel_13.add(lblNewLabel_11, gbc_lblNewLabel_11);
 		
-		JComboBox<String> comboBoxShiftTo = new JComboBox<>();
+		comboBoxShiftTo = new JComboBox<>();
 		GridBagConstraints gbc_comboBoxShiftTo = new GridBagConstraints();
 		gbc_comboBoxShiftTo.insets = new Insets(0, 0, 5, 0);
 		gbc_comboBoxShiftTo.fill = GridBagConstraints.HORIZONTAL;
@@ -201,12 +219,20 @@ public class GUI extends JFrame {
 		comboBoxShiftTo.addItem("16:00");
 		comboBoxShiftTo.addItem("22:00");
 		
-		JButton btnNewButton_7 = new JButton("Add");
-		GridBagConstraints gbc_btnNewButton_7 = new GridBagConstraints();
-		gbc_btnNewButton_7.insets = new Insets(0, 0, 5, 0);
-		gbc_btnNewButton_7.gridx = 0;
-		gbc_btnNewButton_7.gridy = 9;
-		panel_13.add(btnNewButton_7, gbc_btnNewButton_7);
+		JButton btnAddWorkShift = new JButton("Add");
+		btnAddWorkShift.addActionListener(e -> {
+			try {
+				addWorkShift(e);
+			} catch (DataAccessException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+		});
+		GridBagConstraints gbc_btnAddWorkShift = new GridBagConstraints();
+		gbc_btnAddWorkShift.insets = new Insets(0, 0, 5, 0);
+		gbc_btnAddWorkShift.gridx = 0;
+		gbc_btnAddWorkShift.gridy = 9;
+		panel_13.add(btnAddWorkShift, gbc_btnAddWorkShift);
 		
 		JButton btnDeleteShift = new JButton("Delete");
 		GridBagConstraints gbc_btnDeleteShift = new GridBagConstraints();
@@ -253,9 +279,9 @@ public class GUI extends JFrame {
 		JLabel lblNewLabel_5 = new JLabel("Username");
 		panel_16.add(lblNewLabel_5);
 		
-		textField = new JTextField();
-		panel_16.add(textField);
-		textField.setColumns(10);
+		textFieldUsername = new JTextField();
+		panel_16.add(textFieldUsername);
+		textFieldUsername.setColumns(10);
 		
 		JPanel panel_17 = new JPanel();
 		GridBagConstraints gbc_panel_17 = new GridBagConstraints();
@@ -267,9 +293,9 @@ public class GUI extends JFrame {
 		JLabel lblNewLabel_6 = new JLabel("Password");
 		panel_17.add(lblNewLabel_6);
 		
-		textField_1 = new JTextField();
-		panel_17.add(textField_1);
-		textField_1.setColumns(10);
+		textFieldPassword = new JTextField();
+		panel_17.add(textFieldPassword);
+		textFieldPassword.setColumns(10);
 		
 		JPanel panel_18 = new JPanel();
 		FlowLayout flowLayout_1 = (FlowLayout) panel_18.getLayout();
@@ -277,7 +303,14 @@ public class GUI extends JFrame {
 		panelLogin.add(panel_18, BorderLayout.SOUTH);
 		
 		JButton btnLogin = new JButton("Login");
-		btnLogin.addActionListener(this::btnLoginClicked);
+		btnLogin.addActionListener(e -> {
+			try {
+				login(e);
+			} catch (DataAccessException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		});
 		panel_18.add(btnLogin);
 		
 		JPanel panel = new JPanel();
@@ -464,7 +497,7 @@ public class GUI extends JFrame {
 		panel_10.setLayout(gbl_panel_10);
 		
 		JButton btnReleaseNew = new JButton("Release New");
-		btnReleaseNew.addActionListener(this::btnReleaseNewClicked);
+		btnReleaseNew.addActionListener(this::startReleaseWorkShifts);
 		btnReleaseNew.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		GridBagConstraints gbc_btnReleaseNew = new GridBagConstraints();
 		gbc_btnReleaseNew.fill = GridBagConstraints.BOTH;
@@ -500,6 +533,7 @@ public class GUI extends JFrame {
 		panel_19.add(btnCancelReleaseShift);
 		
 		JButton btnCompleteReleaseShift = new JButton("Complete");
+		btnCompleteReleaseShift.addActionListener(this::completeReleaseWorkShifts);
 		panel_19.add(btnCompleteReleaseShift);
 		
 		JPanel panel_11 = new JPanel();
@@ -574,8 +608,8 @@ public class GUI extends JFrame {
 	private void addPanelsToCardLayout() {
 		Container container = getContentPane();
 		container.add("Login", panelLogin);
-		container.add("MainMenu", panelManagerMainMenu);
-		container.add("WorkShiftsMenu", panelManagerShiftMenu);
+		container.add("ManagerMainMenu", panelManagerMainMenu);
+		container.add("ManagerWorkShiftsMenu", panelManagerShiftMenu);
 		container.add("ReleaseNewWorkShifts", panelReleaseNewWorkShifts);
 		container.add("TakeShift", panelTakeShift);
 	}
@@ -594,16 +628,74 @@ public class GUI extends JFrame {
 	
 	// Methods to handle what to do when buttons are clicked. 
 	
-	private void btnLoginClicked(ActionEvent e) {
-		getNextCard();
+	private void login(ActionEvent e) throws DataAccessException {
+		String username = textFieldUsername.getText();
+		String password = textFieldPassword.getText();
+		Employee employee = shiftController.login(username, password);
+		if(employee instanceof Manager) {
+			getThisCard("ManagerMainMenu");
+		}
+		else {
+			// getThisCard("EmployeeMainMenu");
+		}
 	}
 	
 	private void btnWorkShiftsClicked(ActionEvent e) {
-		getNextCard();
+		if(checkLogin()) {
+			getThisCard("ManagerWorkShiftsMenu");
+		}
+		else {
+			// getThisCard("EmployeeWorkShiftsMenu");
+		}
 	}
 	
-	private void btnReleaseNewClicked(ActionEvent e) {
-		getThisCard("ReleaseNewWorkShifts");
+	private void startReleaseWorkShifts(ActionEvent e) {
+		shiftController.startReleaseWorkShifts();
+		if(checkLogin()) {
+			getThisCard("ReleaseNewWorkShifts");
+		}
+		else {
+			// getThisCard("EmployeeWorkShiftsMenu");
+		}
+	}
+	
+	private void addWorkShift(ActionEvent e) throws DataAccessException {
+		String dateString = datePicker.getJFormattedTextField().getText();
+		LocalDate date = LocalDate.parse(dateString, null);
+		String fromHourString = (String) comboBoxShiftFrom.getSelectedItem();
+		int fromHour = getIntTimeFromString(fromHourString);
+		String toHourString = (String) comboBoxShiftTo.getSelectedItem();
+		int toHour = getIntTimeFromString(toHourString);
+		ArrayList<Copy> workShifts;
+		workShifts = shiftController.addWorkShift(date, fromHour, toHour);
+	}
+	
+	private void completeReleaseWorkShifts(ActionEvent e) {
+		
+	}
+	
+	private int getIntTimeFromString(String time) {
+		String timeAsString;
+		int timeAsInt;
+		if(time.substring(1,2).equals(":")) {
+			 timeAsString = time.substring(0,1);
+			 timeAsInt = Integer.parseInt(timeAsString);
+			 
+		}
+		else {
+			timeAsString = time.substring(0,2);
+			 timeAsInt = Integer.parseInt(timeAsString);
+		}
+		return timeAsInt;
+	}
+	
+	private boolean checkLogin() {
+		boolean manager = false;
+		
+		if(employeeController.getLoggedInEmployee() instanceof Manager) {
+			manager = true;
+		}
+		return manager;
 	}
 	
 	private void btnTakeShiftsClicked(ActionEvent e) {
