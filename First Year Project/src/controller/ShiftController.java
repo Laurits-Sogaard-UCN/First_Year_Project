@@ -47,5 +47,13 @@ public class ShiftController {
 		workShiftCopies.add(copy);
 		return workShiftCopies;
 	}
+	
+	public boolean completeReleaseWorkShifts() throws DataAccessException {
+		boolean completed = false;
+		if(shiftDB.completeReleaseWorkShifts(workShiftCopies)) {
+			completed = true;
+		}
+		return completed;
+	}
 
 }

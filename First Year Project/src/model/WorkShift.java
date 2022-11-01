@@ -4,14 +4,16 @@ public class WorkShift extends Shift {
 	
 	private String state;
 
+
 	/**
 	 * @param fromHour
 	 * @param toHour
 	 * @param shiftType
+	 * @param iD
 	 * @param state
 	 */
-	public WorkShift(int fromHour, int toHour, String shiftType, String state) {
-		super(fromHour, toHour, shiftType);
+	public WorkShift(int fromHour, int toHour, String shiftType, int iD, String state) {
+		super(fromHour, toHour, shiftType, iD);
 		this.state = state;
 	}
 
