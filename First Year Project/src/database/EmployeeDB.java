@@ -15,7 +15,10 @@ import utility.DataAccessException;
 
 public class EmployeeDB implements EmployeeDBIF {
 	
-	private static final String FIND_EMPLOYEE_ON_USERNAME_AND_PASSWORD = ("");
+	private static final String FIND_EMPLOYEE_ON_USERNAME_AND_PASSWORD = ("SELECT *\r\n"
+			+ "FROM Employee e\r\n"
+			+ "WHERE e.Username = ?\r\n"
+			+ "and e.Password = ?");
 	private PreparedStatement findEmployeeOnUsernameAndPassword;
 	
 	/**

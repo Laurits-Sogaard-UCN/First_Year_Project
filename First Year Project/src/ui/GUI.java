@@ -1,6 +1,7 @@
 package ui;
 
 import java.awt.BorderLayout;
+
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -37,7 +38,6 @@ import controller.ShiftController;
 import model.Copy;
 import model.Employee;
 import model.Manager;
-import model.WorkShift;
 import utility.DataAccessException;
 
 import javax.swing.JScrollPane;
