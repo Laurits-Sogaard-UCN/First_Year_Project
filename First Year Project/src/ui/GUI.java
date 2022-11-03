@@ -1,6 +1,7 @@
 package ui;
 
 import java.awt.BorderLayout;
+
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -37,7 +38,6 @@ import controller.ShiftController;
 import model.Copy;
 import model.Employee;
 import model.Manager;
-import model.WorkShift;
 import utility.DataAccessException;
 
 import javax.swing.JScrollPane;
@@ -56,6 +56,7 @@ import javax.swing.AbstractListModel;
 
 public class GUI extends JFrame {
 
+	private Confirmation confirmationDialog;
 	private CardLayout cardLayout;
 	private JPanel contentPane;
 	private JTextField textFieldUsername;
@@ -533,7 +534,14 @@ public class GUI extends JFrame {
 		panel_19.add(btnCancelReleaseShift);
 		
 		JButton btnCompleteReleaseShift = new JButton("Complete");
-		btnCompleteReleaseShift.addActionListener(this::completeReleaseWorkShifts);
+		btnCompleteReleaseShift.addActionListener(e -> {
+			try {
+				completeReleaseWorkShifts(e);
+			} catch (DataAccessException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		});
 		panel_19.add(btnCompleteReleaseShift);
 		
 		JPanel panel_11 = new JPanel();
@@ -626,8 +634,6 @@ public class GUI extends JFrame {
 	}
 	
 	
-	// Methods to handle what to do when buttons are clicked. 
-	
 	private void login(ActionEvent e) throws DataAccessException {
 		String username = textFieldUsername.getText();
 		String password = textFieldPassword.getText();
@@ -670,7 +676,15 @@ public class GUI extends JFrame {
 		workShifts = shiftController.addWorkShift(date, fromHour, toHour);
 	}
 	
-	private void completeReleaseWorkShifts(ActionEvent e) {
+	private void completeReleaseWorkShifts(ActionEvent e) throws DataAccessException {
+		if(shiftController.completeReleaseWorkShifts()) {
+			confirmationDialog = new Confirmation();
+			confirmationDialog.getTextAreaConfirmation().setText("Completion was successfull");
+		}
+		else {
+			confirmationDialog = new Confirmation();
+			confirmationDialog.getTextAreaConfirmation().setText("Completion failed");
+		}
 		
 	}
 	
@@ -679,8 +693,7 @@ public class GUI extends JFrame {
 		int timeAsInt;
 		if(time.substring(1,2).equals(":")) {
 			 timeAsString = time.substring(0,1);
-			 timeAsInt = Integer.parseInt(timeAsString);
-			 
+			 timeAsInt = Integer.parseInt(timeAsString); 
 		}
 		else {
 			timeAsString = time.substring(0,2);

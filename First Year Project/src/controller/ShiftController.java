@@ -1,6 +1,7 @@
 package controller;
 
 import java.time.LocalDate;
+
 import java.util.ArrayList;
 
 import database.ShiftDB;
@@ -10,7 +11,6 @@ import model.Employee;
 import model.Manager;
 import model.Shift;
 import model.Shop;
-import model.WorkShift;
 import utility.DataAccessException;
 
 public class ShiftController {
@@ -41,11 +41,18 @@ public class ShiftController {
 	}
 	
 	public ArrayList<Copy> addWorkShift(LocalDate date, int fromHour, int toHour) throws DataAccessException {
-		Shift shift = new Shift();
-		WorkShift workShift = (WorkShift) shiftDB.findShiftOnFromAndTo(fromHour, toHour);
-		Copy copy = shift.createCopy(workShift, date);
+		Shift shift = shiftDB.findShiftOnFromAndTo(fromHour, toHour);
+		Copy copy = shift.createCopy(shift, date);
 		workShiftCopies.add(copy);
 		return workShiftCopies;
+	}
+	
+	public boolean completeReleaseWorkShifts() throws DataAccessException {
+		boolean completed = false;
+		if(shiftDB.completeReleaseWorkShifts(workShiftCopies)) {
+			completed = true;
+		}
+		return completed;
 	}
 
 }
