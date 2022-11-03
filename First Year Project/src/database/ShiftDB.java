@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 
 import model.Copy;
+import model.CopyState;
 import model.Shift;
 import utility.DBMessages;
 import utility.DataAccessException;
@@ -21,7 +22,8 @@ public class ShiftDB implements ShiftDBIF {
 			+ "and s.ToHour = ?");
 	private PreparedStatement findShiftOnFromAndTo;
 	
-	private static final String INSERT_WORKSHIFT_COPY = ("");
+	private static final String INSERT_WORKSHIFT_COPY = ("INSERT INTO Copy(ShiftID, Date, State)\r\n"
+			+ "VALUES (?, ?, ?)");
 	private PreparedStatement insertWorkShiftCopy;
 	
 	/**
@@ -76,6 +78,7 @@ public class ShiftDB implements ShiftDBIF {
 				java.sql.Date date = java.sql.Date.valueOf(localDate);
 				insertWorkShiftCopy.setInt(1, id);
 				insertWorkShiftCopy.setDate(2, date);
+				insertWorkShiftCopy.setString(3, CopyState.RELEASED.getState());
 				rowsAffected += insertWorkShiftCopy.executeUpdate();
 			}
 			DBConnection.getInstance().commitTransaction();

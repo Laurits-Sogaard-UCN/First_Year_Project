@@ -2,13 +2,13 @@ package controller;
 
 import java.time.LocalDate;
 
+
 import java.util.ArrayList;
 
 import database.ShiftDB;
 import database.ShiftDBIF;
 import model.Copy;
 import model.Employee;
-import model.Manager;
 import model.Shift;
 import model.Shop;
 import utility.DataAccessException;
@@ -26,8 +26,8 @@ public class ShiftController {
 		shiftDB = new ShiftDB();
 	}
 	
-	public Employee login(String username, String password) throws DataAccessException {
-		Employee employee = employeeController.login(username, password);
+	public Employee login() throws DataAccessException {
+		Employee employee = employeeController.login();
 		if(employee != null) {
 			int id = employee.getShop().getID();
 			Shop shop = shopController.findShopOnID(id);

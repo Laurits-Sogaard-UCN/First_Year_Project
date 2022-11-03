@@ -1,13 +1,13 @@
 package database;
 
 import java.sql.Connection;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import model.Employee;
 import model.FullTimeEmployee;
-import model.Manager;
 import model.PartTimeEmployee;
 import model.Shop;
 import utility.DBMessages;
@@ -57,7 +57,7 @@ public class EmployeeDB implements EmployeeDBIF {
 					employee = buildFullTimeEmployeeObject(rs);
 				}
 				else if(rs.getString("EmployeeType").equals("Manager")) {
-					employee = buildManagerObject(rs);
+					employee = buildFullTimeEmployeeObject(rs);
 				}
 			}
 		} catch(SQLException e) {
@@ -102,17 +102,6 @@ public class EmployeeDB implements EmployeeDBIF {
 		try {
 			double monthlyWage = rs.getFloat("MonthlyWage");
 			employee.setMonthlyWage(monthlyWage);
-		} catch(SQLException e) {
-			throw new DataAccessException(DBMessages.COULD_NOT_READ_RESULTSET, e);
-		}
-		return employee;
-	}
-	
-	private Employee buildManagerObject(ResultSet rs) throws DataAccessException {
-		Manager employee = (Manager) buildFullTimeEmployeeObject(rs);
-		try {
-			int managerNumber = rs.getInt("ManagerNumber");
-			employee.setManagerNumber(managerNumber);
 		} catch(SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_READ_RESULTSET, e);
 		}
