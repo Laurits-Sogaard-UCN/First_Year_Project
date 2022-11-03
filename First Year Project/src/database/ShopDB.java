@@ -12,7 +12,9 @@ import utility.DataAccessException;
 
 public class ShopDB implements ShopDBIF {
 	
-	private static final String FIND_SHOP_ON_ID = ("");
+	private static final String FIND_SHOP_ON_ID = ("SELECT *\r\n"
+			+ "FROM Shop s\r\n"
+			+ "WHERE s.ID = ?");
 	private PreparedStatement findShopOnID;
 	
 	/**
