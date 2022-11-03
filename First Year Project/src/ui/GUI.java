@@ -2,6 +2,7 @@ package ui;
 
 import java.awt.BorderLayout;
 
+
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -37,7 +38,6 @@ import controller.EmployeeController;
 import controller.ShiftController;
 import model.Copy;
 import model.Employee;
-import model.Manager;
 import utility.DataAccessException;
 
 import javax.swing.JScrollPane;
@@ -637,8 +637,8 @@ public class GUI extends JFrame {
 	private void login(ActionEvent e) throws DataAccessException {
 		String username = textFieldUsername.getText();
 		String password = textFieldPassword.getText();
-		Employee employee = shiftController.login(username, password);
-		if(employee instanceof Manager) {
+		Employee employee = shiftController.login();
+		if(employee.getType().equals("Manager")) {
 			getThisCard("ManagerMainMenu");
 		}
 		else {
@@ -704,8 +704,8 @@ public class GUI extends JFrame {
 	
 	private boolean checkLogin() {
 		boolean manager = false;
-		
-		if(employeeController.getLoggedInEmployee() instanceof Manager) {
+		Employee employee = employeeController.getLoggedInEmployee();
+		if(employee.getType().equals("Manager")) {
 			manager = true;
 		}
 		return manager;
