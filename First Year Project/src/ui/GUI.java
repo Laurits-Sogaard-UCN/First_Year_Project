@@ -648,6 +648,9 @@ public class GUI extends JFrame {
 		else if(toHour - fromHour > 8) {
 			textAreaErrorHandling.setText("A shift can be no longer than 8 hours");
 		}
+		else if(date.isBefore(LocalDate.now())) {
+			textAreaErrorHandling.setText("Invalid date has been chosen");
+		}
 		else {
 			listModel.clear();
 			ArrayList<Copy> workShifts = shiftController.addWorkShift(date, fromHour, toHour);
@@ -658,7 +661,7 @@ public class GUI extends JFrame {
 				String month = copyDate.substring(5, 7);
 				String year = copyDate.substring(0, 4);
 				String copyDateFormatted = day + "-" + month + "-" + year;
-				listModel.addElement("Shift: " + (i + 1) + " Date: " + copyDateFormatted + " from: " + copy.getShift().getFromHour() + " to: " + copy.getShift().getToHour());
+				listModel.addElement("Shift: " + (i + 1) + " Date: " + copyDateFormatted + " From: " + copy.getShift().getFromHour() + " To: " + copy.getShift().getToHour());
 			}
 		}
 		
