@@ -26,8 +26,8 @@ public class ShiftController {
 		shiftDB = new ShiftDB();
 	}
 	
-	public Employee login(String username, String password) throws DataAccessException {
-		Employee employee = employeeController.login(username, password);
+	public Employee login() throws DataAccessException {
+		Employee employee = employeeController.login();
 		if(employee != null) {
 			int id = employee.getShop().getID();
 			Shop shop = shopController.findShopOnID(id);

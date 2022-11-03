@@ -637,7 +637,7 @@ public class GUI extends JFrame {
 	private void login(ActionEvent e) throws DataAccessException {
 		String username = textFieldUsername.getText();
 		String password = textFieldPassword.getText();
-		Employee employee = shiftController.login(username, password);
+		Employee employee = shiftController.login();
 		if(employee.getType().equals("Manager")) {
 			getThisCard("ManagerMainMenu");
 		}
