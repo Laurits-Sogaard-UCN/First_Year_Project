@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import model.Employee;
+import model.EmployeeType;
 import model.FullTimeEmployee;
 import model.PartTimeEmployee;
 import model.Shop;
@@ -14,12 +15,6 @@ import utility.DBMessages;
 import utility.DataAccessException;
 
 public class EmployeeDB implements EmployeeDBIF {
-	
-	private static final String FIND_EMPLOYEE_ON_USERNAME_AND_PASSWORD = ("SELECT *\r\n"
-			+ "FROM Employee e\r\n"
-			+ "WHERE e.Username = ?\r\n"
-			+ "and e.Password = ?");
-	private PreparedStatement findEmployeeOnUsernameAndPassword;
 	
 	/**
 	 * Constructor to initialize instance variables.
@@ -35,35 +30,7 @@ public class EmployeeDB implements EmployeeDBIF {
 	 */
 	private void init() throws DataAccessException {
 		Connection con = DBConnection.getInstance().getConnection();
-		try {
-			findEmployeeOnUsernameAndPassword = con.prepareStatement(FIND_EMPLOYEE_ON_USERNAME_AND_PASSWORD);
-		} catch(SQLException e) {
-			throw new DataAccessException(DBMessages.COULD_NOT_PREPARE_STATEMENT, e);
-		}
-	}
-	
-	public Employee login(String username, String password) throws DataAccessException {
-		ResultSet rs;
-		Employee employee = null;
-		try {
-			findEmployeeOnUsernameAndPassword.setString(1, username);
-			findEmployeeOnUsernameAndPassword.setString(2, password);
-			rs = findEmployeeOnUsernameAndPassword.executeQuery();
-			if(rs.next()) {
-				if(rs.getString("EmployeeType").equals("Parttime")) {
-					employee = buildPartTimeEmployeeObject(rs);
-				}
-				else if(rs.getString("EmployeeType").equals("Fulltime")) {
-					employee = buildFullTimeEmployeeObject(rs);
-				}
-				else if(rs.getString("EmployeeType").equals("Manager")) {
-					employee = buildFullTimeEmployeeObject(rs);
-				}
-			}
-		} catch(SQLException e) {
-			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
-		}
-		return employee;
+		
 	}
 	
 	private Employee buildEmployeeObject(ResultSet rs) throws DataAccessException {
