@@ -2,13 +2,13 @@ package controller;
 
 import java.time.LocalDate;
 
+
 import java.util.ArrayList;
 
 import database.ShiftDB;
 import database.ShiftDBIF;
 import model.Copy;
 import model.Employee;
-import model.Manager;
 import model.Shift;
 import model.Shop;
 import utility.DataAccessException;

@@ -6,7 +6,6 @@ public class Shift {
 	
 	private int fromHour;
 	private int toHour;
-	private String shiftType;
 	private int ID;
 	
 	
@@ -20,7 +19,6 @@ public class Shift {
 		super();
 		this.fromHour = fromHour;
 		this.toHour = toHour;
-		this.shiftType = shiftType;
 		ID = iD;
 	}
 
@@ -59,20 +57,6 @@ public class Shift {
 	 */
 	public void setToHour(int toHour) {
 		this.toHour = toHour;
-	}
-
-	/**
-	 * @return the shiftType
-	 */
-	public String getShiftType() {
-		return shiftType;
-	}
-
-	/**
-	 * @param shiftType the shiftType to set
-	 */
-	public void setShiftType(String shiftType) {
-		this.shiftType = shiftType;
 	}
 
 	/**
