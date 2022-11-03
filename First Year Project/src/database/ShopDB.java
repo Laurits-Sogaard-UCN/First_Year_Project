@@ -12,9 +12,11 @@ import utility.DataAccessException;
 
 public class ShopDB implements ShopDBIF {
 	
-	private static final String FIND_SHOP_ON_ID = ("SELECT *\r\n"
-			+ "FROM Shop s\r\n"
-			+ "WHERE s.ID = ?");
+	private static final String FIND_SHOP_ON_ID = ("SELECT s.*, a.*, ac.City, ac.Country\r\n"
+			+ "FROM Shop s, Address a, AddressCity ac\r\n"
+			+ "WHERE s.ID = ?\r\n"
+			+ "AND s.AddressID = a.ID\r\n"
+			+ "AND a.Zipcode = ac.Zipcode");
 	private PreparedStatement findShopOnID;
 	
 	/**
@@ -56,10 +58,13 @@ public class ShopDB implements ShopDBIF {
 	private Shop buildShopObject(ResultSet rs) throws DataAccessException {
 		Shop shop;
 		try {
-			String name = rs.getString("Fname");
-			String address = rs.getString(rs.getString("Street") + " " + rs.getString("StreetNumber"));
+			String address = rs.getString("Street") + " " + rs.getString("StreetNumber");
+			int zipcode = rs.getInt("Zipcode");
+			String city = rs.getString("City");
+			String country = rs.getString("Country");
+			String name = rs.getString("Name");
 			int id = rs.getInt("ID");
-			shop = new Shop(address, name, id);
+			shop = new Shop(address, zipcode, city, country, name, id);
 		} catch(SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_READ_RESULTSET, e);
 		}
