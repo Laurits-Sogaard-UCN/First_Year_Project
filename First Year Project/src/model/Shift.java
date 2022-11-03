@@ -9,13 +9,14 @@ public class Shift {
 	private int ID;
 	
 	
+	
+
 	/**
 	 * @param fromHour
 	 * @param toHour
-	 * @param shiftType
 	 * @param iD
 	 */
-	public Shift(int fromHour, int toHour, String shiftType, int iD) {
+	public Shift(int fromHour, int toHour, int iD) {
 		super();
 		this.fromHour = fromHour;
 		this.toHour = toHour;

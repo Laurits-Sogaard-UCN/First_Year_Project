@@ -97,9 +97,8 @@ public class ShiftDB implements ShiftDBIF {
 		try {
 			int fromHour = rs.getInt("FromHour");
 			int toHour = rs.getInt("ToHour");
-			String shiftType = rs.getString("ShiftType");
 			int id = rs.getInt("ID");
-			shift = new Shift(fromHour, toHour, shiftType, id);
+			shift = new Shift(fromHour, toHour, id);
 		} catch(SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_READ_RESULTSET, e);
 		}

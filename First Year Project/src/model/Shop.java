@@ -3,18 +3,29 @@ package model;
 public class Shop {
 	
 	private String address;
+	private int zipcode;
+	private String city;
+	private String country;
 	private String name;
 	private int ID;
-	
+
+
 	/**
 	 * @param address
+	 * @param zipcode
+	 * @param city
+	 * @param country
 	 * @param name
 	 * @param iD
 	 */
-	public Shop(String address, String name, int ID) {
+	public Shop(String address, int zipcode, String city, String country, String name, int iD) {
+		super();
 		this.address = address;
+		this.zipcode = zipcode;
+		this.city = city;
+		this.country = country;
 		this.name = name;
-		this.ID = ID;
+		ID = iD;
 	}
 
 	public Shop(int ID) {
@@ -35,6 +46,48 @@ public class Shop {
 		this.address = address;
 	}
 
+	/**
+	 * @return the zipcode
+	 */
+	public int getZipcode() {
+		return zipcode;
+	}
+
+	/**
+	 * @param zipcode the zipcode to set
+	 */
+	public void setZipcode(int zipcode) {
+		this.zipcode = zipcode;
+	}
+
+	/**
+	 * @return the city
+	 */
+	public String getCity() {
+		return city;
+	}
+
+	/**
+	 * @param city the city to set
+	 */
+	public void setCity(String city) {
+		this.city = city;
+	}
+
+	/**
+	 * @return the country
+	 */
+	public String getCountry() {
+		return country;
+	}
+
+	/**
+	 * @param country the country to set
+	 */
+	public void setCountry(String country) {
+		this.country = country;
+	}
+	
 	/**
 	 * @return the name
 	 */
@@ -62,8 +115,6 @@ public class Shop {
 	public void setID(int iD) {
 		ID = iD;
 	}
-	
-	
 	
 
 }

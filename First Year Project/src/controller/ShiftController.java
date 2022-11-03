@@ -26,18 +26,15 @@ public class ShiftController {
 		shiftDB = new ShiftDB();
 	}
 	
-	public Employee login() throws DataAccessException {
-		Employee employee = employeeController.login();
+	public void startReleaseWorkShifts() throws DataAccessException {
+		workShiftCopies = new ArrayList<>();
+		
+		Employee employee = employeeController.getLoggedInEmployee();
 		if(employee != null) {
 			int id = employee.getShop().getID();
 			Shop shop = shopController.findShopOnID(id);
 			employee.setShop(shop);
 		}
-		return employee;
-	}
-	
-	public void startReleaseWorkShifts() {
-		workShiftCopies = new ArrayList<>();
 	}
 	
 	public ArrayList<Copy> addWorkShift(LocalDate date, int fromHour, int toHour) throws DataAccessException {
