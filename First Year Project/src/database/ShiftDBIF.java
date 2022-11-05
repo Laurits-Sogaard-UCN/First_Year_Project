@@ -10,6 +10,6 @@ public interface ShiftDBIF {
 	
 	public Shift findShiftOnFromAndTo(int fromHour, int toHour) throws DataAccessException;
 	
-	public boolean completeReleaseWorkShifts(ArrayList<Copy> copies) throws DataAccessException;
+	public boolean completeReleaseNewShifts(ArrayList<Copy> copies) throws DataAccessException;
 
 }

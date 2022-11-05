@@ -18,7 +18,7 @@ public class ShiftController {
 	private EmployeeController employeeController;
 	private ShopController shopController;
 	private ShiftDBIF shiftDB;
-	private ArrayList<Copy> workShiftCopies;
+	private ArrayList<Copy> shiftCopies;
 	
 	public ShiftController() throws DataAccessException {
 		employeeController = new EmployeeController();
@@ -26,8 +26,8 @@ public class ShiftController {
 		shiftDB = new ShiftDB();
 	}
 	
-	public void startReleaseWorkShifts() throws DataAccessException {
-		workShiftCopies = new ArrayList<>();
+	public void startReleaseNewShifts() throws DataAccessException {
+		shiftCopies = new ArrayList<>();
 		
 		Employee employee = employeeController.getLoggedInEmployee();
 		if(employee != null) {
@@ -37,16 +37,16 @@ public class ShiftController {
 		}
 	}
 	
-	public ArrayList<Copy> addWorkShift(LocalDate date, int fromHour, int toHour) throws DataAccessException {
+	public ArrayList<Copy> addShift(LocalDate date, int fromHour, int toHour) throws DataAccessException {
 		Shift shift = shiftDB.findShiftOnFromAndTo(fromHour, toHour);
 		Copy copy = shift.createCopy(shift, date);
-		workShiftCopies.add(copy);
-		return workShiftCopies;
+		shiftCopies.add(copy);
+		return shiftCopies;
 	}
 	
-	public boolean completeReleaseWorkShifts() throws DataAccessException {
+	public boolean completeReleaseNewShifts() throws DataAccessException {
 		boolean completed = false;
-		if(shiftDB.completeReleaseWorkShifts(workShiftCopies)) {
+		if(shiftDB.completeReleaseNewShifts(shiftCopies)) {
 			completed = true;
 		}
 		return completed;
