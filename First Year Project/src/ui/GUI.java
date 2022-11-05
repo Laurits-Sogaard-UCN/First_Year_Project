@@ -40,6 +40,7 @@ import controller.ShiftController;
 import model.Copy;
 import model.Employee;
 import utility.DataAccessException;
+import utility.DateLabelFormatter;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -63,7 +64,7 @@ public class GUI extends JFrame {
 	private JPanel contentPane;
 	private JPanel panelMainMenu;
 	private JPanel panelShiftMenu;
-	private JPanel panelReleaseNewWorkShifts;
+	private JPanel panelReleaseNewShifts;
 	private JPanel panelTakeShift;
 	private ShiftController shiftController;
 	private EmployeeController employeeController;
@@ -73,8 +74,8 @@ public class GUI extends JFrame {
 	private JList<String> list;
 	private DefaultListModel<String> listModel;
 	private JTextArea textAreaErrorHandling;
-	private JTextArea textAreaCompleteReleaseWorkShifts;
-	private JPanel panelCompleteReleaseNewWorkShifts;
+	private JTextArea textAreaCompleteReleaseNewShifts;
+	private JPanel panelCompleteReleaseNewShifts;
 
 	/**
 	 * Launch the application.
@@ -139,19 +140,19 @@ public class GUI extends JFrame {
 		btnNewButton_4.setFont(new Font("Tahoma", Font.PLAIN, 9));
 		panel_1.add(btnNewButton_4);
 		
-		panelReleaseNewWorkShifts = new JPanel();
-		contentPane.add(panelReleaseNewWorkShifts, "name_1008271951056900");
-		panelReleaseNewWorkShifts.setLayout(new BorderLayout(0, 0));
+		panelReleaseNewShifts = new JPanel();
+		contentPane.add(panelReleaseNewShifts, "name_1008271951056900");
+		panelReleaseNewShifts.setLayout(new BorderLayout(0, 0));
 		
 		JPanel panel_12 = new JPanel();
-		panelReleaseNewWorkShifts.add(panel_12, BorderLayout.NORTH);
+		panelReleaseNewShifts.add(panel_12, BorderLayout.NORTH);
 		
 		JLabel lblNewLabel_3 = new JLabel("Release Shift");
 		lblNewLabel_3.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_12.add(lblNewLabel_3);
 		
 		JPanel panel_13 = new JPanel();
-		panelReleaseNewWorkShifts.add(panel_13, BorderLayout.WEST);
+		panelReleaseNewShifts.add(panel_13, BorderLayout.WEST);
 		GridBagLayout gbl_panel_13 = new GridBagLayout();
 		gbl_panel_13.columnWidths = new int[]{0, 0};
 		gbl_panel_13.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -221,21 +222,21 @@ public class GUI extends JFrame {
 		comboBoxShiftTo.addItem("22:00");
 		comboBoxShiftTo.addItem("6:00");
 		
-		JButton btnAddWorkShift = new JButton("Add");
-		btnAddWorkShift.addActionListener(e -> {
+		JButton btnAddShift = new JButton("Add");
+		btnAddShift.addActionListener(e -> {
 			try {
-				addWorkShift(e);
+				addShiftButtonClicked(e);
 			} catch (DataAccessException e2) {
 				// TODO Auto-generated catch block
 				e2.printStackTrace();
 			}
 		});
-		GridBagConstraints gbc_btnAddWorkShift = new GridBagConstraints();
-		gbc_btnAddWorkShift.anchor = GridBagConstraints.WEST;
-		gbc_btnAddWorkShift.insets = new Insets(0, 0, 5, 0);
-		gbc_btnAddWorkShift.gridx = 0;
-		gbc_btnAddWorkShift.gridy = 8;
-		panel_13.add(btnAddWorkShift, gbc_btnAddWorkShift);
+		GridBagConstraints gbc_btnAddShift = new GridBagConstraints();
+		gbc_btnAddShift.anchor = GridBagConstraints.WEST;
+		gbc_btnAddShift.insets = new Insets(0, 0, 5, 0);
+		gbc_btnAddShift.gridx = 0;
+		gbc_btnAddShift.gridy = 8;
+		panel_13.add(btnAddShift, gbc_btnAddShift);
 		
 		JButton btnDeleteShift = new JButton("Delete");
 		GridBagConstraints gbc_btnDeleteShift = new GridBagConstraints();
@@ -257,7 +258,7 @@ public class GUI extends JFrame {
 		list = new JList<>(listModel);
 		
 		JScrollPane scrollPane = new JScrollPane();
-		panelReleaseNewWorkShifts.add(scrollPane, BorderLayout.CENTER);
+		panelReleaseNewShifts.add(scrollPane, BorderLayout.CENTER);
 		scrollPane.setViewportView(list);
 		
 		JPanel panel = new JPanel();
@@ -362,15 +363,15 @@ public class GUI extends JFrame {
 		gbl_panel_6.rowWeights = new double[]{1.0, 1.0, 1.0, Double.MIN_VALUE};
 		panel_6.setLayout(gbl_panel_6);
 		
-		JButton btnWorkShifts = new JButton("Work shifts");
-		btnWorkShifts.addActionListener(this::btnWorkShiftsClicked);
-		btnWorkShifts.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		GridBagConstraints gbc_btnWorkShifts = new GridBagConstraints();
-		gbc_btnWorkShifts.fill = GridBagConstraints.BOTH;
-		gbc_btnWorkShifts.insets = new Insets(0, 0, 5, 0);
-		gbc_btnWorkShifts.gridx = 0;
-		gbc_btnWorkShifts.gridy = 0;
-		panel_6.add(btnWorkShifts, gbc_btnWorkShifts);
+		JButton btnShifts = new JButton("Shifts");
+		btnShifts.addActionListener(this::workShiftsButtonClicked);
+		btnShifts.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		GridBagConstraints gbc_btnShifts = new GridBagConstraints();
+		gbc_btnShifts.fill = GridBagConstraints.BOTH;
+		gbc_btnShifts.insets = new Insets(0, 0, 5, 0);
+		gbc_btnShifts.gridx = 0;
+		gbc_btnShifts.gridy = 0;
+		panel_6.add(btnShifts, gbc_btnShifts);
 		
 		JButton btnNewButton_3 = new JButton("Data");
 		btnNewButton_3.setFont(new Font("Tahoma", Font.PLAIN, 14));
@@ -446,7 +447,7 @@ public class GUI extends JFrame {
 		JButton btnReleaseNew = new JButton("Release New");
 		btnReleaseNew.addActionListener(e -> {
 			try {
-				startReleaseWorkShifts(e);
+				releaseNewButtonClicked(e);
 			} catch (DataAccessException e2) {
 				// TODO Auto-generated catch block
 				e2.printStackTrace();
@@ -481,7 +482,7 @@ public class GUI extends JFrame {
 		JPanel panel_19 = new JPanel();
 		FlowLayout flowLayout_2 = (FlowLayout) panel_19.getLayout();
 		flowLayout_2.setAlignment(FlowLayout.RIGHT);
-		panelReleaseNewWorkShifts.add(panel_19, BorderLayout.SOUTH);
+		panelReleaseNewShifts.add(panel_19, BorderLayout.SOUTH);
 		
 		JButton btnCancelReleaseShift = new JButton("Cancel");
 		panel_19.add(btnCancelReleaseShift);
@@ -489,7 +490,7 @@ public class GUI extends JFrame {
 		JButton btnCompleteReleaseShift = new JButton("Complete");
 		btnCompleteReleaseShift.addActionListener(e -> {
 			try {
-				completeReleaseWorkShifts(e);
+				completeReleaseShiftsButtonClicked(e);
 			} catch (DataAccessException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -561,27 +562,27 @@ public class GUI extends JFrame {
 		JLabel lblNewLabel_13 = new JLabel("  ");
 		panel_23.add(lblNewLabel_13);
 		
-		panelCompleteReleaseNewWorkShifts = new JPanel();
-		contentPane.add(panelCompleteReleaseNewWorkShifts, "name_1607421999554700");
-		panelCompleteReleaseNewWorkShifts.setLayout(new BorderLayout(0, 0));
+		panelCompleteReleaseNewShifts = new JPanel();
+		contentPane.add(panelCompleteReleaseNewShifts, "name_1607421999554700");
+		panelCompleteReleaseNewShifts.setLayout(new BorderLayout(0, 0));
 		
 		JPanel panel_14 = new JPanel();
-		panelCompleteReleaseNewWorkShifts.add(panel_14, BorderLayout.NORTH);
+		panelCompleteReleaseNewShifts.add(panel_14, BorderLayout.NORTH);
 		
 		JLabel lblNewLabel_4 = new JLabel("Complete Release");
 		lblNewLabel_4.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		panel_14.add(lblNewLabel_4);
 		
-		textAreaCompleteReleaseWorkShifts = new JTextArea();
-		panelCompleteReleaseNewWorkShifts.add(textAreaCompleteReleaseWorkShifts, BorderLayout.CENTER);
+		textAreaCompleteReleaseNewShifts = new JTextArea();
+		panelCompleteReleaseNewShifts.add(textAreaCompleteReleaseNewShifts, BorderLayout.CENTER);
 		
 		JPanel panel_15 = new JPanel();
 		FlowLayout flowLayout_1 = (FlowLayout) panel_15.getLayout();
 		flowLayout_1.setAlignment(FlowLayout.RIGHT);
-		panelCompleteReleaseNewWorkShifts.add(panel_15, BorderLayout.SOUTH);
+		panelCompleteReleaseNewShifts.add(panel_15, BorderLayout.SOUTH);
 		
 		JButton btnOK = new JButton("OK");
-		btnOK.addActionListener(this::completeReleaseWorkShiftsOKButtonClicked);
+		btnOK.addActionListener(this::completeReleaseNewShiftsOKButtonClicked);
 		btnOK.setHorizontalAlignment(SwingConstants.RIGHT);
 		panel_15.add(btnOK);
 		
@@ -593,17 +594,10 @@ public class GUI extends JFrame {
 	private void addPanelsToCardLayout() {
 		Container container = getContentPane();
 		container.add("MainMenu", panelMainMenu);
-		container.add("WorkShiftsMenu", panelShiftMenu);
-		container.add("ReleaseNewWorkShifts", panelReleaseNewWorkShifts);
+		container.add("ShiftsMenu", panelShiftMenu);
+		container.add("ReleaseNewShifts", panelReleaseNewShifts);
 		container.add("TakeShift", panelTakeShift);
-		container.add("CompleteReleaseNewWorkShifts", panelCompleteReleaseNewWorkShifts);
-	}
-	
-	/**
-	 * Changes GUI layout to show next panel in container.
-	 */
-	private void getNextCard() {
-		cardLayout.next(contentPane);
+		container.add("CompleteReleaseNewShifts", panelCompleteReleaseNewShifts);
 	}
 	
 	private void getThisCard(String cardName) {
@@ -611,26 +605,43 @@ public class GUI extends JFrame {
 	}
 	
 	
-	private void btnWorkShiftsClicked(ActionEvent e) {
+	private void workShiftsButtonClicked(ActionEvent e) {
 		if(checkLogin()) {
-			getThisCard("WorkShiftsMenu");
+			getThisCard("ShiftsMenu");
 		}
 	}
 	
-	private void completeReleaseWorkShiftsOKButtonClicked(ActionEvent e) {
+	private void completeReleaseNewShiftsOKButtonClicked(ActionEvent e) {
 		if(checkLogin()) {
 			getThisCard("MainMenu");
 		}
 	}
 	
-	private void startReleaseWorkShifts(ActionEvent e) throws DataAccessException {
-		shiftController.startReleaseWorkShifts();
+	private void releaseNewButtonClicked(ActionEvent e) throws DataAccessException {
+		startReleaseNewShifts();
+	}
+	
+
+	private void addShiftButtonClicked(ActionEvent e) throws DataAccessException {
+		addShift();
+	}
+	
+	private void completeReleaseShiftsButtonClicked(ActionEvent e) throws DataAccessException {
+		completeReleaseNewShifts();
+	}
+	
+	private void startReleaseNewShifts() throws DataAccessException {
+		shiftController.startReleaseNewShifts();
 		if(checkLogin()) {
-			getThisCard("ReleaseNewWorkShifts");
+			getThisCard("ReleaseNewShifts");
 		}
 	}
 	
-	private void addWorkShift(ActionEvent e) throws DataAccessException {
+	private void btnTakeShiftsClicked(ActionEvent e) {
+		getThisCard("TakeShift");
+	}
+	
+	private void addShift() throws DataAccessException {
 		String dateString = datePicker.getJFormattedTextField().getText();
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		LocalDate date = LocalDate.parse(dateString, formatter);
@@ -653,9 +664,9 @@ public class GUI extends JFrame {
 		}
 		else {
 			listModel.clear();
-			ArrayList<Copy> workShifts = shiftController.addWorkShift(date, fromHour, toHour);
-			for(int i = 0 ; i < workShifts.size() ; i++) {
-				Copy copy = workShifts.get(i);
+			ArrayList<Copy> shiftCopies = shiftController.addShift(date, fromHour, toHour);
+			for(int i = 0 ; i < shiftCopies.size() ; i++) {
+				Copy copy = shiftCopies.get(i);
 				String copyDate = copy.getDate().toString();
 				String day = copyDate.substring(copyDate.length() - 2);
 				String month = copyDate.substring(5, 7);
@@ -664,19 +675,16 @@ public class GUI extends JFrame {
 				listModel.addElement("Shift: " + (i + 1) + " Date: " + copyDateFormatted + " From: " + copy.getShift().getFromHour() + " To: " + copy.getShift().getToHour());
 			}
 		}
-		
-		
 	}
 	
-	private void completeReleaseWorkShifts(ActionEvent e) throws DataAccessException {
-		getThisCard("CompleteReleaseNewWorkShifts");
-		if(shiftController.completeReleaseWorkShifts()) {
-			textAreaCompleteReleaseWorkShifts.setText("Completion was successfull");
+	private void completeReleaseNewShifts() throws DataAccessException {
+		getThisCard("CompleteReleaseNewShifts");
+		if(shiftController.completeReleaseNewShifts()) {
+			textAreaCompleteReleaseNewShifts.setText("Completion was successfull");
 		}
 		else {
-			textAreaCompleteReleaseWorkShifts.setText("Completion failed");
+			textAreaCompleteReleaseNewShifts.setText("Completion failed");
 		}
-		
 	}
 	
 	private int getIntTimeFromString(String time) {
@@ -700,10 +708,6 @@ public class GUI extends JFrame {
 			manager = true;
 		}
 		return manager;
-	}
-	
-	private void btnTakeShiftsClicked(ActionEvent e) {
-		getThisCard("TakeShift");
 	}
 	
 }
