@@ -24,7 +24,7 @@ public class ShiftController {
 		employeeController = new EmployeeController();
 		shopController = new ShopController();
 		shiftDB = new ShiftDB();
-		workShiftCopies = new ArrayList<>();
+		shiftCopies = new ArrayList<>();
 	}
 	
 
@@ -48,9 +48,19 @@ public class ShiftController {
 		boolean completed = false;
 		if(shiftDB.completeReleaseNewShifts(shiftCopies)) {
 			completed = true;
-			workShiftCopies.clear();
+			shiftCopies.clear();
 		}
 		return completed;
+	}
+	
+	public boolean deleteShiftCopy(int index) {
+		boolean result = false;
+		shiftCopies.remove(index);
+		return result;
+	}
+	
+	public ArrayList<Copy> getShiftCopies() {
+		return shiftCopies;
 	}
 
 }

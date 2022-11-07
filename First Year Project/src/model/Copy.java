@@ -19,7 +19,6 @@ public class Copy {
 	 * @param state
 	 */
 	public Copy(Shift shift, WorkSchedule workSchedule, Byte[] versionNumber, LocalDate date, String state) {
-		super();
 		this.shift = shift;
 		this.workSchedule = workSchedule;
 		this.versionNumber = versionNumber;
