@@ -54,9 +54,18 @@ public class ShiftController {
 	}
 	
 	public boolean deleteShiftCopy(int index) {
-		boolean result = false;
+		boolean deleted = false;
+		Copy copy = shiftCopies.get(index);
 		shiftCopies.remove(index);
-		return result;
+		if(!shiftCopies.contains(copy)) {
+			deleted = true;
+		}
+		return deleted;
+	}
+	
+	public ArrayList<Copy> startTakeNewShift() {
+		ArrayList<Copy> releasedCopies = shiftDB.findReleasedShiftCopies();
+		return releasedCopies;
 	}
 	
 	public ArrayList<Copy> getShiftCopies() {
