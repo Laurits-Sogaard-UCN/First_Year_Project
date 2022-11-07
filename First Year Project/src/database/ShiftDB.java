@@ -26,6 +26,9 @@ public class ShiftDB implements ShiftDBIF {
 			+ "VALUES (?, ?, ?)");
 	private PreparedStatement insertWorkShiftCopy;
 	
+	private static final String CHANGE_STATE_ON_COPY = ("");
+	private PreparedStatement changeStateOnCopy;
+	
 	/**
 	 * Constructor to initialize instance variables.
 	 * @throws DataAccessException
@@ -43,6 +46,7 @@ public class ShiftDB implements ShiftDBIF {
 		try {
 			findShiftOnFromAndTo = con.prepareStatement(FIND_SHIFT_ON_FROM_AND_TO);
 			insertWorkShiftCopy = con.prepareStatement(INSERT_WORKSHIFT_COPY);
+			changeStateOnCopy = con.prepareStatement(CHANGE_STATE_ON_COPY);
 		} catch(SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_PREPARE_STATEMENT, e);
 		}
@@ -90,6 +94,21 @@ public class ShiftDB implements ShiftDBIF {
 			completed = true;
 		}
 		return completed;
+	}
+	
+	public boolean setStateToOccupied(Copy copy) throws DataAccessException {
+		boolean success = false;
+		int rowsAffected = -1;
+		try {
+			changeStateOnCopy.setString(1, CopyState.OCCUPIED.getState());
+			rowsAffected = changeStateOnCopy.executeUpdate();
+			if(rowsAffected > 0) {
+				success = true;
+			}
+		} catch(SQLException e) {
+			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
+		}
+		return success;
 	}
 	
 	private Shift buildShiftObject(ResultSet rs) throws DataAccessException {

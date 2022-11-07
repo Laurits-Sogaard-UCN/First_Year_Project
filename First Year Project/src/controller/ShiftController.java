@@ -68,8 +68,23 @@ public class ShiftController {
 		return releasedCopies;
 	}
 	
+	public boolean takeNewShift(int index) throws DataAccessException {
+		boolean success = false;
+		Copy copy = releasedShiftCopies.get(index);
+		boolean taken = shiftDB.setStateToOccupied(copy);
+		shiftCopies.remove(index);
+		if(taken && !shiftCopies.contains(copy)) {
+			success = true;
+		}
+		return success;
+	}
+	
 	public ArrayList<Copy> getShiftCopies() {
 		return shiftCopies;
+	}
+	
+	public ArrayList<Copy> getReleasedCopies() {
+		return releasedShiftCopies;
 	}
 
 }
