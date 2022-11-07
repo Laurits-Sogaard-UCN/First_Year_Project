@@ -24,11 +24,11 @@ public class ShiftController {
 		employeeController = new EmployeeController();
 		shopController = new ShopController();
 		shiftDB = new ShiftDB();
+		workShiftCopies = new ArrayList<>();
 	}
 	
+
 	public void startReleaseNewShifts() throws DataAccessException {
-		shiftCopies = new ArrayList<>();
-		
 		Employee employee = employeeController.getLoggedInEmployee();
 		if(employee != null) {
 			int id = employee.getShop().getID();
@@ -48,6 +48,7 @@ public class ShiftController {
 		boolean completed = false;
 		if(shiftDB.completeReleaseNewShifts(shiftCopies)) {
 			completed = true;
+			workShiftCopies.clear();
 		}
 		return completed;
 	}
