@@ -240,6 +240,14 @@ public class GUI extends JFrame {
 		panel_13.add(btnAddShift, gbc_btnAddShift);
 		
 		JButton btnDeleteShift = new JButton("Delete");
+		btnDeleteShift.addActionListener(e -> {
+			try {
+				deleteShiftCopyButtonClicked(e);
+			} catch (DataAccessException e3) {
+				// TODO Auto-generated catch block
+				e3.printStackTrace();
+			}
+		}); {
 		GridBagConstraints gbc_btnDeleteShift = new GridBagConstraints();
 		gbc_btnDeleteShift.anchor = GridBagConstraints.WEST;
 		gbc_btnDeleteShift.insets = new Insets(0, 0, 5, 0);
@@ -472,7 +480,7 @@ public class GUI extends JFrame {
 		panel_10.add(btnSeeReleased, gbc_btnSeeReleased);
 		
 		JButton btnTakeShifts = new JButton("Take Shift");
-		btnTakeShifts.addActionListener(this::btnTakeShiftsClicked);
+		btnTakeShifts.addActionListener(this::takeShiftButtonClicked);
 		btnTakeShifts.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		GridBagConstraints gbc_btnTakeShifts = new GridBagConstraints();
 		gbc_btnTakeShifts.fill = GridBagConstraints.BOTH;
@@ -589,6 +597,7 @@ public class GUI extends JFrame {
 		
 		// Adds all panels to the cardlayout of the JFrame.
 		addPanelsToCardLayout();
+		}
 		
 	}
 	
@@ -631,15 +640,20 @@ public class GUI extends JFrame {
 		completeReleaseNewShifts();
 	}
 	
+	private void deleteShiftCopyButtonClicked(ActionEvent e) throws DataAccessException {
+		deleteShiftCopy();
+	}
+	
+	private void takeShiftButtonClicked(ActionEvent e) {
+		
+		getThisCard("TakeShift");
+	}
+	
 	private void startReleaseNewShifts() throws DataAccessException {
 		shiftController.startReleaseNewShifts();
 		if(checkLogin()) {
 			getThisCard("ReleaseNewShifts");
 		}
-	}
-	
-	private void btnTakeShiftsClicked(ActionEvent e) {
-		getThisCard("TakeShift");
 	}
 	
 	private void addShift() throws DataAccessException {
@@ -685,9 +699,12 @@ public class GUI extends JFrame {
 		if(substr.substring(1,2).equals(" ")) {
 			substr = substr.substring(0,1);
 		}
-		int index = Integer.parseInt(substr);
+		int index = Integer.parseInt(substr) - 1;
 		if(shiftController.deleteShiftCopy(index)) {
 			showCopies(shiftController.getShiftCopies());
+		}
+		else {
+			textAreaErrorHandling.setText("Error! Shift could not be deleted");
 		}
 	}
 	
@@ -703,8 +720,6 @@ public class GUI extends JFrame {
 			listModel.addElement("Shift: " + (i + 1) + " Date: " + copyDateFormatted + " From: " + copy.getShift().getFromHour() + " To: " + copy.getShift().getToHour());
 		}
 	}
-	
-	
 	
 	private int getIntTimeFromString(String time) {
 		String timeAsString;
