@@ -3,6 +3,7 @@ package ui;
 import java.awt.BorderLayout;
 
 
+
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -663,18 +664,9 @@ public class GUI extends JFrame {
 			textAreaErrorHandling.setText("Invalid date has been chosen");
 		}
 		else {
-			listModel.clear();
 			ArrayList<Copy> shiftCopies = shiftController.addShift(date, fromHour, toHour);
-			for(int i = 0 ; i < shiftCopies.size() ; i++) {
-				Copy copy = shiftCopies.get(i);
-				String copyDate = copy.getDate().toString();
-				String day = copyDate.substring(copyDate.length() - 2);
-				String month = copyDate.substring(5, 7);
-				String year = copyDate.substring(0, 4);
-				String copyDateFormatted = day + "-" + month + "-" + year;
-				listModel.addElement("Shift: " + (i + 1) + " Date: " + copyDateFormatted + " From: " + copy.getShift().getFromHour() + " To: " + copy.getShift().getToHour());
+			showCopies(shiftCopies);
 			}
-		}
 	}
 	
 	private void completeReleaseNewShifts() throws DataAccessException {
@@ -686,6 +678,33 @@ public class GUI extends JFrame {
 			textAreaCompleteReleaseNewShifts.setText("Completion failed");
 		}
 	}
+	
+	private void deleteShiftCopy() throws DataAccessException {
+		String copyList = (String) list.getSelectedValue();
+		String substr = copyList.substring(7, 9);
+		if(substr.substring(1,2).equals(" ")) {
+			substr = substr.substring(0,1);
+		}
+		int index = Integer.parseInt(substr);
+		if(shiftController.deleteShiftCopy(index)) {
+			showCopies(shiftController.getShiftCopies());
+		}
+	}
+	
+	private void showCopies(ArrayList<Copy> shiftCopies) throws DataAccessException {
+		listModel.clear();
+		for(int i = 0 ; i < shiftCopies.size() ; i++) {
+			Copy copy = shiftCopies.get(i);
+			String copyDate = copy.getDate().toString();
+			String day = copyDate.substring(copyDate.length() - 2);
+			String month = copyDate.substring(5, 7);
+			String year = copyDate.substring(0, 4);
+			String copyDateFormatted = day + "-" + month + "-" + year;
+			listModel.addElement("Shift: " + (i + 1) + " Date: " + copyDateFormatted + " From: " + copy.getShift().getFromHour() + " To: " + copy.getShift().getToHour());
+		}
+	}
+	
+	
 	
 	private int getIntTimeFromString(String time) {
 		String timeAsString;
