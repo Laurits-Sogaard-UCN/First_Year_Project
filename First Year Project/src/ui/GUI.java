@@ -72,11 +72,14 @@ public class GUI extends JFrame {
 	private JDatePickerImpl datePicker;
 	private JComboBox<String> comboBoxShiftTo;
 	private JComboBox<String> comboBoxShiftFrom;
-	private JList<String> list;
-	private DefaultListModel<String> listModel;
+	private JList<String> listOfShiftsToRelease;
+	private DefaultListModel<String> listModelRelease;
 	private JTextArea textAreaErrorHandling;
 	private JTextArea textAreaCompleteReleaseNewShifts;
 	private JPanel panelCompleteReleaseNewShifts;
+	private JList<String> listOfShiftsToTake;
+	private DefaultListModel<String> listModelTake;
+	private JTextArea textAreaTakeNewShiftErrorHandling;
 
 	/**
 	 * Launch the application.
@@ -263,12 +266,12 @@ public class GUI extends JFrame {
 		gbc_textAreaErrorHandling.gridy = 10;
 		panel_13.add(textAreaErrorHandling, gbc_textAreaErrorHandling);
 		
-		listModel = new DefaultListModel<>();
-		list = new JList<>(listModel);
+		listModelRelease = new DefaultListModel<>();
+		listOfShiftsToRelease = new JList<>(listModelRelease);
 		
 		JScrollPane scrollPane = new JScrollPane();
 		panelReleaseNewShifts.add(scrollPane, BorderLayout.CENTER);
-		scrollPane.setViewportView(list);
+		scrollPane.setViewportView(listOfShiftsToRelease);
 		
 		JPanel panel = new JPanel();
 		panelMainMenu.add(panel, BorderLayout.CENTER);
@@ -480,7 +483,14 @@ public class GUI extends JFrame {
 		panel_10.add(btnSeeReleased, gbc_btnSeeReleased);
 		
 		JButton btnTakeShifts = new JButton("Take Shift");
-		btnTakeShifts.addActionListener(this::takeShiftButtonClicked);
+		btnTakeShifts.addActionListener(e -> {
+			try {
+				takeShiftButtonClicked(e);
+			} catch (DataAccessException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+		});
 		btnTakeShifts.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		GridBagConstraints gbc_btnTakeShifts = new GridBagConstraints();
 		gbc_btnTakeShifts.fill = GridBagConstraints.BOTH;
@@ -547,23 +557,41 @@ public class GUI extends JFrame {
 		panel_22.add(panel_24, BorderLayout.EAST);
 		GridBagLayout gbl_panel_24 = new GridBagLayout();
 		gbl_panel_24.columnWidths = new int[]{0, 0};
-		gbl_panel_24.rowHeights = new int[]{0, 0};
-		gbl_panel_24.columnWeights = new double[]{0.0, Double.MIN_VALUE};
-		gbl_panel_24.rowWeights = new double[]{1.0, Double.MIN_VALUE};
+		gbl_panel_24.rowHeights = new int[]{0, 0, 0};
+		gbl_panel_24.columnWeights = new double[]{1.0, Double.MIN_VALUE};
+		gbl_panel_24.rowWeights = new double[]{1.0, 0.0, Double.MIN_VALUE};
 		panel_24.setLayout(gbl_panel_24);
 		
 		JButton btnTakeShift = new JButton("Take Shift");
+		btnTakeShift.addActionListener(e -> {
+			try {
+				takeNewShiftButtonClicked(e);
+			} catch (DataAccessException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		});
 		GridBagConstraints gbc_btnTakeShift = new GridBagConstraints();
+		gbc_btnTakeShift.insets = new Insets(0, 0, 5, 0);
 		gbc_btnTakeShift.anchor = GridBagConstraints.SOUTH;
 		gbc_btnTakeShift.gridx = 0;
 		gbc_btnTakeShift.gridy = 0;
 		panel_24.add(btnTakeShift, gbc_btnTakeShift);
 		
+		textAreaTakeNewShiftErrorHandling = new JTextArea();
+		GridBagConstraints gbc_textAreaTakeNewShiftErrorHandling = new GridBagConstraints();
+		gbc_textAreaTakeNewShiftErrorHandling.fill = GridBagConstraints.BOTH;
+		gbc_textAreaTakeNewShiftErrorHandling.gridx = 0;
+		gbc_textAreaTakeNewShiftErrorHandling.gridy = 1;
+		panel_24.add(textAreaTakeNewShiftErrorHandling, gbc_textAreaTakeNewShiftErrorHandling);
+		
 		JScrollPane scrollPane_1 = new JScrollPane();
 		panel_22.add(scrollPane_1, BorderLayout.CENTER);
 		
-		JList listOfShiftsToTake = new JList();
+		listModelTake = new DefaultListModel<>();
+		listOfShiftsToTake = new JList<>(listModelTake);
 		scrollPane_1.setViewportView(listOfShiftsToTake);
+		
 		
 		JPanel panel_23 = new JPanel();
 		panel_22.add(panel_23, BorderLayout.SOUTH);
@@ -644,9 +672,13 @@ public class GUI extends JFrame {
 		deleteShiftCopy();
 	}
 	
-	private void takeShiftButtonClicked(ActionEvent e) {
-		
+	private void takeShiftButtonClicked(ActionEvent e) throws DataAccessException {
+		startTakeNewShift();
 		getThisCard("TakeShift");
+	}
+	
+	private void takeNewShiftButtonClicked(ActionEvent e) throws DataAccessException {
+		takeNewShift();
 	}
 	
 	private void startReleaseNewShifts() throws DataAccessException {
@@ -679,7 +711,7 @@ public class GUI extends JFrame {
 		}
 		else {
 			ArrayList<Copy> shiftCopies = shiftController.addShift(date, fromHour, toHour);
-			showCopies(shiftCopies);
+			showCopies(shiftCopies, listModelRelease);
 			}
 	}
 	
@@ -694,21 +726,44 @@ public class GUI extends JFrame {
 	}
 	
 	private void deleteShiftCopy() throws DataAccessException {
-		String copyList = (String) list.getSelectedValue();
-		String substr = copyList.substring(7, 9);
-		if(substr.substring(1,2).equals(" ")) {
-			substr = substr.substring(0,1);
-		}
-		int index = Integer.parseInt(substr) - 1;
+		int index = getIndexOnSelectedListValue(listOfShiftsToRelease);
 		if(shiftController.deleteShiftCopy(index)) {
-			showCopies(shiftController.getShiftCopies());
+			showCopies(shiftController.getShiftCopies(), listModelRelease);
 		}
 		else {
 			textAreaErrorHandling.setText("Error! Shift could not be deleted");
 		}
 	}
 	
-	private void showCopies(ArrayList<Copy> shiftCopies) throws DataAccessException {
+	private void startTakeNewShift() throws DataAccessException {
+		ArrayList<Copy> releasedCopies = shiftController.startTakeNewShift();
+		if(!releasedCopies.isEmpty()) {
+			showCopies(releasedCopies, listModelTake);
+		}
+	}
+	
+	private void takeNewShift() throws DataAccessException {
+		int index = getIndexOnSelectedListValue(listOfShiftsToTake);
+		boolean taken = shiftController.takeNewShift(index);
+		if(taken) {
+			textAreaTakeNewShiftErrorHandling.setText("Shift was successfully taken");
+			showCopies(shiftController.getReleasedCopies(), listModelTake);
+		}
+		else {
+			textAreaTakeNewShiftErrorHandling.setText("Error! Shift has already been taken");
+		}
+	}
+	
+	private int getIndexOnSelectedListValue(JList<String> list) {
+		String copyList = (String) list.getSelectedValue();
+		String substr = copyList.substring(7, 9);
+		if(substr.substring(1,2).equals(" ")) {
+			substr = substr.substring(0,1);
+		}
+		int index = Integer.parseInt(substr) - 1;
+		return index;
+	}
+	private void showCopies(ArrayList<Copy> shiftCopies, DefaultListModel<String> listModel) throws DataAccessException {
 		listModel.clear();
 		for(int i = 0 ; i < shiftCopies.size() ; i++) {
 			Copy copy = shiftCopies.get(i);
