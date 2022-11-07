@@ -18,10 +18,9 @@ public class Copy {
 	 * @param date
 	 * @param state
 	 */
-	public Copy(Shift shift, WorkSchedule workSchedule, Byte[] versionNumber, LocalDate date, String state) {
+	public Copy(Shift shift, WorkSchedule workSchedule, LocalDate date, String state) {
 		this.shift = shift;
 		this.workSchedule = workSchedule;
-		this.versionNumber = versionNumber;
 		this.date = date;
 		this.state = state;
 	}
@@ -64,8 +63,8 @@ public class Copy {
 	/**
 	 * @param versionNumber the versionNumber to set
 	 */
-	public void setVersionNumber(Byte[] versionNumber) {
-		this.versionNumber = versionNumber;
+	public void setVersionNumber(Byte versionNumber) {
+		this.versionNumber = new Byte[] {versionNumber};
 	}
 
 	/**

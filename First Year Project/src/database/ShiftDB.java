@@ -6,7 +6,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 
 import model.Copy;
 import model.CopyState;
@@ -26,6 +28,16 @@ public class ShiftDB implements ShiftDBIF {
 			+ "VALUES (?, ?, ?)");
 	private PreparedStatement insertWorkShiftCopy;
 	
+	private static final String FIND_RELEASED_SHIFT_COPIES = ("SELECT *\r\n"
+			+ "FROM Copy c\r\n"
+			+ "WHERE c.State = ?");
+	private PreparedStatement findReleasedShiftCopies;
+	
+	private static final String FIND_SHIFTS_ON_COPY_ID = ("SELECT *\r\n"
+			+ "FROM Shift s, Copy c\r\n"
+			+ "WHERE ? = s.ID");
+	private PreparedStatement findShiftsOnCopyID;
+	
 	/**
 	 * Constructor to initialize instance variables.
 	 * @throws DataAccessException
@@ -43,6 +55,8 @@ public class ShiftDB implements ShiftDBIF {
 		try {
 			findShiftOnFromAndTo = con.prepareStatement(FIND_SHIFT_ON_FROM_AND_TO);
 			insertWorkShiftCopy = con.prepareStatement(INSERT_WORKSHIFT_COPY);
+			findReleasedShiftCopies = con.prepareStatement(FIND_RELEASED_SHIFT_COPIES);
+			findShiftsOnCopyID = con.prepareStatement(FIND_SHIFTS_ON_COPY_ID);
 		} catch(SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_PREPARE_STATEMENT, e);
 		}
@@ -103,6 +117,54 @@ public class ShiftDB implements ShiftDBIF {
 			throw new DataAccessException(DBMessages.COULD_NOT_READ_RESULTSET, e);
 		}
 		return shift;
+	}
+	
+	public ArrayList<Copy> findReleasedShiftCopies() throws DataAccessException {
+		ArrayList<Copy> releasedShiftCopies = new ArrayList<>();
+		ResultSet rs = null;
+		try {
+			findReleasedShiftCopies.setString(1, CopyState.RELEASED.getState());
+			rs = findReleasedShiftCopies.executeQuery();
+			buildReleasedCopyObjects(rs);
+		} catch(SQLException e) {
+			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
+		}
+		return releasedShiftCopies;
+	}
+	
+	private ArrayList<Copy> buildReleasedCopyObjects(ResultSet rs) throws DataAccessException {
+		ArrayList<Copy> releasedShiftCopies = new ArrayList<>();
+		try {
+			while(rs.next()) {
+				Copy copy = buildReleasedCopyObject(rs);
+				releasedShiftCopies.add(copy);
+			} 
+		} catch (SQLException e) {
+			throw new DataAccessException(DBMessages.COULD_NOT_READ_RESULTSET, e);
+		}
+		return releasedShiftCopies;
+
+	}
+	
+
+	private Copy buildReleasedCopyObject(ResultSet rs) throws DataAccessException {
+		Copy copy = null;
+		ResultSet rs2;
+		try {
+			rs2 = findShiftsOnCopyID.executeQuery();
+			int ShiftOnID = rs.getInt("ShiftID");
+			findShiftsOnCopyID.setInt(1, ShiftOnID);
+			Shift shift = buildShiftObject(rs2);
+			Byte version = rs.getByte("VersionNumber");
+			Date date = rs.getDate("Date");
+			LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+			String state = rs.getString("State");
+			copy = new Copy(shift, null, localDate, state);
+			copy.setVersionNumber(version);
+		} catch(SQLException e) {
+			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
+		}
+		return copy;
 	}
 
 }
