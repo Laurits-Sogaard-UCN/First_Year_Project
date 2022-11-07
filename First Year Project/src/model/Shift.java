@@ -28,7 +28,7 @@ public class Shift {
 	}
 	
 	public Copy createCopy(Shift shift, LocalDate date) {
-		Copy copy = new Copy(shift, null, null, date, "Released");
+		Copy copy = new Copy(shift, null, date, CopyState.RELEASED.getState());
 		return copy;
 	}
 

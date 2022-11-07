@@ -19,12 +19,14 @@ public class ShiftController {
 	private ShopController shopController;
 	private ShiftDBIF shiftDB;
 	private ArrayList<Copy> shiftCopies;
+	private ArrayList<Copy> releasedShiftCopies;
 	
 	public ShiftController() throws DataAccessException {
 		employeeController = new EmployeeController();
 		shopController = new ShopController();
 		shiftDB = new ShiftDB();
 		shiftCopies = new ArrayList<>();
+		releasedShiftCopies = new ArrayList<>();
 	}
 	
 
@@ -63,9 +65,9 @@ public class ShiftController {
 		return deleted;
 	}
 	
-	public ArrayList<Copy> startTakeNewShift() {
-		ArrayList<Copy> releasedCopies = shiftDB.findReleasedShiftCopies();
-		return releasedCopies;
+	public ArrayList<Copy> startTakeNewShift() throws DataAccessException {
+		releasedShiftCopies = shiftDB.findReleasedShiftCopies();
+		return releasedShiftCopies;
 	}
 	
 	public boolean takeNewShift(int index) throws DataAccessException {
