@@ -64,7 +64,7 @@ public class ShiftDB implements ShiftDBIF {
 		return shift;
 	}
 	
-	public boolean completeReleaseWorkShifts(ArrayList<Copy> copies) throws DataAccessException {
+	public boolean completeReleaseNewShifts(ArrayList<Copy> copies) throws DataAccessException {
 		boolean completed = false;
 		int rowsAffected = -1;
 		try {
