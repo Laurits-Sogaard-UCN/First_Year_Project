@@ -12,6 +12,8 @@ public interface ShiftDBIF {
 	
 	public boolean completeReleaseNewShifts(ArrayList<Copy> copies) throws DataAccessException;
 	
+	public boolean setStateToOccupied(Copy copy) throws DataAccessException;
+  
 	public ArrayList<Copy> findReleasedShiftCopies() throws DataAccessException;
 
 }
