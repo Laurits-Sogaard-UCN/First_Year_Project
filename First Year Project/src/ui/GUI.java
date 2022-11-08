@@ -557,10 +557,28 @@ public class GUI extends JFrame {
 		panel_22.add(panel_24, BorderLayout.EAST);
 		GridBagLayout gbl_panel_24 = new GridBagLayout();
 		gbl_panel_24.columnWidths = new int[]{0, 0};
-		gbl_panel_24.rowHeights = new int[]{0, 0, 0};
+		gbl_panel_24.rowHeights = new int[]{0, 0, 0, 0, 0};
 		gbl_panel_24.columnWeights = new double[]{1.0, Double.MIN_VALUE};
-		gbl_panel_24.rowWeights = new double[]{1.0, 0.0, Double.MIN_VALUE};
+		gbl_panel_24.rowWeights = new double[]{1.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		panel_24.setLayout(gbl_panel_24);
+		
+		if(checkLogin()) {
+			JButton btnDelegateShifts = new JButton("Delegate Shifts");
+			btnDelegateShifts.addActionListener(e -> {
+				try {
+					delegateShiftsButtonClicked(e);
+				} catch (DataAccessException e2) {
+					// TODO Auto-generated catch block
+					e2.printStackTrace();
+				}
+			}); {
+			GridBagConstraints gbc_btnDelegateShifts = new GridBagConstraints();
+			gbc_btnDelegateShifts.fill = GridBagConstraints.BOTH;
+			gbc_btnDelegateShifts.insets = new Insets(0, 0, 5, 0);
+			gbc_btnDelegateShifts.gridx = 0;
+			gbc_btnDelegateShifts.gridy = 1;
+			panel_24.add(btnDelegateShifts, gbc_btnDelegateShifts);
+		}
 		
 		JButton btnTakeShift = new JButton("Take Shift");
 		btnTakeShift.addActionListener(e -> {
@@ -572,17 +590,17 @@ public class GUI extends JFrame {
 			}
 		});
 		GridBagConstraints gbc_btnTakeShift = new GridBagConstraints();
+		gbc_btnTakeShift.fill = GridBagConstraints.BOTH;
 		gbc_btnTakeShift.insets = new Insets(0, 0, 5, 0);
-		gbc_btnTakeShift.anchor = GridBagConstraints.SOUTH;
 		gbc_btnTakeShift.gridx = 0;
-		gbc_btnTakeShift.gridy = 0;
+		gbc_btnTakeShift.gridy = 2;
 		panel_24.add(btnTakeShift, gbc_btnTakeShift);
 		
 		textAreaTakeNewShiftErrorHandling = new JTextArea();
 		GridBagConstraints gbc_textAreaTakeNewShiftErrorHandling = new GridBagConstraints();
 		gbc_textAreaTakeNewShiftErrorHandling.fill = GridBagConstraints.BOTH;
 		gbc_textAreaTakeNewShiftErrorHandling.gridx = 0;
-		gbc_textAreaTakeNewShiftErrorHandling.gridy = 1;
+		gbc_textAreaTakeNewShiftErrorHandling.gridy = 3;
 		panel_24.add(textAreaTakeNewShiftErrorHandling, gbc_textAreaTakeNewShiftErrorHandling);
 		
 		JScrollPane scrollPane_1 = new JScrollPane();
@@ -625,6 +643,7 @@ public class GUI extends JFrame {
 		
 		// Adds all panels to the cardlayout of the JFrame.
 		addPanelsToCardLayout();
+		}
 		}
 		
 	}
@@ -679,6 +698,10 @@ public class GUI extends JFrame {
 	
 	private void takeNewShiftButtonClicked(ActionEvent e) throws DataAccessException {
 		takeNewShift();
+	}
+	
+	private void delegateShiftsButtonClicked(ActionEvent e) throws DataAccessException {
+		boolean canBeDelegated = shiftController.checkReleasedAt();
 	}
 	
 	private void startReleaseNewShifts() throws DataAccessException {

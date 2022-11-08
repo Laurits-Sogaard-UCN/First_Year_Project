@@ -1,6 +1,7 @@
 package model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class Shift {
 	
@@ -29,7 +30,7 @@ public class Shift {
 	}
 	
 	public Copy createCopy(Shift shift, LocalDate date) {
-		Copy copy = new Copy(0, shift, null, null, date, CopyState.RELEASED.getState());
+		Copy copy = new Copy(0, shift, null, null, date, CopyState.RELEASED.getState(), LocalDateTime.now());
 		return copy;
 	}
 
