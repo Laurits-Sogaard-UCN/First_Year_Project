@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import database.ShiftDB;
 import database.ShiftDBIF;
@@ -17,6 +18,7 @@ public class ShiftController {
 	
 	private EmployeeController employeeController;
 	private ShopController shopController;
+	private WorkScheduleController workScheduleController;
 	private ShiftDBIF shiftDB;
 	private ArrayList<Copy> shiftCopies;
 	private ArrayList<Copy> releasedShiftCopies;
@@ -24,6 +26,7 @@ public class ShiftController {
 	public ShiftController() throws DataAccessException {
 		employeeController = new EmployeeController();
 		shopController = new ShopController();
+		workScheduleController = new WorkScheduleController();
 		shiftDB = new ShiftDB();
 		shiftCopies = new ArrayList<>();
 		releasedShiftCopies = new ArrayList<>();
@@ -73,10 +76,14 @@ public class ShiftController {
 	public boolean takeNewShift(int index) throws DataAccessException {
 		boolean success = false;
 		Copy copy = releasedShiftCopies.get(index);
-		boolean taken = shiftDB.setStateToOccupied(copy);
-		shiftCopies.remove(index);
-		if(taken && !shiftCopies.contains(copy)) {
-			success = true;
+		byte[] currentVersionNumber = shiftDB.findCopyVersionNumberOnID(copy.getId());
+		String employeeCPR = employeeController.getLoggedInEmployee().getCPR();
+		int workScheduleID = workScheduleController.findWorkScheduleIDOnEmployeeCPR(employeeCPR);
+		if(Arrays.equals(copy.getVersionNumber(), currentVersionNumber)) {
+			if(shiftDB.takeNewShift(copy.getId(), workScheduleID)) { //TODO Fiks
+				releasedShiftCopies.remove(index);
+				success = true;
+			}
 		}
 		return success;
 	}

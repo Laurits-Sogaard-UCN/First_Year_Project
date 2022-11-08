@@ -8,9 +8,6 @@ public class Shift {
 	private int toHour;
 	private int ID;
 	
-	
-	
-
 	/**
 	 * @param fromHour
 	 * @param toHour
@@ -22,13 +19,17 @@ public class Shift {
 		this.toHour = toHour;
 		ID = iD;
 	}
+	
+	public Shift(int iD) {
+		ID = iD;
+	}
 
 	public Shift() {
 		
 	}
 	
 	public Copy createCopy(Shift shift, LocalDate date) {
-		Copy copy = new Copy(shift, null, date, CopyState.RELEASED.getState());
+		Copy copy = new Copy(0, shift, null, null, date, CopyState.RELEASED.getState());
 		return copy;
 	}
 
