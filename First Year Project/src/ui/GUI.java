@@ -673,8 +673,8 @@ public class GUI extends JFrame {
 	}
 	
 	private void takeShiftButtonClicked(ActionEvent e) throws DataAccessException {
-		startTakeNewShift();
 		getThisCard("TakeShift");
+		startTakeNewShift();
 	}
 	
 	private void takeNewShiftButtonClicked(ActionEvent e) throws DataAccessException {
@@ -763,6 +763,7 @@ public class GUI extends JFrame {
 		int index = Integer.parseInt(substr) - 1;
 		return index;
 	}
+	
 	private void showCopies(ArrayList<Copy> shiftCopies, DefaultListModel<String> listModel) throws DataAccessException {
 		listModel.clear();
 		for(int i = 0 ; i < shiftCopies.size() ; i++) {

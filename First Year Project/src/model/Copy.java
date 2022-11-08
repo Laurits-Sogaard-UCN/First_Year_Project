@@ -4,25 +4,44 @@ import java.time.LocalDate;
 
 public class Copy {
 	
+	private int id;
 	private Shift shift;
 	private WorkSchedule workSchedule;
-	private Byte[] versionNumber;
+	private byte[] versionNumber;
 	private LocalDate date;
 	private String state;
 	
 
 	/**
+	 * @param id
 	 * @param shift
 	 * @param workSchedule
 	 * @param versionNumber
 	 * @param date
 	 * @param state
 	 */
-	public Copy(Shift shift, WorkSchedule workSchedule, LocalDate date, String state) {
+	public Copy(int id, Shift shift, WorkSchedule workSchedule, byte[] versionNumber, LocalDate date, String state) {
+		super();
+		this.id = id;
 		this.shift = shift;
 		this.workSchedule = workSchedule;
+		this.versionNumber = versionNumber;
 		this.date = date;
 		this.state = state;
+	}
+
+	/**
+	 * @return the id
+	 */
+	public int getId() {
+		return id;
+	}
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	/**
@@ -56,17 +75,11 @@ public class Copy {
 	/**
 	 * @return the versionNumber
 	 */
-	public Byte[] getVersionNumber() {
+	public byte[] getVersionNumber() {
 		return versionNumber;
 	}
 
-	/**
-	 * @param versionNumber the versionNumber to set
-	 */
-	public void setVersionNumber(Byte versionNumber) {
-		this.versionNumber = new Byte[] {versionNumber};
-	}
-
+	
 	/**
 	 * @return the date
 	 */

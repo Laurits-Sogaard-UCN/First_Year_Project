@@ -28,7 +28,9 @@ public class ShiftDB implements ShiftDBIF {
 			+ "VALUES (?, ?, ?)");
 	private PreparedStatement insertWorkShiftCopy;
 	
-	private static final String CHANGE_STATE_ON_COPY = ("");
+	private static final String CHANGE_STATE_ON_COPY = ("UPDATE Copy\r\n"
+			+ "SET State = ?\r\n"
+			+ "WHERE ID = ?");
 	private PreparedStatement changeStateOnCopy;
 
 	private static final String FIND_RELEASED_SHIFT_COPIES = ("SELECT *\r\n"
@@ -36,10 +38,19 @@ public class ShiftDB implements ShiftDBIF {
 			+ "WHERE c.State = ?");
 	private PreparedStatement findReleasedShiftCopies;
 	
-	private static final String FIND_SHIFTS_ON_COPY_ID = ("SELECT *\r\n"
+	private static final String FIND_SHIFTS_ON_SHIFT_ID = ("SELECT *\r\n"
 			+ "FROM Shift s, Copy c\r\n"
-			+ "WHERE ? = s.ID");
-	private PreparedStatement findShiftsOnCopyID;
+			+ "WHERE s.ID = ?");
+	private PreparedStatement findShiftsOnShiftID;
+	
+	private static final String FIND_COPY_VERSIONNUMBER_ON_ID = ("SELECT c.VersionNumber\r\n"
+			+ "FROM Copy c\r\n"
+			+ "WHERE c.ID = ?");
+	private PreparedStatement findCopyVersionNumberOnID;
+	
+	private static final String SET_WORK_SCHEDULE_ID_ON_COPY= ("UPDATE Copy\r\n"
+			+ "SET WorkScheduleID = ?");
+	private PreparedStatement setWorkScheduleIDOnCopy;
 	
 	/**
 	 * Constructor to initialize instance variables.
@@ -60,7 +71,9 @@ public class ShiftDB implements ShiftDBIF {
 			insertWorkShiftCopy = con.prepareStatement(INSERT_WORKSHIFT_COPY);
 			changeStateOnCopy = con.prepareStatement(CHANGE_STATE_ON_COPY);
 			findReleasedShiftCopies = con.prepareStatement(FIND_RELEASED_SHIFT_COPIES);
-			findShiftsOnCopyID = con.prepareStatement(FIND_SHIFTS_ON_COPY_ID);
+			findShiftsOnShiftID = con.prepareStatement(FIND_SHIFTS_ON_SHIFT_ID);
+			findCopyVersionNumberOnID = con.prepareStatement(FIND_COPY_VERSIONNUMBER_ON_ID);
+			setWorkScheduleIDOnCopy = con.prepareStatement(SET_WORK_SCHEDULE_ID_ON_COPY);
 		} catch(SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_PREPARE_STATEMENT, e);
 		}
@@ -110,19 +123,54 @@ public class ShiftDB implements ShiftDBIF {
 		return completed;
 	}
 	
-	public boolean setStateToOccupied(Copy copy) throws DataAccessException {
-		boolean success = false;
-		int rowsAffected = -1;
+	public byte[] findCopyVersionNumberOnID(int id) throws DataAccessException {
+		byte[] versionNumber = null;
+		ResultSet rs;
 		try {
-			changeStateOnCopy.setString(1, CopyState.OCCUPIED.getState());
-			rowsAffected = changeStateOnCopy.executeUpdate();
-			if(rowsAffected > 0) {
-				success = true;
+			findCopyVersionNumberOnID.setInt(1, id);
+			rs = findCopyVersionNumberOnID.executeQuery();
+			if(rs.next()) {
+				versionNumber = rs.getBytes("VersionNumber");
 			}
 		} catch(SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
 		}
-		return success;
+		return versionNumber;
+	}
+	
+	public boolean takeNewShift(int copyID, int workScheduleID) throws DataAccessException {
+		boolean taken = false;
+		try {
+			DBConnection.getInstance().startTransaction();
+			setStateToOccupied(copyID);
+			setWorkScheduleID(workScheduleID);
+			DBConnection.getInstance().commitTransaction();
+		} catch(Exception e) {
+			DBConnection.getInstance().rollbackTransaction();
+			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
+		}
+		return taken;
+	}
+	
+	private void setStateToOccupied(int id) throws DataAccessException {
+		try {
+			changeStateOnCopy.setString(1, CopyState.OCCUPIED.getState());
+			changeStateOnCopy.setInt(2, id);
+			changeStateOnCopy.executeUpdate();
+		} catch(SQLException e) {
+			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
+		}
+		
+	}
+	
+	private void setWorkScheduleID(int workScheduleID) throws DataAccessException {
+		try {
+			setWorkScheduleIDOnCopy.setInt(1, workScheduleID);
+			setWorkScheduleIDOnCopy.executeUpdate();
+		} catch(SQLException e) {
+			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
+		}
+		
 	}
 	
 	private Shift buildShiftObject(ResultSet rs) throws DataAccessException {
@@ -144,7 +192,7 @@ public class ShiftDB implements ShiftDBIF {
 		try {
 			findReleasedShiftCopies.setString(1, CopyState.RELEASED.getState());
 			rs = findReleasedShiftCopies.executeQuery();
-			buildReleasedCopyObjects(rs);
+			releasedShiftCopies = buildReleasedCopyObjects(rs);
 		} catch(SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
 		}
@@ -169,17 +217,20 @@ public class ShiftDB implements ShiftDBIF {
 	private Copy buildReleasedCopyObject(ResultSet rs) throws DataAccessException {
 		Copy copy = null;
 		ResultSet rs2;
+		Shift shift = null;
 		try {
-			rs2 = findShiftsOnCopyID.executeQuery();
-			int ShiftOnID = rs.getInt("ShiftID");
-			findShiftsOnCopyID.setInt(1, ShiftOnID);
-			Shift shift = buildShiftObject(rs2);
-			Byte version = rs.getByte("VersionNumber");
-			Date date = rs.getDate("Date");
-			LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+			int id = rs.getInt("ID");
+			int shiftID = rs.getInt("ShiftID");
+			findShiftsOnShiftID.setInt(1, shiftID);
+			rs2 = findShiftsOnShiftID.executeQuery();
+			if(rs2.next()) {
+				shift = buildShiftObject(rs2);
+			}
+			byte[] version = rs.getBytes("VersionNumber");
+			java.sql.Date date = rs.getDate("Date");
+			LocalDate localDate = date.toLocalDate();
 			String state = rs.getString("State");
-			copy = new Copy(shift, null, localDate, state);
-			copy.setVersionNumber(version);
+			copy = new Copy(id, shift, null, version, localDate, state);
 		} catch(SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
 		}
