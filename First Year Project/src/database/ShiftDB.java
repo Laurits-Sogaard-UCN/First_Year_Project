@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,6 +29,12 @@ public class ShiftDB implements ShiftDBIF {
 			+ "VALUES (?, ?, ?)");
 	private PreparedStatement insertWorkShiftCopy;
 	
+	private static final String CHECK_REST_PERIOD = ("SELECT s.FromHour, s.ToHour, c.Date\r\n"
+			+ "FROM Shift s, Copy c\r\n"
+			+ "WHERE c.WorkScheduleID = ?\r\n"
+			+ "and c.ShiftID = s.ID");
+	private PreparedStatement checkRestPeriod;
+	
 	private static final String CHANGE_STATE_ON_COPY = ("UPDATE Copy\r\n"
 			+ "SET State = ?\r\n"
 			+ "WHERE ID = ?");
@@ -48,7 +55,7 @@ public class ShiftDB implements ShiftDBIF {
 			+ "WHERE c.ID = ?");
 	private PreparedStatement findCopyVersionNumberOnID;
 	
-	private static final String SET_WORK_SCHEDULE_ID_ON_COPY= ("UPDATE Copy\r\n"
+	private static final String SET_WORK_SCHEDULE_ID_ON_COPY = ("UPDATE Copy\r\n"
 			+ "SET WorkScheduleID = ?\r\n"
 			+ "WHERE ID = ?");
 	private PreparedStatement setWorkScheduleIDOnCopy;
@@ -70,6 +77,7 @@ public class ShiftDB implements ShiftDBIF {
 		try {
 			findShiftOnFromAndTo = con.prepareStatement(FIND_SHIFT_ON_FROM_AND_TO);
 			insertWorkShiftCopy = con.prepareStatement(INSERT_WORKSHIFT_COPY);
+			checkRestPeriod = con.prepareStatement(CHECK_REST_PERIOD);
 			changeStateOnCopy = con.prepareStatement(CHANGE_STATE_ON_COPY);
 			findReleasedShiftCopies = con.prepareStatement(FIND_RELEASED_SHIFT_COPIES);
 			findShiftsOnShiftID = con.prepareStatement(FIND_SHIFTS_ON_SHIFT_ID);
@@ -141,17 +149,42 @@ public class ShiftDB implements ShiftDBIF {
 	
 	public boolean takeNewShift(int copyID, int workScheduleID) throws DataAccessException {
 		boolean taken = false;
-		try {
-			DBConnection.getInstance().startTransaction();
-			setStateToOccupied(copyID);
-			setWorkScheduleID(copyID, workScheduleID);
-			DBConnection.getInstance().commitTransaction();
-			taken = true;
-		} catch(Exception e) {
-			DBConnection.getInstance().rollbackTransaction();
-			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
+		if(checkRestPeriod()) {
+			try {
+				DBConnection.getInstance().startTransaction();
+				setStateToOccupied(copyID);
+				setWorkScheduleIDOnCopy(copyID, workScheduleID);
+				DBConnection.getInstance().commitTransaction();
+				taken = true;
+			} catch(Exception e) {
+				DBConnection.getInstance().rollbackTransaction();
+				throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
+			}
 		}
 		return taken;
+	}
+	
+	private boolean checkRestPeriod(Copy copy, int workScheduleID) throws DataAccessException {
+		boolean sufficientRest = false;
+		ResultSet rs;
+		try {
+			checkRestPeriod.setInt(1, workScheduleID);
+			rs = checkRestPeriod.executeQuery();
+			while(rs.next()) {
+				int fromHour = rs.getInt("FromHour");
+				int toHour = rs.getInt("ToHour");
+				LocalDate date = rs.getDate("Date").toLocalDate();
+				if(copy.getDate() == date && (copy.getShift().getFromHour() - toHour) >= 11) {
+					sufficientRest = true;
+				}
+				else if(copy.getDate() == date.minusDays(1)) { //TODO beregn hviletid på 11 timer.
+					
+				}
+			}
+		} catch(SQLException e) {
+			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
+		}
+		return sufficientRest;
 	}
 	
 	private void setStateToOccupied(int id) throws DataAccessException {
@@ -165,7 +198,7 @@ public class ShiftDB implements ShiftDBIF {
 		
 	}
 	
-	private void setWorkScheduleID(int copyID, int workScheduleID) throws DataAccessException {
+	private void setWorkScheduleIDOnCopy(int copyID, int workScheduleID) throws DataAccessException {
 		try {
 			setWorkScheduleIDOnCopy.setInt(1, workScheduleID);
 			setWorkScheduleIDOnCopy.setInt(2, copyID);
@@ -233,7 +266,8 @@ public class ShiftDB implements ShiftDBIF {
 			java.sql.Date date = rs.getDate("Date");
 			LocalDate localDate = date.toLocalDate();
 			String state = rs.getString("State");
-			copy = new Copy(id, shift, null, version, localDate, state);
+			LocalDateTime releasedAt = rs.getTimestamp("ReleasedAt").toLocalDateTime();
+			copy = new Copy(id, shift, null, version, localDate, state, releasedAt);
 		} catch(SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
 		}
