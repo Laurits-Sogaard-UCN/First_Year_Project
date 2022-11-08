@@ -49,7 +49,8 @@ public class ShiftDB implements ShiftDBIF {
 	private PreparedStatement findCopyVersionNumberOnID;
 	
 	private static final String SET_WORK_SCHEDULE_ID_ON_COPY= ("UPDATE Copy\r\n"
-			+ "SET WorkScheduleID = ?");
+			+ "SET WorkScheduleID = ?\r\n"
+			+ "WHERE ID = ?");
 	private PreparedStatement setWorkScheduleIDOnCopy;
 	
 	/**
@@ -143,8 +144,9 @@ public class ShiftDB implements ShiftDBIF {
 		try {
 			DBConnection.getInstance().startTransaction();
 			setStateToOccupied(copyID);
-			setWorkScheduleID(workScheduleID);
+			setWorkScheduleID(copyID, workScheduleID);
 			DBConnection.getInstance().commitTransaction();
+			taken = true;
 		} catch(Exception e) {
 			DBConnection.getInstance().rollbackTransaction();
 			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
@@ -163,9 +165,10 @@ public class ShiftDB implements ShiftDBIF {
 		
 	}
 	
-	private void setWorkScheduleID(int workScheduleID) throws DataAccessException {
+	private void setWorkScheduleID(int copyID, int workScheduleID) throws DataAccessException {
 		try {
 			setWorkScheduleIDOnCopy.setInt(1, workScheduleID);
+			setWorkScheduleIDOnCopy.setInt(2, copyID);
 			setWorkScheduleIDOnCopy.executeUpdate();
 		} catch(SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
@@ -192,29 +195,29 @@ public class ShiftDB implements ShiftDBIF {
 		try {
 			findReleasedShiftCopies.setString(1, CopyState.RELEASED.getState());
 			rs = findReleasedShiftCopies.executeQuery();
-			releasedShiftCopies = buildReleasedCopyObjects(rs);
+			releasedShiftCopies = buildCopyObjects(rs);
 		} catch(SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
 		}
 		return releasedShiftCopies;
 	}
 	
-	private ArrayList<Copy> buildReleasedCopyObjects(ResultSet rs) throws DataAccessException {
-		ArrayList<Copy> releasedShiftCopies = new ArrayList<>();
+	private ArrayList<Copy> buildCopyObjects(ResultSet rs) throws DataAccessException {
+		ArrayList<Copy> shiftCopies = new ArrayList<>();
 		try {
 			while(rs.next()) {
-				Copy copy = buildReleasedCopyObject(rs);
-				releasedShiftCopies.add(copy);
+				Copy copy = buildCopyObject(rs);
+				shiftCopies.add(copy);
 			} 
 		} catch (SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_READ_RESULTSET, e);
 		}
-		return releasedShiftCopies;
+		return shiftCopies;
 
 	}
 	
 
-	private Copy buildReleasedCopyObject(ResultSet rs) throws DataAccessException {
+	private Copy buildCopyObject(ResultSet rs) throws DataAccessException {
 		Copy copy = null;
 		ResultSet rs2;
 		Shift shift = null;

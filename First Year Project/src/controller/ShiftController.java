@@ -81,7 +81,7 @@ public class ShiftController {
 		int workScheduleID = workScheduleController.findWorkScheduleIDOnEmployeeCPR(employeeCPR);
 		if(Arrays.equals(copy.getVersionNumber(), currentVersionNumber)) {
 			if(shiftDB.takeNewShift(copy.getId(), workScheduleID)) { //TODO Fiks
-				shiftCopies.remove(index);
+				releasedShiftCopies.remove(index);
 				success = true;
 			}
 		}
