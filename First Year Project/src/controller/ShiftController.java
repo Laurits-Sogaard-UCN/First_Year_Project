@@ -1,17 +1,20 @@
 package controller;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
-
-
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import database.DBConnection;
 import database.ShiftDB;
 import database.ShiftDBIF;
 import model.Copy;
 import model.Employee;
 import model.Shift;
 import model.Shop;
+import model.WorkSchedule;
+import utility.DBMessages;
 import utility.DataAccessException;
 
 public class ShiftController {
@@ -80,12 +83,54 @@ public class ShiftController {
 		String employeeCPR = employeeController.getLoggedInEmployee().getCPR();
 		int workScheduleID = workScheduleController.findWorkScheduleIDOnEmployeeCPR(employeeCPR);
 		if(Arrays.equals(copy.getVersionNumber(), currentVersionNumber)) {
-			if(shiftDB.takeNewShift(copy.getId(), workScheduleID)) { //TODO Fiks
+			try {
+				DBConnection.getInstance().startTransaction();
+				shiftDB.takeNewShift(copy.getId(), workScheduleID);
+				int hours = 8;  //TODO Implementer fremtidssikret udregning.
+				workScheduleController.setTotalHoursOnWorkSchedule(hours, employeeCPR);
 				releasedShiftCopies.remove(index);
+				DBConnection.getInstance().commitTransaction();
 				success = true;
+			} catch(Exception e) {
+				DBConnection.getInstance().rollbackTransaction();
+				throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
 			}
 		}
 		return success;
+	}
+	
+	public boolean checkReleasedAt() {
+		boolean canBeDelegated = false;
+		for(Copy element : releasedShiftCopies) {
+			LocalDateTime current = element.getReleasedAt();
+			LocalDateTime nowMinus24Hours = LocalDateTime.now().minusHours(24);
+			if(nowMinus24Hours.isAfter(current) || nowMinus24Hours.isEqual(current)) {
+				canBeDelegated = true;
+			}
+		}
+		return canBeDelegated;
+	}
+	
+	public boolean delegateShifts() throws DataAccessException {
+		boolean delegated = false;
+		int index = 0;
+		int copyID;
+		releasedShiftCopies = shiftDB.findReleasedShiftCopies();
+		while(!releasedShiftCopies.isEmpty()) {
+			copyID = releasedShiftCopies.get(index).getId();
+			ArrayList<WorkSchedule> workSchedules = workScheduleController.getAllWorkSchedules();
+			workSchedules.sort(null);
+			int workScheduleID = workSchedules.get(0).getID();
+			if(shiftDB.takeNewShift(copyID, workScheduleID)) { //TODO skal tjekke for særlige krav
+				delegateShifts();
+			}
+			else {
+				index++;
+				delegateShifts();
+			}
+		}
+		
+		return delegated;
 	}
 	
 	public ArrayList<Copy> getShiftCopies() {

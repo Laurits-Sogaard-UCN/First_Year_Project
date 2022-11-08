@@ -1,6 +1,7 @@
 package model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class Copy {
 	
@@ -10,7 +11,7 @@ public class Copy {
 	private byte[] versionNumber;
 	private LocalDate date;
 	private String state;
-	
+	private LocalDateTime releasedAt;
 
 	/**
 	 * @param id
@@ -19,8 +20,10 @@ public class Copy {
 	 * @param versionNumber
 	 * @param date
 	 * @param state
+	 * @param releasedAt
 	 */
-	public Copy(int id, Shift shift, WorkSchedule workSchedule, byte[] versionNumber, LocalDate date, String state) {
+	public Copy(int id, Shift shift, WorkSchedule workSchedule, byte[] versionNumber, LocalDate date, String state,
+			LocalDateTime releasedAt) {
 		super();
 		this.id = id;
 		this.shift = shift;
@@ -28,6 +31,7 @@ public class Copy {
 		this.versionNumber = versionNumber;
 		this.date = date;
 		this.state = state;
+		this.releasedAt = releasedAt;
 	}
 
 	/**
@@ -78,8 +82,14 @@ public class Copy {
 	public byte[] getVersionNumber() {
 		return versionNumber;
 	}
-
 	
+	/**
+	 * @param versionNumber the versionNumber to set
+	 */
+	public void setVersionNumber(byte[] versionNumber) {
+		this.versionNumber = versionNumber;
+	}
+
 	/**
 	 * @return the date
 	 */
@@ -107,6 +117,21 @@ public class Copy {
 	public void setState(String state) {
 		this.state = state;
 	}
+
+	/**
+	 * @return the releasedAt
+	 */
+	public LocalDateTime getReleasedAt() {
+		return releasedAt;
+	}
+
+	/**
+	 * @param releasedAt the releasedAt to set
+	 */
+	public void setReleasedAt(LocalDateTime releasedAt) {
+		this.releasedAt = releasedAt;
+	}
+	
 	
 	
 
