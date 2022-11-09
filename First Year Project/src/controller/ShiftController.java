@@ -3,6 +3,7 @@ package controller;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -45,7 +46,7 @@ public class ShiftController {
 		}
 	}
 	
-	public ArrayList<Copy> addShift(LocalDate date, int fromHour, int toHour) throws DataAccessException {
+	public ArrayList<Copy> addShift(LocalDate date, LocalTime fromHour, LocalTime toHour) throws DataAccessException {
 		Shift shift = shiftDB.findShiftOnFromAndTo(fromHour, toHour);
 		Copy copy = shift.createCopy(shift, date);
 		shiftCopies.add(copy);
@@ -83,17 +84,11 @@ public class ShiftController {
 		String employeeCPR = employeeController.getLoggedInEmployee().getCPR();
 		int workScheduleID = workScheduleController.findWorkScheduleIDOnEmployeeCPR(employeeCPR);
 		if(Arrays.equals(copy.getVersionNumber(), currentVersionNumber)) {
-			try {
-				DBConnection.getInstance().startTransaction();
-				shiftDB.takeNewShift(copy.getId(), workScheduleID);
+			if(shiftDB.takeNewShift(copy, workScheduleID)) {
 				int hours = 8;  //TODO Implementer fremtidssikret udregning.
 				workScheduleController.setTotalHoursOnWorkSchedule(hours, employeeCPR);
 				releasedShiftCopies.remove(index);
-				DBConnection.getInstance().commitTransaction();
-				success = true;
-			} catch(Exception e) {
-				DBConnection.getInstance().rollbackTransaction();
-				throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
+				success = true; //TODO returner null hvis den ikke kan tages af andre årsager.
 			}
 		}
 		return success;
@@ -114,14 +109,13 @@ public class ShiftController {
 	public boolean delegateShifts() throws DataAccessException {
 		boolean delegated = false;
 		int index = 0;
-		int copyID;
 		releasedShiftCopies = shiftDB.findReleasedShiftCopies();
 		while(!releasedShiftCopies.isEmpty()) {
-			copyID = releasedShiftCopies.get(index).getId();
+			Copy copy = releasedShiftCopies.get(index);
 			ArrayList<WorkSchedule> workSchedules = workScheduleController.getAllWorkSchedules();
 			workSchedules.sort(null);
 			int workScheduleID = workSchedules.get(0).getID();
-			if(shiftDB.takeNewShift(copyID, workScheduleID)) { //TODO skal tjekke for særlige krav
+			if(shiftDB.takeNewShift(copy, workScheduleID)) { //TODO skal tjekke for særlige krav
 				delegateShifts();
 			}
 			else {
