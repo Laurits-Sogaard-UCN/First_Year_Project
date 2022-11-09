@@ -3,6 +3,7 @@ package controller;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -45,7 +46,7 @@ public class ShiftController {
 		}
 	}
 	
-	public ArrayList<Copy> addShift(LocalDate date, int fromHour, int toHour) throws DataAccessException {
+	public ArrayList<Copy> addShift(LocalDate date, LocalTime fromHour, LocalTime toHour) throws DataAccessException {
 		Shift shift = shiftDB.findShiftOnFromAndTo(fromHour, toHour);
 		Copy copy = shift.createCopy(shift, date);
 		shiftCopies.add(copy);
