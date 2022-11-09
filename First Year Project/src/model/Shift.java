@@ -2,11 +2,12 @@ package model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 public class Shift {
 	
-	private int fromHour;
-	private int toHour;
+	private LocalTime fromHour;
+	private LocalTime toHour;
 	private int ID;
 	
 	/**
@@ -14,13 +15,12 @@ public class Shift {
 	 * @param toHour
 	 * @param iD
 	 */
-	public Shift(int fromHour, int toHour, int iD) {
-		super();
+	public Shift(LocalTime fromHour, LocalTime toHour, int iD) {
 		this.fromHour = fromHour;
 		this.toHour = toHour;
 		ID = iD;
 	}
-	
+
 	public Shift(int iD) {
 		ID = iD;
 	}
@@ -37,28 +37,28 @@ public class Shift {
 	/**
 	 * @return the fromHour
 	 */
-	public int getFromHour() {
+	public LocalTime getFromHour() {
 		return fromHour;
 	}
 
 	/**
 	 * @param fromHour the fromHour to set
 	 */
-	public void setFromHour(int fromHour) {
+	public void setFromHour(LocalTime fromHour) {
 		this.fromHour = fromHour;
 	}
 
 	/**
 	 * @return the toHour
 	 */
-	public int getToHour() {
+	public LocalTime getToHour() {
 		return toHour;
 	}
 
 	/**
 	 * @param toHour the toHour to set
 	 */
-	public void setToHour(int toHour) {
+	public void setToHour(LocalTime toHour) {
 		this.toHour = toHour;
 	}
 

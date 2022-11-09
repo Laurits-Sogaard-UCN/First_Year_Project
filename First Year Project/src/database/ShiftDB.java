@@ -2,12 +2,21 @@ package database;
 
 import java.sql.Connection;
 
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -17,6 +26,8 @@ import model.Shift;
 import utility.DBMessages;
 import utility.DataAccessException;
 
+import static java.time.temporal.ChronoUnit.HOURS;;
+
 public class ShiftDB implements ShiftDBIF {
 	
 	private static final String FIND_SHIFT_ON_FROM_AND_TO = ("SELECT *\r\n"
@@ -25,8 +36,8 @@ public class ShiftDB implements ShiftDBIF {
 			+ "and s.ToHour = ?");
 	private PreparedStatement findShiftOnFromAndTo;
 	
-	private static final String INSERT_WORKSHIFT_COPY = ("INSERT INTO Copy(ShiftID, Date, State)\r\n"
-			+ "VALUES (?, ?, ?)");
+	private static final String INSERT_WORKSHIFT_COPY = ("INSERT INTO Copy(ShiftID, Date, State, ReleasedAt)\r\n"
+			+ "VALUES (?, ?, ?, ?)");
 	private PreparedStatement insertWorkShiftCopy;
 	
 	private static final String CHECK_REST_PERIOD = ("SELECT s.FromHour, s.ToHour, c.Date\r\n"
@@ -88,12 +99,14 @@ public class ShiftDB implements ShiftDBIF {
 		}
 	}
 	
-	public Shift findShiftOnFromAndTo(int fromHour, int toHour) throws DataAccessException {
+	public Shift findShiftOnFromAndTo(LocalTime fromHour, LocalTime toHour) throws DataAccessException {
 		ResultSet rs;
 		Shift shift = null;
 		try {
-			findShiftOnFromAndTo.setInt(1, fromHour);
-			findShiftOnFromAndTo.setInt(2, toHour);
+			String from = fromHour.truncatedTo(ChronoUnit.SECONDS).format(DateTimeFormatter.ISO_LOCAL_TIME);
+			String to = toHour.truncatedTo(ChronoUnit.SECONDS).format(DateTimeFormatter.ISO_LOCAL_TIME);
+			findShiftOnFromAndTo.setString(1, from);
+			findShiftOnFromAndTo.setString(2, to);
 			rs = findShiftOnFromAndTo.executeQuery();
 			if(rs.next()) {
 				shift = buildShiftObject(rs);
@@ -110,8 +123,8 @@ public class ShiftDB implements ShiftDBIF {
 		try {
 			DBConnection.getInstance().startTransaction();
 			for(Copy element : copies) {
-				int fromHour = element.getShift().getFromHour();
-				int toHour = element.getShift().getToHour();
+				LocalTime fromHour = element.getShift().getFromHour();
+				LocalTime toHour = element.getShift().getToHour();
 				Shift shift = findShiftOnFromAndTo(fromHour, toHour);
 				int id = shift.getID();
 				LocalDate localDate = element.getDate();
@@ -119,6 +132,8 @@ public class ShiftDB implements ShiftDBIF {
 				insertWorkShiftCopy.setInt(1, id);
 				insertWorkShiftCopy.setDate(2, date);
 				insertWorkShiftCopy.setString(3, CopyState.RELEASED.getState());
+				Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
+				insertWorkShiftCopy.setTimestamp(4, timestamp);
 				rowsAffected += insertWorkShiftCopy.executeUpdate();
 			}
 			DBConnection.getInstance().commitTransaction();
@@ -147,13 +162,13 @@ public class ShiftDB implements ShiftDBIF {
 		return versionNumber;
 	}
 	
-	public boolean takeNewShift(int copyID, int workScheduleID) throws DataAccessException {
+	public boolean takeNewShift(Copy copy, int workScheduleID) throws DataAccessException {
 		boolean taken = false;
-		if(checkRestPeriod()) {
+		if(checkRestPeriod(copy, workScheduleID)) {
 			try {
 				DBConnection.getInstance().startTransaction();
-				setStateToOccupied(copyID);
-				setWorkScheduleIDOnCopy(copyID, workScheduleID);
+				setStateToOccupied(copy);
+				setWorkScheduleIDOnCopy(copy, workScheduleID);
 				DBConnection.getInstance().commitTransaction();
 				taken = true;
 			} catch(Exception e) {
@@ -170,24 +185,39 @@ public class ShiftDB implements ShiftDBIF {
 		try {
 			checkRestPeriod.setInt(1, workScheduleID);
 			rs = checkRestPeriod.executeQuery();
-			while(rs.next()) {
-				int fromHour = rs.getInt("FromHour");
-				int toHour = rs.getInt("ToHour");
-				LocalDate date = rs.getDate("Date").toLocalDate();
-				if(copy.getDate() == date && (copy.getShift().getFromHour() - toHour) >= 11) {
-					sufficientRest = true;
-				}
-				else if(copy.getDate() == date.minusDays(1)) { //TODO beregn hviletid på 11 timer.
+			if(rs.next()) {
+				do {
+					LocalDate date = rs.getDate("Date").toLocalDate();
+					String fromHourString = rs.getString("FromHour");
+					LocalTime fromHour = LocalTime.parse(fromHourString);
+					String toHourString = rs.getString("ToHour");
+					LocalTime toHour = LocalTime.parse(toHourString);
+					LocalDateTime dateTimeFrom = LocalDateTime.of(date, fromHour);
+					LocalDateTime dateTimeTo = LocalDateTime.of(date, toHour);
 					
-				}
+					LocalDate copyDate = copy.getDate();
+					LocalTime copyFromHour = copy.getShift().getFromHour();
+					LocalTime copyToHour = copy.getShift().getToHour();
+					LocalDateTime copyDateTimeFrom = LocalDateTime.of(copyDate, copyFromHour);
+					LocalDateTime copyDateTimeTo = LocalDateTime.of(copyDate, copyToHour);
+					
+					if(!copyDate.isEqual(date) && HOURS.between(dateTimeFrom, copyDateTimeTo) >= 11 && HOURS.between(dateTimeTo, copyDateTimeFrom) >= 11) {
+						sufficientRest = true;
+					}
+				} while(rs.next());
 			}
+			else {
+				sufficientRest = true;
+			}
+			
 		} catch(SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
 		}
 		return sufficientRest;
 	}
 	
-	private void setStateToOccupied(int id) throws DataAccessException {
+	private void setStateToOccupied(Copy copy) throws DataAccessException {
+		int id = copy.getId();
 		try {
 			changeStateOnCopy.setString(1, CopyState.OCCUPIED.getState());
 			changeStateOnCopy.setInt(2, id);
@@ -198,7 +228,8 @@ public class ShiftDB implements ShiftDBIF {
 		
 	}
 	
-	private void setWorkScheduleIDOnCopy(int copyID, int workScheduleID) throws DataAccessException {
+	private void setWorkScheduleIDOnCopy(Copy copy, int workScheduleID) throws DataAccessException {
+		int copyID = copy.getId();
 		try {
 			setWorkScheduleIDOnCopy.setInt(1, workScheduleID);
 			setWorkScheduleIDOnCopy.setInt(2, copyID);
@@ -212,8 +243,8 @@ public class ShiftDB implements ShiftDBIF {
 	private Shift buildShiftObject(ResultSet rs) throws DataAccessException {
 		Shift shift;
 		try {
-			int fromHour = rs.getInt("FromHour");
-			int toHour = rs.getInt("ToHour");
+			LocalTime fromHour = rs.getTime("FromHour").toLocalTime();
+			LocalTime toHour = rs.getTime("ToHour").toLocalTime();
 			int id = rs.getInt("ID");
 			shift = new Shift(fromHour, toHour, id);
 		} catch(SQLException e) {
@@ -266,7 +297,8 @@ public class ShiftDB implements ShiftDBIF {
 			java.sql.Date date = rs.getDate("Date");
 			LocalDate localDate = date.toLocalDate();
 			String state = rs.getString("State");
-			LocalDateTime releasedAt = rs.getTimestamp("ReleasedAt").toLocalDateTime();
+			Date releasedAtTimestamp = rs.getTimestamp("ReleasedAt");
+			LocalDateTime releasedAt = releasedAtTimestamp.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 			copy = new Copy(id, shift, null, version, localDate, state, releasedAt);
 		} catch(SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);

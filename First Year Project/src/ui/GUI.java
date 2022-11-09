@@ -49,6 +49,7 @@ import javax.swing.JPasswordField;
 import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
@@ -202,9 +203,8 @@ public class GUI extends JFrame {
 		gbc_comboBoxShiftFrom.gridy = 5;
 		panel_13.add(comboBoxShiftFrom, gbc_comboBoxShiftFrom);
 		comboBoxShiftFrom.addItem("");
-		comboBoxShiftFrom.addItem("6:00");
-		comboBoxShiftFrom.addItem("14:00");
-		comboBoxShiftFrom.addItem("22:00");
+		comboBoxShiftFrom.addItem("06:00:00");
+		comboBoxShiftFrom.addItem("14:00:00");
 		
 		JLabel lblNewLabel_11 = new JLabel("To time:");
 		GridBagConstraints gbc_lblNewLabel_11 = new GridBagConstraints();
@@ -222,9 +222,8 @@ public class GUI extends JFrame {
 		gbc_comboBoxShiftTo.gridy = 7;
 		panel_13.add(comboBoxShiftTo, gbc_comboBoxShiftTo);
 		comboBoxShiftTo.addItem("");
-		comboBoxShiftTo.addItem("14:00");
-		comboBoxShiftTo.addItem("22:00");
-		comboBoxShiftTo.addItem("6:00");
+		comboBoxShiftTo.addItem("14:00:00");
+		comboBoxShiftTo.addItem("22:00:00");
 		
 		JButton btnAddShift = new JButton("Add");
 		btnAddShift.addActionListener(e -> {
@@ -716,17 +715,14 @@ public class GUI extends JFrame {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		LocalDate date = LocalDate.parse(dateString, formatter);
 		String fromHourString = (String) comboBoxShiftFrom.getSelectedItem();
-		int fromHour = getIntTimeFromString(fromHourString);
+		LocalTime fromHour = LocalTime.parse(fromHourString);
 		String toHourString = (String) comboBoxShiftTo.getSelectedItem();
-		int toHour = getIntTimeFromString(toHourString);
+		LocalTime toHour = LocalTime.parse(toHourString);
 		textAreaErrorHandling.setText("");
-		if(fromHour > toHour && fromHour != 22) {
+		if(fromHour.getHour() >= toHour.getHour()) {
 			textAreaErrorHandling.setText("Invalid time period has been chosen");
 		}
-		else if(fromHour == toHour) {
-			textAreaErrorHandling.setText("Invalid time period has been chosen");
-		}
-		else if(toHour - fromHour > 8) {
+		else if(toHour.getHour() - fromHour.getHour() > 8) {
 			textAreaErrorHandling.setText("A shift can be no longer than 8 hours");
 		}
 		else if(date.isBefore(LocalDate.now())) {
