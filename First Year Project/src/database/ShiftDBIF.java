@@ -16,6 +16,6 @@ public interface ShiftDBIF {
   
 	public ArrayList<Copy> findReleasedShiftCopies() throws DataAccessException;
 	
-	public boolean takeNewShift(int copyID, int workScheduleID) throws DataAccessException;
+	public boolean takeNewShift(Copy copy, int workScheduleID) throws DataAccessException;
 
 }
