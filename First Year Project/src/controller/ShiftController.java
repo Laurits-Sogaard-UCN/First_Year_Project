@@ -85,7 +85,7 @@ public class ShiftController {
 		int workScheduleID = workScheduleController.findWorkScheduleIDOnEmployeeCPR(employeeCPR);
 		if(Arrays.equals(copy.getVersionNumber(), currentVersionNumber)) {
 			if(shiftDB.takeNewShift(copy, workScheduleID)) {
-				int hours = 8;  //TODO Implementer fremtidssikret udregning.
+				int hours = calculateTotalHours(copy);
 				workScheduleController.setTotalHoursOnWorkSchedule(hours, employeeCPR);
 				releasedShiftCopies.remove(index);
 				success = true; //TODO returner null hvis den ikke kan tages af andre årsager.
@@ -106,25 +106,32 @@ public class ShiftController {
 		return canBeDelegated;
 	}
 	
-	public boolean delegateShifts() throws DataAccessException {
+	public boolean delegateShifts(int i) throws DataAccessException {
 		boolean delegated = false;
-		int index = 0;
 		releasedShiftCopies = shiftDB.findReleasedShiftCopies();
 		while(!releasedShiftCopies.isEmpty()) {
-			Copy copy = releasedShiftCopies.get(index);
+			Copy copy = releasedShiftCopies.get(i);
 			ArrayList<WorkSchedule> workSchedules = workScheduleController.getAllWorkSchedules();
 			workSchedules.sort(null);
 			int workScheduleID = workSchedules.get(0).getID();
-			if(shiftDB.takeNewShift(copy, workScheduleID)) { //TODO skal tjekke for særlige krav
-				delegateShifts();
+			if(shiftDB.takeNewShift(copy, workScheduleID)) { 
+				delegateShifts(i);
 			}
 			else {
-				index++;
-				delegateShifts();
+				delegateShifts(i++);
 			}
 		}
 		
 		return delegated;
+	}
+	
+	private int calculateTotalHours(Copy copy) {
+		LocalTime toHours = copy.getShift().getToHour();
+		LocalTime fromHours = copy.getShift().getFromHour();
+		int toHoursToAdd = toHours.getHour();
+		int fromHoursToAdd = fromHours.getHour();
+		int hoursToReturn = toHoursToAdd - fromHoursToAdd;
+		return hoursToReturn;			
 	}
 	
 	public ArrayList<Copy> getShiftCopies() {
