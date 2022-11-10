@@ -1,4 +1,4 @@
-package model;
+package utility;
 
 public enum EmployeeType {
 	PARTTIME("Parttime"), FULLTIME("Fulltime"), MANAGER("Manager");

@@ -88,7 +88,7 @@ public class ShiftController {
 				int hours = calculateTotalHours(copy);
 				workScheduleController.setTotalHoursOnWorkSchedule(hours, employeeCPR);
 				releasedShiftCopies.remove(index);
-				success = true; //TODO returner null hvis den ikke kan tages af andre årsager.
+				success = true; //TODO returner null hvis den ikke kan tages af andre Ã¥rsager.
 			}
 		}
 		return success;
@@ -109,13 +109,14 @@ public class ShiftController {
 	public boolean delegateShifts(int i) throws DataAccessException {
 		boolean delegated = false;
 		releasedShiftCopies = shiftDB.findReleasedShiftCopies();
-		while(!releasedShiftCopies.isEmpty()) {
+		if(!releasedShiftCopies.isEmpty()) {
 			Copy copy = releasedShiftCopies.get(i);
 			ArrayList<WorkSchedule> workSchedules = workScheduleController.getAllWorkSchedules();
 			workSchedules.sort(null);
 			int workScheduleID = workSchedules.get(0).getID();
-			if(shiftDB.takeNewShift(copy, workScheduleID)) { 
-				delegateShifts(i);
+			if(shiftDB.takeNewShift(copy, workScheduleID)) {
+				releasedShiftCopies.remove(i);
+				delegateShifts(0);
 			}
 			else {
 				delegateShifts(i++);

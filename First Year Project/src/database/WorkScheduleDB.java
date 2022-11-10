@@ -1,6 +1,7 @@
 package database;
 
 import java.sql.Connection;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import model.Copy;
+import utility.EmployeeType;
 import model.Shift;
 import model.WorkSchedule;
 import utility.DBMessages;
@@ -34,9 +36,10 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 			+ "WHERE EmployeeCPR = ?");
 	private PreparedStatement setTotalHours;
 	
-	private static final String GET_ALL_WORK_SCHEDULES = ("SELECT ws.ID, ws.TotalHours, ws.EmployeeCPR\r\n"
-			+ "FROM WorkSchedule ws\r\n"
-			+ "WHERE ws.EmployeeCPR = ?");
+	private static final String GET_ALL_WORK_SCHEDULES = ("SELECT ws.ID\r\n"
+			+ "FROM WorkSchedule ws, Employee e\r\n"
+			+ "WHERE ws.EmployeeCPR = e.CPR\r\n"
+			+ "and e.EmployeeType = ?");
 	private PreparedStatement getAllWorkSchedules;
 	
 	/**
@@ -137,6 +140,7 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 		ArrayList<WorkSchedule> workSchedules = new ArrayList<>();
 		ResultSet rs;
 		try {
+			getAllWorkSchedules.setString(1, EmployeeType.PARTTIME.getType());
 			rs = getAllWorkSchedules.executeQuery();
 			workSchedules = buildWorkScheduleObjects(rs);
 		} catch(SQLException e) {
