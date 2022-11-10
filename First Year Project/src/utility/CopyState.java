@@ -1,4 +1,4 @@
-package model;
+package utility;
 
 public enum CopyState {
 	RELEASED("Released"), OCCUPIED("Occupied");

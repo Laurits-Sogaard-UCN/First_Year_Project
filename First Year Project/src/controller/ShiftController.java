@@ -106,21 +106,20 @@ public class ShiftController {
 		return canBeDelegated;
 	}
 	
-	public boolean delegateShifts() throws DataAccessException {
+	public boolean delegateShifts(int i) throws DataAccessException {
 		boolean delegated = false;
-		int index = 0;
 		releasedShiftCopies = shiftDB.findReleasedShiftCopies();
-		while(!releasedShiftCopies.isEmpty()) {
-			Copy copy = releasedShiftCopies.get(index);
+		if(!releasedShiftCopies.isEmpty()) {
+			Copy copy = releasedShiftCopies.get(i);
 			ArrayList<WorkSchedule> workSchedules = workScheduleController.getAllWorkSchedules();
 			workSchedules.sort(null);
 			int workScheduleID = workSchedules.get(0).getID();
-			if(shiftDB.takeNewShift(copy, workScheduleID)) { //TODO skal tjekke for særlige krav
-				delegateShifts();
+			if(shiftDB.takeNewShift(copy, workScheduleID)) {
+				releasedShiftCopies.remove(i);
+				delegateShifts(0);
 			}
 			else {
-				index++;
-				delegateShifts();
+				delegateShifts(i++);
 			}
 		}
 		

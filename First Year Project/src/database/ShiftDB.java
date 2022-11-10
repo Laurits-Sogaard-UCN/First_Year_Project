@@ -21,8 +21,8 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import model.Copy;
-import model.CopyState;
 import model.Shift;
+import utility.CopyState;
 import utility.DBMessages;
 import utility.DataAccessException;
 
