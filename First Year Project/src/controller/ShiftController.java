@@ -85,10 +85,10 @@ public class ShiftController {
 		int workScheduleID = workScheduleController.findWorkScheduleIDOnEmployeeCPR(employeeCPR);
 		if(Arrays.equals(copy.getVersionNumber(), currentVersionNumber)) {
 			if(shiftDB.takeNewShift(copy, workScheduleID)) {
-				int hours = 8;  //TODO Implementer fremtidssikret udregning.
+				int hours = calculateTotalHours(copy);
 				workScheduleController.setTotalHoursOnWorkSchedule(hours, employeeCPR);
 				releasedShiftCopies.remove(index);
-				success = true; //TODO returner null hvis den ikke kan tages af andre årsager.
+				success = true; //TODO returner null hvis den ikke kan tages af andre Ã¥rsager.
 			}
 		}
 		return success;
@@ -124,6 +124,15 @@ public class ShiftController {
 		}
 		
 		return delegated;
+	}
+	
+	private int calculateTotalHours(Copy copy) {
+		LocalTime toHours = copy.getShift().getToHour();
+		LocalTime fromHours = copy.getShift().getFromHour();
+		int toHoursToAdd = toHours.getHour();
+		int fromHoursToAdd = fromHours.getHour();
+		int hoursToReturn = toHoursToAdd - fromHoursToAdd;
+		return hoursToReturn;			
 	}
 	
 	public ArrayList<Copy> getShiftCopies() {
