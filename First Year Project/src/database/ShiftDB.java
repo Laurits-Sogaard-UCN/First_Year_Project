@@ -182,6 +182,8 @@ public class ShiftDB implements ShiftDBIF {
 	private boolean checkRestPeriod(Copy copy, int workScheduleID) throws DataAccessException {
 		boolean sufficientRest = false;
 		ResultSet rs;
+		String dateString = "";
+		String copyDateString = "";
 		try {
 			checkRestPeriod.setInt(1, workScheduleID);
 			rs = checkRestPeriod.executeQuery();
@@ -201,9 +203,16 @@ public class ShiftDB implements ShiftDBIF {
 					LocalDateTime copyDateTimeFrom = LocalDateTime.of(copyDate, copyFromHour);
 					LocalDateTime copyDateTimeTo = LocalDateTime.of(copyDate, copyToHour);
 					
-					if(!copyDate.isEqual(date) && HOURS.between(dateTimeFrom, copyDateTimeTo) >= 11 && HOURS.between(dateTimeTo, copyDateTimeFrom) >= 11) {
+					long durationBetween1 = Duration.between(dateTimeFrom, copyDateTimeTo).toHours();
+					long durationBetween2 = Duration.between(dateTimeTo, copyDateTimeFrom).toHours();
+					
+					if(!date.isEqual(copyDate) && durationBetween1 >= 11 && durationBetween2 >= 11) {
 						sufficientRest = true;
 					}
+					else {
+						sufficientRest = false;
+					}
+					
 				} while(rs.next());
 			}
 			else {
