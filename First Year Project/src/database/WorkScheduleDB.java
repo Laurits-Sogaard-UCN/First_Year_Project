@@ -36,7 +36,7 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 			+ "WHERE EmployeeCPR = ?");
 	private PreparedStatement setTotalHours;
 	
-	private static final String GET_ALL_WORK_SCHEDULES = ("SELECT ws.ID\r\n"
+	private static final String GET_ALL_WORK_SCHEDULES = ("SELECT ws.*\r\n"
 			+ "FROM WorkSchedule ws, Employee e\r\n"
 			+ "WHERE ws.EmployeeCPR = e.CPR\r\n"
 			+ "and e.EmployeeType = ?");

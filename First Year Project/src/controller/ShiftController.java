@@ -95,7 +95,7 @@ public class ShiftController {
 	}
 	
 	public boolean checkReleasedAt() {
-		boolean canBeDelegated = false;
+		boolean canBeDelegated = true;
 		for(Copy element : releasedShiftCopies) {
 			LocalDateTime current = element.getReleasedAt();
 			LocalDateTime nowMinus24Hours = LocalDateTime.now().minusHours(24);
@@ -106,23 +106,35 @@ public class ShiftController {
 		return canBeDelegated;
 	}
 	
-	public boolean delegateShifts(int i) throws DataAccessException {
-		boolean delegated = false;
+	public int delegateShifts(int index, int workScheduleIndex) throws DataAccessException {
+		int delegated = 1;
 		releasedShiftCopies = shiftDB.findReleasedShiftCopies();
 		if(!releasedShiftCopies.isEmpty()) {
-			Copy copy = releasedShiftCopies.get(i);
+			Copy copy = releasedShiftCopies.get(index);
 			ArrayList<WorkSchedule> workSchedules = workScheduleController.getAllWorkSchedules();
 			workSchedules.sort(null);
-			int workScheduleID = workSchedules.get(0).getID();
+			int workScheduleID = workSchedules.get(workScheduleIndex).getID();
+			String employeeCPR = workSchedules.get(workScheduleIndex).getEmployeeCPR();
+			int totalHours = workSchedules.get(workScheduleIndex).getTotalHours();
 			if(shiftDB.takeNewShift(copy, workScheduleID)) {
-				releasedShiftCopies.remove(i);
-				delegateShifts(0);
+				int hours = calculateTotalHours(copy); // TODO refaktorering her
+				workScheduleController.setTotalHoursOnWorkSchedule(hours, employeeCPR);
+				releasedShiftCopies.remove(index);
+				delegateShifts(0, 0);
+			}
+			else if(totalHours == workSchedules.get(workScheduleIndex + 1).getTotalHours() && workScheduleIndex == workSchedules.size()-1) {
+				delegateShifts(index + 1, 0);
+			}
+			else if(workScheduleIndex < workSchedules.size() - 1 && totalHours == workSchedules.get(workScheduleIndex + 1).getTotalHours()) {
+				delegateShifts(0, workScheduleIndex + 1);
+			}
+			else if(!releasedShiftCopies.isEmpty() && !shiftDB.takeNewShift(copy, workScheduleID)) {
+				delegated = -1;
 			}
 			else {
-				delegateShifts(i++);
+				delegateShifts(index + 1, 0);
 			}
 		}
-		
 		return delegated;
 	}
 	
