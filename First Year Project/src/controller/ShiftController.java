@@ -107,7 +107,7 @@ public class ShiftController {
 	}
 	
 	public int delegateShifts(int index, int workScheduleIndex) throws DataAccessException {
-		int delegated = 1;
+		int delegated = 0;
 		releasedShiftCopies = shiftDB.findReleasedShiftCopies();
 		if(!releasedShiftCopies.isEmpty()) {
 			Copy copy = releasedShiftCopies.get(index);
@@ -115,25 +115,25 @@ public class ShiftController {
 			workSchedules.sort(null);
 			int workScheduleID = workSchedules.get(workScheduleIndex).getID();
 			String employeeCPR = workSchedules.get(workScheduleIndex).getEmployeeCPR();
-			int totalHours = workSchedules.get(workScheduleIndex).getTotalHours();
 			if(shiftDB.takeNewShift(copy, workScheduleID)) {
 				int hours = calculateTotalHours(copy); // TODO refaktorering her
 				workScheduleController.setTotalHoursOnWorkSchedule(hours, employeeCPR);
 				releasedShiftCopies.remove(index);
 				delegateShifts(0, 0);
+				delegated = 1;
 			}
-			else if(totalHours == workSchedules.get(workScheduleIndex + 1).getTotalHours() && workScheduleIndex == workSchedules.size()-1) {
+			else if(!releasedShiftCopies.isEmpty() && workScheduleIndex == workSchedules.size() - 1 && index == releasedShiftCopies.size() - 1) {
+				releasedShiftCopies.clear();
+			}
+			else if(workScheduleIndex < workSchedules.size() - 1) {
+				delegateShifts(index, workScheduleIndex + 1);
+			}
+			else if(workScheduleIndex == workSchedules.size() - 1) {
 				delegateShifts(index + 1, 0);
 			}
-			else if(workScheduleIndex < workSchedules.size() - 1 && totalHours == workSchedules.get(workScheduleIndex + 1).getTotalHours()) {
-				delegateShifts(0, workScheduleIndex + 1);
-			}
-			else if(!releasedShiftCopies.isEmpty() && !shiftDB.takeNewShift(copy, workScheduleID)) {
-				delegated = -1;
-			}
-			else {
-				delegateShifts(index + 1, 0);
-			}
+		}
+		if(releasedShiftCopies.isEmpty()) {
+			delegated = -1;
 		}
 		return delegated;
 	}
@@ -151,7 +151,8 @@ public class ShiftController {
 		return shiftCopies;
 	}
 	
-	public ArrayList<Copy> getReleasedCopies() {
+	public ArrayList<Copy> getReleasedCopies() throws DataAccessException {
+		releasedShiftCopies = shiftDB.findReleasedShiftCopies();
 		return releasedShiftCopies;
 	}
 

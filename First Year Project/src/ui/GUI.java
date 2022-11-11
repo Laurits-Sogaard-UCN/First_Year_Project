@@ -776,12 +776,17 @@ public class GUI extends JFrame {
 	private void delegateShifts() throws DataAccessException {
 		boolean canBeDelegated = shiftController.checkReleasedAt();
 		if(canBeDelegated) {
-			if(shiftController.delegateShifts(0, 0) == 1) {
-				textAreaTakeNewShiftErrorHandling.setText("The shifts were delegated successfully");
+			int delegated = shiftController.delegateShifts(0, 0);
+			if(delegated == 1) {
+				textAreaTakeNewShiftErrorHandling.setText("All shifts were");
+				textAreaTakeNewShiftErrorHandling.append(" \n");
+				textAreaTakeNewShiftErrorHandling.setText("delegated successfully");
 				showCopies(shiftController.getReleasedCopies(), listModelTake);
 			}
-			else if(shiftController.delegateShifts(0, 0) == -1) {
-				textAreaTakeNewShiftErrorHandling.setText("Not all shifts could be delegated");
+			else if(delegated == -1) {
+				textAreaTakeNewShiftErrorHandling.append("All possible shifts were delegated.");
+				textAreaTakeNewShiftErrorHandling.append(" \n");
+				textAreaTakeNewShiftErrorHandling.append("Some may be left");
 				showCopies(shiftController.getReleasedCopies(), listModelTake);
 			}
 		}
