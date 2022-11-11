@@ -700,7 +700,7 @@ public class GUI extends JFrame {
 	}
 	
 	private void delegateShiftsButtonClicked(ActionEvent e) throws DataAccessException {
-		boolean canBeDelegated = shiftController.checkReleasedAt();
+		delegateShifts();
 	}
 	
 	private void startReleaseNewShifts() throws DataAccessException {
@@ -770,6 +770,28 @@ public class GUI extends JFrame {
 		}
 		else {
 			textAreaTakeNewShiftErrorHandling.setText("Error! Shift has already been taken");
+		}
+	}
+	
+	private void delegateShifts() throws DataAccessException {
+		boolean canBeDelegated = shiftController.checkReleasedAt();
+		if(canBeDelegated) {
+			int delegated = shiftController.delegateShifts(0, 0);
+			if(delegated == 1) {
+				textAreaTakeNewShiftErrorHandling.setText("All shifts were");
+				textAreaTakeNewShiftErrorHandling.append(" \n");
+				textAreaTakeNewShiftErrorHandling.setText("delegated successfully");
+				showCopies(shiftController.getReleasedCopies(), listModelTake);
+			}
+			else if(delegated == -1) {
+				textAreaTakeNewShiftErrorHandling.append("All possible shifts were delegated.");
+				textAreaTakeNewShiftErrorHandling.append(" \n");
+				textAreaTakeNewShiftErrorHandling.append("Some may be left");
+				showCopies(shiftController.getReleasedCopies(), listModelTake);
+			}
+		}
+		else {
+			textAreaTakeNewShiftErrorHandling.setText("Error! 24 hours hasn't passed.");
 		}
 	}
 	
