@@ -24,11 +24,17 @@ public class Copy {
 	 */
 	public Copy(int id, Shift shift, WorkSchedule workSchedule, byte[] versionNumber, LocalDate date, String state,
 			LocalDateTime releasedAt) {
-		super();
 		this.id = id;
 		this.shift = shift;
 		this.workSchedule = workSchedule;
 		this.versionNumber = versionNumber;
+		this.date = date;
+		this.state = state;
+		this.releasedAt = releasedAt;
+	}
+	
+	public Copy(Shift shift, LocalDate date, String state, LocalDateTime releasedAt) {
+		this.shift = shift;
 		this.date = date;
 		this.state = state;
 		this.releasedAt = releasedAt;
@@ -131,8 +137,6 @@ public class Copy {
 	public void setReleasedAt(LocalDateTime releasedAt) {
 		this.releasedAt = releasedAt;
 	}
-	
-	
-	
+
 
 }

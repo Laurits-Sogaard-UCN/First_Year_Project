@@ -1,6 +1,7 @@
 package utility;
 
 public enum CopyState {
+	
 	RELEASED("Released"), OCCUPIED("Occupied");
 	
 	private final String stringState;

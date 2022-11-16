@@ -1,13 +1,11 @@
 package controller;
 
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import database.DBConnection;
 import database.ShiftDB;
 import database.ShiftDBIF;
 import model.Copy;
@@ -15,7 +13,6 @@ import model.Employee;
 import model.Shift;
 import model.Shop;
 import model.WorkSchedule;
-import utility.DBMessages;
 import utility.DataAccessException;
 
 public class ShiftController {
@@ -39,6 +36,7 @@ public class ShiftController {
 
 	public void startReleaseNewShifts() throws DataAccessException {
 		Employee employee = employeeController.getLoggedInEmployee();
+		
 		if(employee != null) {
 			int id = employee.getShop().getID();
 			Shop shop = shopController.findShopOnID(id);
@@ -55,6 +53,7 @@ public class ShiftController {
 	
 	public boolean completeReleaseNewShifts() throws DataAccessException {
 		boolean completed = false;
+		
 		if(shiftDB.completeReleaseNewShifts(shiftCopies)) {
 			completed = true;
 			shiftCopies.clear();
@@ -66,6 +65,7 @@ public class ShiftController {
 		boolean deleted = false;
 		Copy copy = shiftCopies.get(index);
 		shiftCopies.remove(index);
+		
 		if(!shiftCopies.contains(copy)) {
 			deleted = true;
 		}
@@ -83,6 +83,7 @@ public class ShiftController {
 		byte[] currentVersionNumber = shiftDB.findCopyVersionNumberOnID(copy.getId());
 		String employeeCPR = employeeController.getLoggedInEmployee().getCPR();
 		int workScheduleID = workScheduleController.findWorkScheduleIDOnEmployeeCPR(employeeCPR);
+		
 		if(Arrays.equals(copy.getVersionNumber(), currentVersionNumber)) {
 			if(shiftDB.takeNewShift(copy, workScheduleID)) {
 				int hours = calculateTotalHours(copy);
@@ -96,6 +97,7 @@ public class ShiftController {
 	
 	public boolean checkReleasedAt() {
 		boolean canBeDelegated = true;
+		
 		for(Copy element : releasedShiftCopies) {
 			LocalDateTime current = element.getReleasedAt();
 			LocalDateTime nowMinus24Hours = LocalDateTime.now().minusHours(24);
@@ -109,12 +111,14 @@ public class ShiftController {
 	public int delegateShifts(int index, int workScheduleIndex) throws DataAccessException {
 		int delegated = 0;
 		releasedShiftCopies = shiftDB.findReleasedShiftCopies();
+		
 		if(!releasedShiftCopies.isEmpty()) {
 			Copy copy = releasedShiftCopies.get(index);
 			ArrayList<WorkSchedule> workSchedules = workScheduleController.getAllWorkSchedules();
 			workSchedules.sort(null);
 			int workScheduleID = workSchedules.get(workScheduleIndex).getID();
 			String employeeCPR = workSchedules.get(workScheduleIndex).getEmployeeCPR();
+			
 			if(shiftDB.takeNewShift(copy, workScheduleID)) {
 				int hours = calculateTotalHours(copy); // TODO refaktorering her
 				workScheduleController.setTotalHoursOnWorkSchedule(hours, employeeCPR);
@@ -131,6 +135,7 @@ public class ShiftController {
 			else if(workScheduleIndex == workSchedules.size() - 1) {
 				delegateShifts(index + 1, 0);
 			}
+			
 		}
 		if(releasedShiftCopies.isEmpty()) {
 			delegated = -1;
@@ -143,8 +148,8 @@ public class ShiftController {
 		LocalTime fromHours = copy.getShift().getFromHour();
 		int toHoursToAdd = toHours.getHour();
 		int fromHoursToAdd = fromHours.getHour();
-		int hoursToReturn = toHoursToAdd - fromHoursToAdd;
-		return hoursToReturn;			
+		int totalHours = toHoursToAdd - fromHoursToAdd;
+		return totalHours;			
 	}
 	
 	public ArrayList<Copy> getShiftCopies() {
@@ -154,6 +159,10 @@ public class ShiftController {
 	public ArrayList<Copy> getReleasedCopies() throws DataAccessException {
 		releasedShiftCopies = shiftDB.findReleasedShiftCopies();
 		return releasedShiftCopies;
+	}
+	
+	public void clearShiftCopies() {
+		shiftCopies.clear();
 	}
 
 }

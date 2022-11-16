@@ -32,6 +32,7 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.DateFormatter;
 
+import org.jdatepicker.JDatePicker;
 import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
@@ -375,7 +376,7 @@ public class GUI extends JFrame {
 		panel_6.setLayout(gbl_panel_6);
 		
 		JButton btnShifts = new JButton("Shifts");
-		btnShifts.addActionListener(this::workShiftsButtonClicked);
+		btnShifts.addActionListener(this::shiftsButtonClicked);
 		btnShifts.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		GridBagConstraints gbc_btnShifts = new GridBagConstraints();
 		gbc_btnShifts.fill = GridBagConstraints.BOTH;
@@ -503,6 +504,7 @@ public class GUI extends JFrame {
 		panelReleaseNewShifts.add(panel_19, BorderLayout.SOUTH);
 		
 		JButton btnCancelReleaseShift = new JButton("Cancel");
+		btnCancelReleaseShift.addActionListener(this::cancelReleaseShiftButtonClicked);
 		panel_19.add(btnCancelReleaseShift);
 		
 		JButton btnCompleteReleaseShift = new JButton("Complete");
@@ -522,6 +524,7 @@ public class GUI extends JFrame {
 		panelShiftMenu.add(panel_11, BorderLayout.SOUTH);
 		
 		JButton btnCancelShiftMenu = new JButton("Cancel");
+		btnCancelShiftMenu.addActionListener(this::cancelShiftMenuButtonClicked);
 		btnCancelShiftMenu.setHorizontalAlignment(SwingConstants.RIGHT);
 		panel_11.add(btnCancelShiftMenu);
 		
@@ -541,12 +544,14 @@ public class GUI extends JFrame {
 		flowLayout_4.setAlignment(FlowLayout.RIGHT);
 		panelTakeShift.add(panel_21, BorderLayout.SOUTH);
 		
-		JButton btnCancelTakeShift = new JButton("Cancel");
-		btnCancelTakeShift.setHorizontalAlignment(SwingConstants.RIGHT);
-		panel_21.add(btnCancelTakeShift);
+		JButton btnTakeShiftBack = new JButton("Back");
+		btnTakeShiftBack.addActionListener(this::takeShiftBackButtonClicked);
+		btnTakeShiftBack.setHorizontalAlignment(SwingConstants.RIGHT);
+		panel_21.add(btnTakeShiftBack);
 		
-		JButton btnCompleteTakeShift = new JButton("Complete");
-		panel_21.add(btnCompleteTakeShift);
+		JButton btnTakeShiftOK = new JButton("OK");
+		btnTakeShiftOK.addActionListener(this::takeShiftOKButtonClicked);
+		panel_21.add(btnTakeShiftOK);
 		
 		JPanel panel_22 = new JPanel();
 		panelTakeShift.add(panel_22, BorderLayout.CENTER);
@@ -643,9 +648,12 @@ public class GUI extends JFrame {
 		// Adds all panels to the cardlayout of the JFrame.
 		addPanelsToCardLayout();
 		}
+		
 		}
 		
 	}
+	
+	// Methods to handle layout.
 	
 	private void addPanelsToCardLayout() {
 		Container container = getContentPane();
@@ -660,9 +668,14 @@ public class GUI extends JFrame {
 		cardLayout.show(contentPane, cardName);
 	}
 	
+	// Methods to handle action events.
 	
-	private void workShiftsButtonClicked(ActionEvent e) {
-		if(checkLogin()) {
+	private void cancelShiftMenuButtonClicked(ActionEvent e) {
+		getThisCard("MainMenu");
+	}
+	
+	private void shiftsButtonClicked(ActionEvent e) {
+		if(checkLogin()) { // TODO Er det nødvendigt at tjekke login hvis vi kun bruger en manager som eksempel?
 			getThisCard("ShiftsMenu");
 		}
 	}
@@ -686,6 +699,15 @@ public class GUI extends JFrame {
 		completeReleaseNewShifts();
 	}
 	
+	private void cancelReleaseShiftButtonClicked(ActionEvent e) {
+		getThisCard("ShiftsMenu");
+		shiftController.clearShiftCopies();
+		listModelRelease.clear();
+		datePicker.getJFormattedTextField().setText("");
+		comboBoxShiftFrom.setSelectedIndex(0);
+		comboBoxShiftTo.setSelectedIndex(0);
+	}
+	
 	private void deleteShiftCopyButtonClicked(ActionEvent e) throws DataAccessException {
 		deleteShiftCopy();
 	}
@@ -703,8 +725,19 @@ public class GUI extends JFrame {
 		delegateShifts();
 	}
 	
+	private void takeShiftOKButtonClicked(ActionEvent e) {
+		getThisCard("MainMenu");
+	}
+	
+	private void takeShiftBackButtonClicked(ActionEvent e) {
+		getThisCard("ShiftsMenu");
+	}
+	
+	// Implementation of use cases.
+	
 	private void startReleaseNewShifts() throws DataAccessException {
 		shiftController.startReleaseNewShifts();
+		
 		if(checkLogin()) {
 			getThisCard("ReleaseNewShifts");
 		}
@@ -719,6 +752,7 @@ public class GUI extends JFrame {
 		String toHourString = (String) comboBoxShiftTo.getSelectedItem();
 		LocalTime toHour = LocalTime.parse(toHourString);
 		textAreaErrorHandling.setText("");
+		
 		if(fromHour.getHour() >= toHour.getHour()) {
 			textAreaErrorHandling.setText("Invalid time period has been chosen");
 		}
@@ -736,6 +770,7 @@ public class GUI extends JFrame {
 	
 	private void completeReleaseNewShifts() throws DataAccessException {
 		getThisCard("CompleteReleaseNewShifts");
+		
 		if(shiftController.completeReleaseNewShifts()) {
 			textAreaCompleteReleaseNewShifts.setText("Completion was successfull");
 		}
@@ -746,6 +781,7 @@ public class GUI extends JFrame {
 	
 	private void deleteShiftCopy() throws DataAccessException {
 		int index = getIndexOnSelectedListValue(listOfShiftsToRelease);
+		
 		if(shiftController.deleteShiftCopy(index)) {
 			showCopies(shiftController.getShiftCopies(), listModelRelease);
 		}
@@ -756,6 +792,7 @@ public class GUI extends JFrame {
 	
 	private void startTakeNewShift() throws DataAccessException {
 		ArrayList<Copy> releasedCopies = shiftController.startTakeNewShift();
+		
 		if(!releasedCopies.isEmpty()) {
 			showCopies(releasedCopies, listModelTake);
 		}
@@ -764,6 +801,7 @@ public class GUI extends JFrame {
 	private void takeNewShift() throws DataAccessException {
 		int index = getIndexOnSelectedListValue(listOfShiftsToTake);
 		boolean taken = shiftController.takeNewShift(index);
+		
 		if(taken) {
 			textAreaTakeNewShiftErrorHandling.setText("Shift was successfully taken");
 			showCopies(shiftController.getReleasedCopies(), listModelTake);
@@ -775,12 +813,14 @@ public class GUI extends JFrame {
 	
 	private void delegateShifts() throws DataAccessException {
 		boolean canBeDelegated = shiftController.checkReleasedAt();
+		int delegated;
+		
 		if(canBeDelegated) {
-			int delegated = shiftController.delegateShifts(0, 0);
+			delegated = shiftController.delegateShifts(0, 0);
 			if(delegated == 1) {
-				textAreaTakeNewShiftErrorHandling.setText("All shifts were");
+				textAreaTakeNewShiftErrorHandling.append("All shifts were");
 				textAreaTakeNewShiftErrorHandling.append(" \n");
-				textAreaTakeNewShiftErrorHandling.setText("delegated successfully");
+				textAreaTakeNewShiftErrorHandling.append("delegated successfully");
 				showCopies(shiftController.getReleasedCopies(), listModelTake);
 			}
 			else if(delegated == -1) {
@@ -798,43 +838,43 @@ public class GUI extends JFrame {
 	private int getIndexOnSelectedListValue(JList<String> list) {
 		String copyList = (String) list.getSelectedValue();
 		String substr = copyList.substring(7, 9);
+		int index;
+		
 		if(substr.substring(1,2).equals(" ")) {
 			substr = substr.substring(0,1);
 		}
-		int index = Integer.parseInt(substr) - 1;
+		index = Integer.parseInt(substr) - 1;
 		return index;
 	}
 	
 	private void showCopies(ArrayList<Copy> shiftCopies, DefaultListModel<String> listModel) throws DataAccessException {
 		listModel.clear();
+		Copy copy;
+		String copyDate;
+		String day;
+		String month;
+		String year;
+		String copyDateFormatted;
+		LocalTime fromHour;
+		LocalTime toHour;
+		
 		for(int i = 0 ; i < shiftCopies.size() ; i++) {
-			Copy copy = shiftCopies.get(i);
-			String copyDate = copy.getDate().toString();
-			String day = copyDate.substring(copyDate.length() - 2);
-			String month = copyDate.substring(5, 7);
-			String year = copyDate.substring(0, 4);
-			String copyDateFormatted = day + "-" + month + "-" + year;
-			listModel.addElement("Shift: " + (i + 1) + " Date: " + copyDateFormatted + " From: " + copy.getShift().getFromHour() + " To: " + copy.getShift().getToHour());
+			copy = shiftCopies.get(i);
+			copyDate = copy.getDate().toString();
+			day = copyDate.substring(copyDate.length() - 2);
+			month = copyDate.substring(5, 7);
+			year = copyDate.substring(0, 4);
+			copyDateFormatted = day + "-" + month + "-" + year;
+			fromHour = copy.getShift().getFromHour();
+			toHour = copy.getShift().getToHour();
+			listModel.addElement("Shift: " + (i + 1) + " Date: " + copyDateFormatted + " From: " + fromHour + " To: " + toHour);
 		}
-	}
-	
-	private int getIntTimeFromString(String time) {
-		String timeAsString;
-		int timeAsInt;
-		if(time.substring(1,2).equals(":")) {
-			 timeAsString = time.substring(0,1);
-			 timeAsInt = Integer.parseInt(timeAsString); 
-		}
-		else {
-			timeAsString = time.substring(0,2);
-			 timeAsInt = Integer.parseInt(timeAsString);
-		}
-		return timeAsInt;
 	}
 	
 	private boolean checkLogin() {
 		boolean manager = false;
 		Employee employee = employeeController.getLoggedInEmployee();
+		
 		if(employee.getType().equals("Manager")) {
 			manager = true;
 		}

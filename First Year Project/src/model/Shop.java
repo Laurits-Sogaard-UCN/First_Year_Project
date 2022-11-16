@@ -18,14 +18,14 @@ public class Shop {
 	 * @param name
 	 * @param iD
 	 */
-	public Shop(String address, int zipcode, String city, String country, String name, int iD) {
+	public Shop(String address, int zipcode, String city, String country, String name, int ID) {
 		super();
 		this.address = address;
 		this.zipcode = zipcode;
 		this.city = city;
 		this.country = country;
 		this.name = name;
-		ID = iD;
+		this.ID = ID;
 	}
 
 	public Shop(int ID) {

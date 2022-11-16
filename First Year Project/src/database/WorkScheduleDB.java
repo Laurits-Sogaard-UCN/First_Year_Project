@@ -56,12 +56,14 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 	 */
 	private void init() throws DataAccessException {
 		Connection con = DBConnection.getInstance().getConnection();
+		
 		try {
 			findWorkScheduleIDOnCPR = con.prepareStatement(FIND_WORK_SCHEDULE_ID_ON_CPR, PreparedStatement.RETURN_GENERATED_KEYS);
 			insertNewWorkSchedule = con.prepareStatement(INSERT_NEW_WORK_SCHEDULE);
 			getTotalHours = con.prepareStatement(GET_TOTAL_HOURS);
 			setTotalHours = con.prepareStatement(SET_TOTAL_HOURS);
 			getAllWorkSchedules = con.prepareStatement(GET_ALL_WORK_SCHEDULES);
+			
 		} catch(SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_PREPARE_STATEMENT, e);
 		}
@@ -70,50 +72,33 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 	public int findWorkScheduleIDOnEmployeeCPR(String CPR) throws DataAccessException {
 		int workScheduleID = 0;
 		ResultSet rs;
+		
 		try {
 			findWorkScheduleIDOnCPR.setString(1, CPR);
 			rs = findWorkScheduleIDOnCPR.executeQuery();
 			if(rs.next()) {
 				workScheduleID = rs.getInt("ID");
 			}
-			if(workScheduleID == 0) {
-				insertNewWorkSchedule(CPR);
-				ResultSet rs1 = insertNewWorkSchedule.getGeneratedKeys();
-				if(rs1.next()) {
-					workScheduleID = rs1.getInt(1);
-				}
-			}
+			
 		} catch(SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
 		}
 		return workScheduleID;
 	}
 	
-	private boolean insertNewWorkSchedule(String CPR) throws DataAccessException {
-		boolean inserted = false;
-		int rowsAffected = -1;
-		try {
-			insertNewWorkSchedule.setString(1, CPR);
-			rowsAffected = insertNewWorkSchedule.executeUpdate();
-			if(rowsAffected == 0) {
-				inserted = true;
-			}
-		} catch(SQLException e) {
-			throw new DataAccessException(DBMessages.COULD_NOT_INSERT, e);
-		}
-		return inserted;
-	}
-	
 	public boolean setTotalHoursOnWorkSchedule(int hours, String employeeCPR) throws DataAccessException {
 		boolean set = false;
+		int totalHours;
+		
 		try {
 			DBConnection.getInstance().startTransaction();
-			int totalHours = getTotalHours(employeeCPR);
+			totalHours = getTotalHours(employeeCPR);
 			setTotalHours.setInt(1, totalHours + hours);
 			setTotalHours.setString(2, employeeCPR);
 			setTotalHours.executeUpdate();
 			DBConnection.getInstance().commitTransaction();
 			set = true;
+			
 		} catch(SQLException e) {
 			DBConnection.getInstance().rollbackTransaction();
 			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
@@ -124,12 +109,14 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 	private int getTotalHours(String employeeCPR) throws DataAccessException {
 		int totalHours = 0;
 		ResultSet rs;
+		
 		try {
 			getTotalHours.setString(1, employeeCPR);
 			rs = getTotalHours.executeQuery();
 			if(rs.next()) {
 				totalHours = rs.getInt("TotalHours");
 			}
+			
 		} catch(SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
 		}
@@ -139,10 +126,12 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 	public ArrayList<WorkSchedule> getAllWorkSchedules() throws DataAccessException {
 		ArrayList<WorkSchedule> workSchedules = new ArrayList<>();
 		ResultSet rs;
+		
 		try {
 			getAllWorkSchedules.setString(1, EmployeeType.PARTTIME.getType());
 			rs = getAllWorkSchedules.executeQuery();
 			workSchedules = buildWorkScheduleObjects(rs);
+			
 		} catch(SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
 		}
@@ -151,11 +140,14 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 	
 	private ArrayList<WorkSchedule> buildWorkScheduleObjects(ResultSet rs) throws DataAccessException {
 		ArrayList<WorkSchedule> workSchedules = new ArrayList<>();
+		WorkSchedule workSchedule;
+		
 		try {
 			while(rs.next()) {
-				WorkSchedule workSchedule = buildWorkScheduleObject(rs);
+				workSchedule = buildWorkScheduleObject(rs);
 				workSchedules.add(workSchedule);
 			} 
+			
 		} catch (SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_READ_RESULTSET, e);
 		}
@@ -164,12 +156,17 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 	}
 
 	private WorkSchedule buildWorkScheduleObject(ResultSet rs) throws DataAccessException {
-		WorkSchedule workSchedule = null;
+		WorkSchedule workSchedule;
+		int id;
+		int totalHours;
+		String employeeCPR;
+		
 		try {
-			int id = rs.getInt("ID");
-			int totalHours = rs.getInt("TotalHours");
-			String employeeCPR = rs.getString("EmployeeCPR");
+			id = rs.getInt("ID");
+			totalHours = rs.getInt("TotalHours");
+			employeeCPR = rs.getString("EmployeeCPR");
 			workSchedule = new WorkSchedule(id, totalHours, employeeCPR);
+			
 		} catch(SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
 		}
