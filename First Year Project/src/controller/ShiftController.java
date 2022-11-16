@@ -155,5 +155,9 @@ public class ShiftController {
 		releasedShiftCopies = shiftDB.findReleasedShiftCopies();
 		return releasedShiftCopies;
 	}
+	
+	public void clearShiftCopies() {
+		shiftCopies.clear();
+	}
 
 }
