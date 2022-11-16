@@ -737,6 +737,7 @@ public class GUI extends JFrame {
 	
 	private void startReleaseNewShifts() throws DataAccessException {
 		shiftController.startReleaseNewShifts();
+		
 		if(checkLogin()) {
 			getThisCard("ReleaseNewShifts");
 		}
@@ -751,6 +752,7 @@ public class GUI extends JFrame {
 		String toHourString = (String) comboBoxShiftTo.getSelectedItem();
 		LocalTime toHour = LocalTime.parse(toHourString);
 		textAreaErrorHandling.setText("");
+		
 		if(fromHour.getHour() >= toHour.getHour()) {
 			textAreaErrorHandling.setText("Invalid time period has been chosen");
 		}
@@ -768,6 +770,7 @@ public class GUI extends JFrame {
 	
 	private void completeReleaseNewShifts() throws DataAccessException {
 		getThisCard("CompleteReleaseNewShifts");
+		
 		if(shiftController.completeReleaseNewShifts()) {
 			textAreaCompleteReleaseNewShifts.setText("Completion was successfull");
 		}
@@ -778,6 +781,7 @@ public class GUI extends JFrame {
 	
 	private void deleteShiftCopy() throws DataAccessException {
 		int index = getIndexOnSelectedListValue(listOfShiftsToRelease);
+		
 		if(shiftController.deleteShiftCopy(index)) {
 			showCopies(shiftController.getShiftCopies(), listModelRelease);
 		}
@@ -788,6 +792,7 @@ public class GUI extends JFrame {
 	
 	private void startTakeNewShift() throws DataAccessException {
 		ArrayList<Copy> releasedCopies = shiftController.startTakeNewShift();
+		
 		if(!releasedCopies.isEmpty()) {
 			showCopies(releasedCopies, listModelTake);
 		}
@@ -796,6 +801,7 @@ public class GUI extends JFrame {
 	private void takeNewShift() throws DataAccessException {
 		int index = getIndexOnSelectedListValue(listOfShiftsToTake);
 		boolean taken = shiftController.takeNewShift(index);
+		
 		if(taken) {
 			textAreaTakeNewShiftErrorHandling.setText("Shift was successfully taken");
 			showCopies(shiftController.getReleasedCopies(), listModelTake);
@@ -807,8 +813,10 @@ public class GUI extends JFrame {
 	
 	private void delegateShifts() throws DataAccessException {
 		boolean canBeDelegated = shiftController.checkReleasedAt();
+		int delegated;
+		
 		if(canBeDelegated) {
-			int delegated = shiftController.delegateShifts(0, 0);
+			delegated = shiftController.delegateShifts(0, 0);
 			if(delegated == 1) {
 				textAreaTakeNewShiftErrorHandling.append("All shifts were");
 				textAreaTakeNewShiftErrorHandling.append(" \n");
@@ -830,29 +838,43 @@ public class GUI extends JFrame {
 	private int getIndexOnSelectedListValue(JList<String> list) {
 		String copyList = (String) list.getSelectedValue();
 		String substr = copyList.substring(7, 9);
+		int index;
+		
 		if(substr.substring(1,2).equals(" ")) {
 			substr = substr.substring(0,1);
 		}
-		int index = Integer.parseInt(substr) - 1;
+		index = Integer.parseInt(substr) - 1;
 		return index;
 	}
 	
 	private void showCopies(ArrayList<Copy> shiftCopies, DefaultListModel<String> listModel) throws DataAccessException {
 		listModel.clear();
+		Copy copy;
+		String copyDate;
+		String day;
+		String month;
+		String year;
+		String copyDateFormatted;
+		LocalTime fromHour;
+		LocalTime toHour;
+		
 		for(int i = 0 ; i < shiftCopies.size() ; i++) {
-			Copy copy = shiftCopies.get(i);
-			String copyDate = copy.getDate().toString();
-			String day = copyDate.substring(copyDate.length() - 2);
-			String month = copyDate.substring(5, 7);
-			String year = copyDate.substring(0, 4);
-			String copyDateFormatted = day + "-" + month + "-" + year;
-			listModel.addElement("Shift: " + (i + 1) + " Date: " + copyDateFormatted + " From: " + copy.getShift().getFromHour() + " To: " + copy.getShift().getToHour());
+			copy = shiftCopies.get(i);
+			copyDate = copy.getDate().toString();
+			day = copyDate.substring(copyDate.length() - 2);
+			month = copyDate.substring(5, 7);
+			year = copyDate.substring(0, 4);
+			copyDateFormatted = day + "-" + month + "-" + year;
+			fromHour = copy.getShift().getFromHour();
+			toHour = copy.getShift().getToHour();
+			listModel.addElement("Shift: " + (i + 1) + " Date: " + copyDateFormatted + " From: " + fromHour + " To: " + toHour);
 		}
 	}
 	
 	private boolean checkLogin() {
 		boolean manager = false;
 		Employee employee = employeeController.getLoggedInEmployee();
+		
 		if(employee.getType().equals("Manager")) {
 			manager = true;
 		}

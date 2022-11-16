@@ -18,14 +18,14 @@ public class Shift {
 	 * @param toHour
 	 * @param iD
 	 */
-	public Shift(LocalTime fromHour, LocalTime toHour, int iD) {
+	public Shift(LocalTime fromHour, LocalTime toHour, int ID) {
 		this.fromHour = fromHour;
 		this.toHour = toHour;
-		ID = iD;
+		this.ID = ID;
 	}
 
-	public Shift(int iD) {
-		ID = iD;
+	public Shift(int ID) {
+		this.ID = ID;
 	}
 
 	public Shift() {
@@ -75,8 +75,8 @@ public class Shift {
 	/**
 	 * @param iD the iD to set
 	 */
-	public void setID(int iD) {
-		ID = iD;
+	public void setID(int ID) {
+		this.ID = ID;
 	}
 	
 	

@@ -137,8 +137,6 @@ public class Copy {
 	public void setReleasedAt(LocalDateTime releasedAt) {
 		this.releasedAt = releasedAt;
 	}
-	
-	
-	
+
 
 }

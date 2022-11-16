@@ -1,9 +1,7 @@
 package database;
 
-import model.Employee;
-import utility.DataAccessException;
 
-public interface EmployeeDBIF {
+public interface EmployeeDBIF { // TODO Find ud af om den her skal kasseres
 	
 
 }

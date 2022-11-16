@@ -16,7 +16,7 @@ public class Employee {
 	private Shop shop;
 	
 	/**
-	 * @param cPR
+	 * @param CPR
 	 * @param lname
 	 * @param fname
 	 * @param email
@@ -27,10 +27,9 @@ public class Employee {
 	 * @param type
 	 * @param shop
 	 */
-	public Employee(String cPR, String lname, String fname, String email, String address, String phone, String username,
+	public Employee(String CPR, String lname, String fname, String email, String address, String phone, String username,
 			String password, String type, Shop shop) {
-		super();
-		CPR = cPR;
+		this.CPR = CPR;
 		this.lname = lname;
 		this.fname = fname;
 		this.email = email;
@@ -51,8 +50,8 @@ public class Employee {
 	/**
 	 * @param cPR the cPR to set
 	 */
-	public void setCPR(String cPR) {
-		CPR = cPR;
+	public void setCPR(String CPR) {
+		this.CPR = CPR;
 	}
 	/**
 	 * @return the lname

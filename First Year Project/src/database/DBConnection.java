@@ -8,14 +8,14 @@ import utility.DataAccessException;
 
 public class DBConnection {
 	
-	private Connection connection = null;
-	private static DBConnection dbConnection;
 	private static final String driverClass = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
 	private static final String dbName = "DMA-CSD-V222_10434664";
 	private static final String serverAddress = "hildur.ucn.dk";
 	private static final int serverPort = 1433;
 	private static final String userName = "DMA-CSD-V222_10434664";
 	private static final String password = "Password1!";
+	private static DBConnection dbConnection;
+	private Connection connection = null;
 
 	/**
 	 * Constructor to create database access.
@@ -24,6 +24,7 @@ public class DBConnection {
 	private DBConnection() throws DataAccessException {
 		String connectionString = String.format("jdbc:sqlserver://%s:%d;databaseName=%s;user=%s;password=%s;encrypt=false",
 				serverAddress, serverPort, dbName, userName, password);
+		
 		try {
 			Class.forName(driverClass);
 			connection = DriverManager.getConnection(connectionString);

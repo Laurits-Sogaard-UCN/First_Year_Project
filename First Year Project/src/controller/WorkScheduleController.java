@@ -22,6 +22,7 @@ public class WorkScheduleController {
 	
 	public boolean setTotalHoursOnWorkSchedule(int hours, String employeeCPR) throws DataAccessException {
 		boolean set = false;
+		
 		if(workScheduleDB.setTotalHoursOnWorkSchedule(hours, employeeCPR)) {
 			set = true;
 		}
