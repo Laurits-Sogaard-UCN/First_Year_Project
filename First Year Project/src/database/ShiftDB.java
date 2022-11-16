@@ -117,23 +117,23 @@ public class ShiftDB implements ShiftDBIF {
 		return shift;
 	}
 	
-	public boolean completeReleaseNewShifts(ArrayList<Copy> copies) throws DataAccessException {
+	public boolean completeReleaseNewShifts(ArrayList<Copy> shiftCopies) throws DataAccessException {
 		boolean completed = false;
 		int rowsAffected = -1;
 		try {
-			DBConnection.getInstance().startTransaction();
-			for(Copy element : copies) {
-				LocalTime fromHour = element.getShift().getFromHour();
-				LocalTime toHour = element.getShift().getToHour();
-				Shift shift = findShiftOnFromAndTo(fromHour, toHour);
+			DBConnection.getInstance().startTransaction(); // TODO Spørg Lars om transaktion i et loop?
+			for(Copy element : shiftCopies) {
+				Shift shift = element.getShift();
 				int id = shift.getID();
 				LocalDate localDate = element.getDate();
 				java.sql.Date date = java.sql.Date.valueOf(localDate);
+				
 				insertWorkShiftCopy.setInt(1, id);
 				insertWorkShiftCopy.setDate(2, date);
 				insertWorkShiftCopy.setString(3, CopyState.RELEASED.getState());
 				Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
 				insertWorkShiftCopy.setTimestamp(4, timestamp);
+				
 				rowsAffected += insertWorkShiftCopy.executeUpdate();
 			}
 			DBConnection.getInstance().commitTransaction();
@@ -166,7 +166,7 @@ public class ShiftDB implements ShiftDBIF {
 		boolean taken = false;
 		if(checkRestPeriod(copy, workScheduleID)) {
 			try {
-				DBConnection.getInstance().startTransaction();
+				DBConnection.getInstance().startTransaction(); // TODO spørg Lars om interne metodekald i en transaktion.
 				setStateToOccupied(copy);
 				setWorkScheduleIDOnCopy(copy, workScheduleID);
 				DBConnection.getInstance().commitTransaction();
@@ -182,8 +182,6 @@ public class ShiftDB implements ShiftDBIF {
 	private boolean checkRestPeriod(Copy copy, int workScheduleID) throws DataAccessException {
 		boolean sufficientRest = false;
 		ResultSet rs;
-		String dateString = "";
-		String copyDateString = "";
 		try {
 			checkRestPeriod.setInt(1, workScheduleID);
 			rs = checkRestPeriod.executeQuery();
@@ -308,7 +306,7 @@ public class ShiftDB implements ShiftDBIF {
 			String state = rs.getString("State");
 			Date releasedAtTimestamp = rs.getTimestamp("ReleasedAt");
 			LocalDateTime releasedAt = releasedAtTimestamp.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-			copy = new Copy(id, shift, null, version, localDate, state, releasedAt);
+			copy = new Copy(id, shift, null, version, localDate, state, releasedAt); // TODO ny constructor
 		} catch(SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
 		}

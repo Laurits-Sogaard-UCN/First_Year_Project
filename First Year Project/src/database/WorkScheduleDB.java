@@ -76,32 +76,10 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 			if(rs.next()) {
 				workScheduleID = rs.getInt("ID");
 			}
-			if(workScheduleID == 0) {
-				insertNewWorkSchedule(CPR);
-				ResultSet rs1 = insertNewWorkSchedule.getGeneratedKeys();
-				if(rs1.next()) {
-					workScheduleID = rs1.getInt(1);
-				}
-			}
 		} catch(SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
 		}
 		return workScheduleID;
-	}
-	
-	private boolean insertNewWorkSchedule(String CPR) throws DataAccessException {
-		boolean inserted = false;
-		int rowsAffected = -1;
-		try {
-			insertNewWorkSchedule.setString(1, CPR);
-			rowsAffected = insertNewWorkSchedule.executeUpdate();
-			if(rowsAffected == 0) {
-				inserted = true;
-			}
-		} catch(SQLException e) {
-			throw new DataAccessException(DBMessages.COULD_NOT_INSERT, e);
-		}
-		return inserted;
 	}
 	
 	public boolean setTotalHoursOnWorkSchedule(int hours, String employeeCPR) throws DataAccessException {

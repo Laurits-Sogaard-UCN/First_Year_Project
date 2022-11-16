@@ -143,8 +143,8 @@ public class ShiftController {
 		LocalTime fromHours = copy.getShift().getFromHour();
 		int toHoursToAdd = toHours.getHour();
 		int fromHoursToAdd = fromHours.getHour();
-		int hoursToReturn = toHoursToAdd - fromHoursToAdd;
-		return hoursToReturn;			
+		int totalHours = toHoursToAdd - fromHoursToAdd;
+		return totalHours;			
 	}
 	
 	public ArrayList<Copy> getShiftCopies() {
