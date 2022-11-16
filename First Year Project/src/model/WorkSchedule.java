@@ -41,8 +41,8 @@ public class WorkSchedule implements Comparable<WorkSchedule> {
 	/**
 	 * @param iD the iD to set
 	 */
-	public void setID(int iD) {
-		ID = iD;
+	public void setID(int ID) {
+		this.ID = ID;
 	}
 
 	/**

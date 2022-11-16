@@ -17,9 +17,9 @@ public class FullTimeEmployee extends Employee {
 	 * @param shop
 	 * @param monthlyWage
 	 */
-	public FullTimeEmployee(String cPR, String lname, String fname, String email, String address, String phone,
+	public FullTimeEmployee(String CPR, String lname, String fname, String email, String address, String phone,
 			String username, String password, String type, Shop shop, double monthlyWage) {
-		super(cPR, lname, fname, email, address, phone, username, password, type, shop);
+		super(CPR, lname, fname, email, address, phone, username, password, type, shop);
 		this.monthlyWage = monthlyWage;
 	}
 
