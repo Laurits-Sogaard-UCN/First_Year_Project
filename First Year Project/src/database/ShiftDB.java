@@ -3,10 +3,10 @@ package database;
 import java.sql.Connection;
 
 
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -14,9 +14,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -24,9 +22,7 @@ import model.Copy;
 import model.Shift;
 import utility.CopyState;
 import utility.DBMessages;
-import utility.DataAccessException;
-
-import static java.time.temporal.ChronoUnit.HOURS;;
+import utility.DataAccessException;;
 
 public class ShiftDB implements ShiftDBIF {
 	
@@ -178,14 +174,14 @@ public class ShiftDB implements ShiftDBIF {
 		return versionNumber;
 	}
 	
-	public boolean takeNewShift(Copy copy, int workScheduleID) throws DataAccessException {
+	public boolean takeNewShift(Copy copy, int workScheduleID, String state) throws DataAccessException {
 		boolean taken = false;
 		boolean sufficientRest = checkRestPeriod(copy, workScheduleID);
 		
 		if(sufficientRest) {
 			try {
 				DBConnection.getInstance().startTransaction(); // TODO spørg Lars om interne metodekald i en transaktion.
-				setStateToOccupied(copy);
+				setState(copy, state);
 				setWorkScheduleIDOnCopy(copy, workScheduleID);
 				DBConnection.getInstance().commitTransaction();
 				taken = true;
@@ -262,11 +258,11 @@ public class ShiftDB implements ShiftDBIF {
 		return sufficientRest;
 	}
 	
-	private void setStateToOccupied(Copy copy) throws DataAccessException {
+	private void setState(Copy copy, String state) throws DataAccessException {
 		int id = copy.getId();
 		
 		try {
-			changeStateOnCopy.setString(1, CopyState.OCCUPIED.getState());
+			changeStateOnCopy.setString(1, state);
 			changeStateOnCopy.setInt(2, id);
 			changeStateOnCopy.executeUpdate();
 			
