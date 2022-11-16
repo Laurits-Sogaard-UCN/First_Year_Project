@@ -2,16 +2,13 @@ package database;
 
 import java.sql.Connection;
 
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 
-import model.Copy;
 import utility.EmployeeType;
-import model.Shift;
 import model.WorkSchedule;
 import utility.DBMessages;
 import utility.DataAccessException;

@@ -13,9 +13,10 @@ import model.Employee;
 import model.Shift;
 import model.Shop;
 import model.WorkSchedule;
+import utility.CopyState;
 import utility.DataAccessException;
 
-public class ShiftController {
+public class ShiftController {//TODO Catch exceptions her i controller
 	
 	private EmployeeController employeeController;
 	private ShopController shopController;
@@ -83,13 +84,12 @@ public class ShiftController {
 		byte[] currentVersionNumber = shiftDB.findCopyVersionNumberOnID(copy.getId());
 		String employeeCPR = employeeController.getLoggedInEmployee().getCPR();
 		int workScheduleID = workScheduleController.findWorkScheduleIDOnEmployeeCPR(employeeCPR);
+		String state = CopyState.OCCUPIED.getState();
 		
 		if(Arrays.equals(copy.getVersionNumber(), currentVersionNumber)) {
-			if(shiftDB.takeNewShift(copy, workScheduleID)) {
-				int hours = calculateTotalHours(copy);
-				workScheduleController.setTotalHoursOnWorkSchedule(hours, employeeCPR);
-				releasedShiftCopies.remove(index);
-				success = true; //TODO returner null hvis den ikke kan tages af andre årsager.
+			if(shiftDB.takeNewShift(copy, workScheduleID, state)) {
+				calculateAndSetTotalHours(copy, employeeCPR, index);
+				success = true;
 			}
 		}
 		return success;
@@ -110,19 +110,22 @@ public class ShiftController {
 	
 	public int delegateShifts(int index, int workScheduleIndex) throws DataAccessException {
 		int delegated = 0;
+		Copy copy;
+		ArrayList<WorkSchedule> workSchedules;
+		int workScheduleID;
+		String employeeCPR;
+		String state = CopyState.DELEGATED.getState();
 		releasedShiftCopies = shiftDB.findReleasedShiftCopies();
 		
 		if(!releasedShiftCopies.isEmpty()) {
-			Copy copy = releasedShiftCopies.get(index);
-			ArrayList<WorkSchedule> workSchedules = workScheduleController.getAllWorkSchedules();
+			copy = releasedShiftCopies.get(index);
+			workSchedules = workScheduleController.getAllWorkSchedules();
 			workSchedules.sort(null);
-			int workScheduleID = workSchedules.get(workScheduleIndex).getID();
-			String employeeCPR = workSchedules.get(workScheduleIndex).getEmployeeCPR();
+			workScheduleID = workSchedules.get(workScheduleIndex).getID();
+			employeeCPR = workSchedules.get(workScheduleIndex).getEmployeeCPR();
 			
-			if(shiftDB.takeNewShift(copy, workScheduleID)) {
-				int hours = calculateTotalHours(copy); // TODO refaktorering her
-				workScheduleController.setTotalHoursOnWorkSchedule(hours, employeeCPR);
-				releasedShiftCopies.remove(index);
+			if(shiftDB.takeNewShift(copy, workScheduleID, state)) {
+				calculateAndSetTotalHours(copy, employeeCPR, index);
 				delegateShifts(0, 0);
 				delegated = 1;
 			}
@@ -141,6 +144,12 @@ public class ShiftController {
 			delegated = -1;
 		}
 		return delegated;
+	}
+	
+	private void calculateAndSetTotalHours(Copy copy, String employeeCPR, int index) throws DataAccessException {
+		int hours = calculateTotalHours(copy);
+		workScheduleController.setTotalHoursOnWorkSchedule(hours, employeeCPR);
+		releasedShiftCopies.remove(index);
 	}
 	
 	private int calculateTotalHours(Copy copy) {
