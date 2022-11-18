@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -40,7 +41,12 @@ class TestShiftController {
 		Connection con = DBConnection.getInstance().getConnection();
 		ShiftDB shiftDB = new ShiftDB();
 		String query = "DELETE FROM Copy WHERE Date = '2050-04-05' and State = 'Occupied';";
+		String workschedule = "Select WorkScheduleID\r\n"
+				+ "From Copy\r\n"
+				+ "Where Date = '2050-04-05' and State = 'Occupied';";
 		PreparedStatement ps = con.prepareStatement(query);
+		PreparedStatement ps1 = con.prepareStatement(workschedule);
+		ResultSet rs;
 		String employeeCPR = employeeController.getLoggedInEmployee().getCPR();
 		String fromHourString = "06:00";
 		String toHourString = "14:00";
@@ -55,11 +61,13 @@ class TestShiftController {
 		// Act
 		release = shiftController.completeReleaseNewShifts();
 		take = shiftController.takeNewShift(shiftController.getReleasedCopies().size() - 1);
+		rs = ps1.executeQuery();
 		sqlRestore = ps.executeUpdate();
 
 		// Assert
 		assertTrue(release);
 		assertTrue(take);
+		assertTrue(rs.next() && rs.getInt("WorkScheduleID") == 3);
 		assertTrue(sqlRestore == 1);
 		
 	} 
