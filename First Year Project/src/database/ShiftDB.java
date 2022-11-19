@@ -57,19 +57,22 @@ public class ShiftDB implements ShiftDBIF {
 			+ "WHERE s.ID = ?");
 	private PreparedStatement findShiftsOnShiftID;
 	
-	private static final String FIND_COPY_VERSIONNUMBER_ON_ID = ("SELECT c.VersionNumber\r\n"
+	private static final String FIND_COPY_WORKSCHEDULEID_ON_ID = ("SELECT c.WorkScheduleID\r\n"
 			+ "FROM Copy c\r\n"
 			+ "WHERE c.ID = ?");
-	private PreparedStatement findCopyVersionNumberOnID;
+	private PreparedStatement findCopyWorkScheduleIDOnID;
 	
 	private static final String SET_WORK_SCHEDULE_ID_ON_COPY = ("UPDATE Copy\r\n"
 			+ "SET WorkScheduleID = ?\r\n"
 			+ "WHERE ID = ?");
 	private PreparedStatement setWorkScheduleIDOnCopy;
 	
+	private Connection con;
+	
 	/**
 	 * Constructor to initialize instance variables.
 	 * @throws DataAccessException
+	 * @throws SQLException 
 	 */
 	public ShiftDB() throws DataAccessException {
 		init();
@@ -78,9 +81,10 @@ public class ShiftDB implements ShiftDBIF {
 	/**
 	 * Initialization of Connection and PreparedStatments.
 	 * @throws DataAccessException
+	 * @throws SQLException 
 	 */
 	private void init() throws DataAccessException {
-		Connection con = DBConnection.getInstance().getConnection();
+		con = DBConnection.getInstance().getConnection();
 		
 		try {
 			findShiftOnFromAndTo = con.prepareStatement(FIND_SHIFT_ON_FROM_AND_TO);
@@ -88,8 +92,8 @@ public class ShiftDB implements ShiftDBIF {
 			checkRestPeriod = con.prepareStatement(CHECK_REST_PERIOD);
 			changeStateOnCopy = con.prepareStatement(CHANGE_STATE_ON_COPY);
 			findReleasedShiftCopies = con.prepareStatement(FIND_RELEASED_SHIFT_COPIES);
+			findCopyWorkScheduleIDOnID = con.prepareStatement(FIND_COPY_WORKSCHEDULEID_ON_ID);
 			findShiftsOnShiftID = con.prepareStatement(FIND_SHIFTS_ON_SHIFT_ID);
-			findCopyVersionNumberOnID = con.prepareStatement(FIND_COPY_VERSIONNUMBER_ON_ID);
 			setWorkScheduleIDOnCopy = con.prepareStatement(SET_WORK_SCHEDULE_ID_ON_COPY);
 			
 		} catch(SQLException e) {
@@ -157,32 +161,36 @@ public class ShiftDB implements ShiftDBIF {
 		return completed;
 	}
 	
-	public byte[] findCopyVersionNumberOnID(int id) throws DataAccessException {
-		byte[] versionNumber = null;
+	private int findCopyWorkScheduleIDOnID(int id) throws DataAccessException {
+		int workScheduleID = 0;
 		ResultSet rs;
 		
 		try {
-			findCopyVersionNumberOnID.setInt(1, id);
-			rs = findCopyVersionNumberOnID.executeQuery();
+			findCopyWorkScheduleIDOnID.setInt(1, id);
+			rs = findCopyWorkScheduleIDOnID.executeQuery();
 			
 			if(rs.next()) {
-				versionNumber = rs.getBytes("VersionNumber");
+				workScheduleID = rs.getInt("WorkScheduleID");
 			}
 		} catch(SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
 		}
-		return versionNumber;
+		return workScheduleID;
 	}
 	
 	public boolean takeNewShift(Copy copy, int workScheduleID, String state) throws DataAccessException {
 		boolean taken = false;
 		boolean sufficientRest = checkRestPeriod(copy, workScheduleID);
+		int copyID = copy.getId();
 		
 		if(sufficientRest) {
 			try {
+				con.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
 				DBConnection.getInstance().startTransaction(); // TODO spørg Lars om interne metodekald i en transaktion.
-				setState(copy, state);
-				setWorkScheduleIDOnCopy(copy, workScheduleID);
+				if(findCopyWorkScheduleIDOnID(copyID) == 0) {
+					setState(copy, state);
+					setWorkScheduleIDOnCopy(copy, workScheduleID);
+				}
 				DBConnection.getInstance().commitTransaction();
 				taken = true;
 				
@@ -359,13 +367,12 @@ public class ShiftDB implements ShiftDBIF {
 				shift = buildShiftObject(rs2);
 			}
 			
-			version = rs.getBytes("VersionNumber");
 			date = rs.getDate("Date");
 			localDate = date.toLocalDate();
 			state = rs.getString("State");
 			releasedAtTimestamp = rs.getTimestamp("ReleasedAt");
 			releasedAt = releasedAtTimestamp.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-			copy = new Copy(id, shift, null, version, localDate, state, releasedAt); // TODO ny constructor
+			copy = new Copy(id, shift, null, localDate, state, releasedAt); // TODO ny constructor
 			
 		} catch(SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);

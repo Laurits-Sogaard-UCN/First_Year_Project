@@ -48,6 +48,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JPasswordField;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -102,6 +103,7 @@ public class GUI extends JFrame {
 	/**
 	 * Create the frame.
 	 * @throws DataAccessException 
+	 * @throws SQLException 
 	 */
 	public GUI() throws DataAccessException {
 		shiftController = new ShiftController();

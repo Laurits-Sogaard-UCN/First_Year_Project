@@ -1,5 +1,6 @@
 package database;
 
+import java.sql.Connection;
 import java.time.LocalTime;
 import java.util.ArrayList;
 
@@ -12,8 +13,6 @@ public interface ShiftDBIF {
 	public Shift findShiftOnFromAndTo(LocalTime fromHour, LocalTime toHour) throws DataAccessException;
 	
 	public boolean completeReleaseNewShifts(ArrayList<Copy> copies) throws DataAccessException;
-	
-	public byte[] findCopyVersionNumberOnID(int id) throws DataAccessException;
   
 	public ArrayList<Copy> findReleasedShiftCopies() throws DataAccessException;
 	

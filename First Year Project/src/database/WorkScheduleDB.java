@@ -20,13 +20,10 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 			+ "WHERE ws.EmployeeCPR = ?");
 	private PreparedStatement findWorkScheduleIDOnCPR;
 	
-	private static final String INSERT_NEW_WORK_SCHEDULE = ("INSERT INTO WorkSchedule(EmployeeCPR) VALUES(?)");
-	private PreparedStatement insertNewWorkSchedule;
-	
-	private static final String GET_TOTAL_HOURS = ("SELECT ws.TotalHours\r\n"
+	private static final String GET_CURRENT_HOURS = ("SELECT ws.TotalHours\r\n"
 			+ "FROM WorkSchedule ws\r\n"
 			+ "WHERE ws.EmployeeCPR = ?");
-	private PreparedStatement getTotalHours;
+	private PreparedStatement getCurrentHours;
 	
 	private static final String SET_TOTAL_HOURS = ("UPDATE WorkSchedule\r\n"
 			+ "SET TotalHours = ?\r\n"
@@ -39,9 +36,12 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 			+ "and e.EmployeeType = ?");
 	private PreparedStatement getAllWorkSchedules;
 	
+	private Connection con;
+	
 	/**
 	 * Constructor to initialize instance variables.
 	 * @throws DataAccessException
+	 * @throws SQLException 
 	 */
 	public WorkScheduleDB() throws DataAccessException {
 		init();
@@ -50,14 +50,14 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 	/**
 	 * Initialization of Connection and PreparedStatments.
 	 * @throws DataAccessException
+	 * @throws SQLException 
 	 */
 	private void init() throws DataAccessException {
-		Connection con = DBConnection.getInstance().getConnection();
+		con = DBConnection.getInstance().getConnection();
 		
 		try {
 			findWorkScheduleIDOnCPR = con.prepareStatement(FIND_WORK_SCHEDULE_ID_ON_CPR, PreparedStatement.RETURN_GENERATED_KEYS);
-			insertNewWorkSchedule = con.prepareStatement(INSERT_NEW_WORK_SCHEDULE);
-			getTotalHours = con.prepareStatement(GET_TOTAL_HOURS);
+			getCurrentHours = con.prepareStatement(GET_CURRENT_HOURS);
 			setTotalHours = con.prepareStatement(SET_TOTAL_HOURS);
 			getAllWorkSchedules = con.prepareStatement(GET_ALL_WORK_SCHEDULES);
 			
@@ -85,39 +85,48 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 	
 	public boolean setTotalHoursOnWorkSchedule(int hours, String employeeCPR) throws DataAccessException {
 		boolean set = false;
-		int totalHours;
+		int currentHours;
 		
 		try {
-			DBConnection.getInstance().startTransaction(); // TODO skal der ikke defineres isolationsniveau her?
-			totalHours = getTotalHours(employeeCPR);
-			setTotalHours.setInt(1, totalHours + hours);
-			setTotalHours.setString(2, employeeCPR);
-			setTotalHours.executeUpdate();
+			con.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
+			DBConnection.getInstance().startTransaction(); 
+			currentHours = getCurrentHours(employeeCPR);
+			setTotalHours(currentHours, hours, employeeCPR);
 			DBConnection.getInstance().commitTransaction();
 			set = true;
 			
-		} catch(SQLException e) {
+		} catch(Exception e) {
 			DBConnection.getInstance().rollbackTransaction();
 			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
 		}
 		return set;
 	}
 	
-	private int getTotalHours(String employeeCPR) throws DataAccessException {
-		int totalHours = 0;
+	private void setTotalHours(int currentHours, int hours, String employeeCPR) throws DataAccessException {
+		try {
+			setTotalHours.setInt(1, currentHours + hours);
+			setTotalHours.setString(2, employeeCPR);
+			setTotalHours.executeUpdate();
+		} catch (SQLException e) {
+			throw new DataAccessException(DBMessages.COULD_NOT_INSERT, e);
+		}
+	}
+	
+	private int getCurrentHours(String employeeCPR) throws DataAccessException {
+		int currentHours = 0;
 		ResultSet rs;
 		
 		try {
-			getTotalHours.setString(1, employeeCPR);
-			rs = getTotalHours.executeQuery();
+			getCurrentHours.setString(1, employeeCPR);
+			rs = getCurrentHours.executeQuery();
 			if(rs.next()) {
-				totalHours = rs.getInt("TotalHours");
+				currentHours = rs.getInt("TotalHours");
 			}
 			
 		} catch(SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
 		}
-		return totalHours;
+		return currentHours;
 	}
 	
 	public ArrayList<WorkSchedule> getAllWorkSchedules() throws DataAccessException {
