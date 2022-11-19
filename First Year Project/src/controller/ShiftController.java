@@ -86,7 +86,7 @@ public class ShiftController {//TODO Catch exceptions her i controller
 		int workScheduleID = workScheduleController.findWorkScheduleIDOnEmployeeCPR(employeeCPR);
 		String state = CopyState.OCCUPIED.getState();
 		
-		if(Arrays.equals(copy.getVersionNumber(), currentVersionNumber)) {
+		if(Arrays.equals(copy.getVersionNumber(), currentVersionNumber)) { //TODO måske vi skal holde os til pessimistisk samtidighedskontrol?
 			if(shiftDB.takeNewShift(copy, workScheduleID, state)) {
 				calculateAndSetTotalHours(copy, employeeCPR, index);
 				success = true;
