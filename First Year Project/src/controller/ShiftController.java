@@ -1,5 +1,6 @@
 package controller;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -81,16 +82,13 @@ public class ShiftController {//TODO Catch exceptions her i controller
 	public boolean takeNewShift(int index) throws DataAccessException {
 		boolean success = false;
 		Copy copy = releasedShiftCopies.get(index);
-		byte[] currentVersionNumber = shiftDB.findCopyVersionNumberOnID(copy.getId());
 		String employeeCPR = employeeController.getLoggedInEmployee().getCPR();
 		int workScheduleID = workScheduleController.findWorkScheduleIDOnEmployeeCPR(employeeCPR);
 		String state = CopyState.OCCUPIED.getState();
 		
-		if(Arrays.equals(copy.getVersionNumber(), currentVersionNumber)) { //TODO måske vi skal holde os til pessimistisk samtidighedskontrol?
-			if(shiftDB.takeNewShift(copy, workScheduleID, state)) {
-				calculateAndSetTotalHours(copy, employeeCPR, index);
-				success = true;
-			}
+		if(shiftDB.takeNewShift(copy, workScheduleID, state)) {
+			calculateAndSetTotalHours(copy, employeeCPR, index);
+			success = true;
 		}
 		return success;
 	}
