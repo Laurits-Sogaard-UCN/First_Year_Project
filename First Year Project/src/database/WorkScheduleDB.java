@@ -88,7 +88,7 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 		int totalHours;
 		
 		try {
-			DBConnection.getInstance().startTransaction();
+			DBConnection.getInstance().startTransaction(); // TODO skal der ikke defineres isolationsniveau her?
 			totalHours = getTotalHours(employeeCPR);
 			setTotalHours.setInt(1, totalHours + hours);
 			setTotalHours.setString(2, employeeCPR);
