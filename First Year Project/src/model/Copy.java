@@ -8,7 +8,6 @@ public class Copy {
 	private int id;
 	private Shift shift;
 	private WorkSchedule workSchedule;
-	private byte[] versionNumber;
 	private LocalDate date;
 	private String state;
 	private LocalDateTime releasedAt;
@@ -22,12 +21,11 @@ public class Copy {
 	 * @param state
 	 * @param releasedAt
 	 */
-	public Copy(int id, Shift shift, WorkSchedule workSchedule, byte[] versionNumber, LocalDate date, String state,
+	public Copy(int id, Shift shift, WorkSchedule workSchedule, LocalDate date, String state,
 			LocalDateTime releasedAt) {
 		this.id = id;
 		this.shift = shift;
 		this.workSchedule = workSchedule;
-		this.versionNumber = versionNumber;
 		this.date = date;
 		this.state = state;
 		this.releasedAt = releasedAt;
@@ -80,20 +78,6 @@ public class Copy {
 	 */
 	public void setWorkSchedule(WorkSchedule workSchedule) {
 		this.workSchedule = workSchedule;
-	}
-
-	/**
-	 * @return the versionNumber
-	 */
-	public byte[] getVersionNumber() {
-		return versionNumber;
-	}
-	
-	/**
-	 * @param versionNumber the versionNumber to set
-	 */
-	public void setVersionNumber(byte[] versionNumber) {
-		this.versionNumber = versionNumber;
 	}
 
 	/**
