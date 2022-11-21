@@ -818,8 +818,8 @@ public class GUI extends JFrame {
 		int delegated;
 		
 		if(canBeDelegated) {
-			delegated = shiftController.delegateShifts(0, 0);
-			if(delegated == 1) {
+			delegated = shiftController.delegateShifts();
+			if(delegated == 0) {
 				textAreaTakeNewShiftErrorHandling.append("All shifts were");
 				textAreaTakeNewShiftErrorHandling.append(" \n");
 				textAreaTakeNewShiftErrorHandling.append("delegated successfully");
