@@ -2,7 +2,7 @@ package model;
 
 import java.time.LocalDate;
 
-public class WorkSchedule implements Comparable<WorkSchedule> {
+public class WorkSchedule  {
 	
 	private int ID;
 	private LocalDate fromDate;
@@ -76,7 +76,7 @@ public class WorkSchedule implements Comparable<WorkSchedule> {
 	/**
 	 * @return the totalHours
 	 */
-	public int getTotalHours() {
+	public Integer getTotalHours() {
 		return totalHours;
 	}
 
@@ -99,19 +99,6 @@ public class WorkSchedule implements Comparable<WorkSchedule> {
 	 */
 	public void setEmployeeCPR(String employeeCPR) {
 		this.employeeCPR = employeeCPR;
-	}
-
-	@Override
-	public int compareTo(WorkSchedule workSchedule) {
-		if(totalHours == workSchedule.getTotalHours()) {
-			return 0;
-		}
-		else if(totalHours > workSchedule.getTotalHours()) {
-			return 1;
-		}
-		else {
-			return -1;
-		}
 	}
 
 }
