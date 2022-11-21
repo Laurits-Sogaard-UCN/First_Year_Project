@@ -134,7 +134,7 @@ public class ShiftDB implements ShiftDBIF {
 		Timestamp timestamp;
 		
 		try {
-			DBConnection.getInstance().startTransaction(); // TODO Spørg Lars om transaktion i et loop?
+			DBConnection.getInstance().startTransaction();
 			
 			for(Copy element : shiftCopies) {
 				shift = element.getShift();
@@ -150,6 +150,7 @@ public class ShiftDB implements ShiftDBIF {
 				rowsAffected += insertWorkShiftCopy.executeUpdate();
 			}
 			DBConnection.getInstance().commitTransaction();
+			
 			
 		} catch(SQLException e) {
 			DBConnection.getInstance().rollbackTransaction();
@@ -186,7 +187,7 @@ public class ShiftDB implements ShiftDBIF {
 		if(sufficientRest) {
 			try {
 				con.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
-				DBConnection.getInstance().startTransaction(); // TODO spørg Lars om interne metodekald i en transaktion.
+				DBConnection.getInstance().startTransaction();
 				if(findCopyWorkScheduleIDOnID(copyID) == 0) {
 					setState(copy, state);
 					setWorkScheduleIDOnCopy(copy, workScheduleID);
@@ -206,12 +207,11 @@ public class ShiftDB implements ShiftDBIF {
 		boolean sufficientRest = false;
 		ResultSet rs;
 		
-		// TODO måske vi skal finde nogle mindre forvirrende navne for flere af de her variable?
 		LocalDate date;
-		String fromHourString;
 		LocalTime fromHour;
-		String toHourString;
+		String resultSetFromHour;
 		LocalTime toHour;
+		String resultSetToHour;
 		LocalDateTime dateTimeFrom;
 		LocalDateTime dateTimeTo;
 		
@@ -231,10 +231,10 @@ public class ShiftDB implements ShiftDBIF {
 			if(rs.next()) {
 				do {
 					date = rs.getDate("Date").toLocalDate();
-					fromHourString = rs.getString("FromHour");
-					fromHour = LocalTime.parse(fromHourString);
-					toHourString = rs.getString("ToHour");
-					toHour = LocalTime.parse(toHourString);
+					resultSetFromHour = rs.getString("FromHour");
+					fromHour = LocalTime.parse(resultSetFromHour);
+					resultSetToHour = rs.getString("ToHour");
+					toHour = LocalTime.parse(resultSetToHour);
 					dateTimeFrom = LocalDateTime.of(date, fromHour);
 					dateTimeTo = LocalDateTime.of(date, toHour);
 					
@@ -351,7 +351,6 @@ public class ShiftDB implements ShiftDBIF {
 		int shiftID;
 		
 		Copy copy = null;
-		byte[] version;
 		java.sql.Date date;
 		LocalDate localDate;
 		String state;
@@ -372,7 +371,7 @@ public class ShiftDB implements ShiftDBIF {
 			state = rs.getString("State");
 			releasedAtTimestamp = rs.getTimestamp("ReleasedAt");
 			releasedAt = releasedAtTimestamp.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-			copy = new Copy(id, shift, null, localDate, state, releasedAt); // TODO ny constructor
+			copy = shift.createFullCopy(id, shift, localDate, state, releasedAt);
 			
 		} catch(SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
