@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Random;
 
 import database.ShiftDB;
 import database.ShiftDBIF;
@@ -106,42 +107,54 @@ public class ShiftController {//TODO Catch exceptions her i controller
 		return canBeDelegated;
 	}
 	
-	public int delegateShifts(int index, int workScheduleIndex) throws DataAccessException {
-		int delegated = 0;
-		Copy copy;
+	public int delegateShifts() throws DataAccessException {
 		ArrayList<WorkSchedule> workSchedules;
-		int workScheduleID;
-		String employeeCPR;
-		String state = CopyState.DELEGATED.getState();
+		workSchedules = workScheduleController.getAllWorkSchedules();
+		int delegated;
+		delegate(workSchedules);
 		releasedShiftCopies = shiftDB.findReleasedShiftCopies();
 		
-		if(!releasedShiftCopies.isEmpty()) {
+		if(releasedShiftCopies.isEmpty()) {
+			delegated = 0;
+		}
+		else {
+			delegated = -1;
+		}
+		return delegated;
+	}
+	
+	private void delegate(ArrayList<WorkSchedule> workSchedules) throws DataAccessException {
+		int workScheduleID;
+		int workScheduleIndex = 0;
+		String employeeCPR;
+		int index = 0;
+		Copy copy;
+		String state = CopyState.DELEGATED.getState();
+		workSchedules.sort((w1,  w2) -> w1.getTotalHours().compareTo(w2.getTotalHours()));
+		
+		while (!releasedShiftCopies.isEmpty()) {
 			copy = releasedShiftCopies.get(index);
-			workSchedules = workScheduleController.getAllWorkSchedules();
-			workSchedules.sort(null);
 			workScheduleID = workSchedules.get(workScheduleIndex).getID();
 			employeeCPR = workSchedules.get(workScheduleIndex).getEmployeeCPR();
 			
 			if(shiftDB.takeNewShift(copy, workScheduleID, state)) {
 				calculateAndSetTotalHours(copy, employeeCPR, index);
-				delegateShifts(0, 0);
-				delegated = 1;
+				if(releasedShiftCopies.size() == 0) {
+					releasedShiftCopies = shiftDB.findReleasedShiftCopies();
+				}
+				delegate(workSchedules);
 			}
-			else if(!releasedShiftCopies.isEmpty() && workScheduleIndex == workSchedules.size() - 1 && index == releasedShiftCopies.size() - 1) {
+			else if(workScheduleIndex == workSchedules.size() - 1 && index == releasedShiftCopies.size() - 1) {
 				releasedShiftCopies.clear();
 			}
-			else if(workScheduleIndex < workSchedules.size() - 1) {
-				delegateShifts(index, workScheduleIndex + 1);
+			else if(index == releasedShiftCopies.size() - 1 && workScheduleIndex < workSchedules.size() - 1) {
+				workScheduleIndex++;
 			}
-			else if(workScheduleIndex == workSchedules.size() - 1) {
-				delegateShifts(index + 1, 0);
+			else if(index < releasedShiftCopies.size() - 1) {
+				releasedShiftCopies.remove(index);
 			}
 			
 		}
-		if(releasedShiftCopies.isEmpty()) {
-			delegated = -1;
-		}
-		return delegated;
 	}
 	
 	private void calculateAndSetTotalHours(Copy copy, String employeeCPR, int index) throws DataAccessException {
