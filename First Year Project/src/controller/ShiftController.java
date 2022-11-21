@@ -18,7 +18,7 @@ import model.WorkSchedule;
 import utility.CopyState;
 import utility.DataAccessException;
 
-public class ShiftController {//TODO Catch exceptions her i controller
+public class ShiftController {
 	
 	private EmployeeController employeeController;
 	private ShopController shopController;

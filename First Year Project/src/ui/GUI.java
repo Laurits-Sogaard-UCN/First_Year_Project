@@ -229,14 +229,9 @@ public class GUI extends JFrame {
 		comboBoxShiftTo.addItem("22:00:00");
 		
 		JButton btnAddShift = new JButton("Add");
-		btnAddShift.addActionListener(e -> {
-			try {
-				addShiftButtonClicked(e);
-			} catch (DataAccessException e2) {
-				// TODO Auto-generated catch block
-				e2.printStackTrace();
-			}
-		});
+		btnAddShift.addActionListener(this::addShiftButtonClicked);
+		{	
+		}
 		GridBagConstraints gbc_btnAddShift = new GridBagConstraints();
 		gbc_btnAddShift.anchor = GridBagConstraints.WEST;
 		gbc_btnAddShift.insets = new Insets(0, 0, 5, 0);
@@ -245,14 +240,9 @@ public class GUI extends JFrame {
 		panel_13.add(btnAddShift, gbc_btnAddShift);
 		
 		JButton btnDeleteShift = new JButton("Delete");
-		btnDeleteShift.addActionListener(e -> {
-			try {
-				deleteShiftCopyButtonClicked(e);
-			} catch (DataAccessException e3) {
-				// TODO Auto-generated catch block
-				e3.printStackTrace();
-			}
-		}); {
+		btnDeleteShift.addActionListener(this::deleteShiftCopyButtonClicked);
+		{
+		} {
 		GridBagConstraints gbc_btnDeleteShift = new GridBagConstraints();
 		gbc_btnDeleteShift.anchor = GridBagConstraints.WEST;
 		gbc_btnDeleteShift.insets = new Insets(0, 0, 5, 0);
@@ -459,14 +449,9 @@ public class GUI extends JFrame {
 		panel_10.setLayout(gbl_panel_10);
 		
 		JButton btnReleaseNew = new JButton("Release New");
-		btnReleaseNew.addActionListener(e -> {
-			try {
-				releaseNewButtonClicked(e);
-			} catch (DataAccessException e2) {
-				// TODO Auto-generated catch block
-				e2.printStackTrace();
-			}
-		});
+		btnReleaseNew.addActionListener(this::releaseNewButtonClicked);
+		{	
+		}
 		btnReleaseNew.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		GridBagConstraints gbc_btnReleaseNew = new GridBagConstraints();
 		gbc_btnReleaseNew.fill = GridBagConstraints.BOTH;
@@ -485,14 +470,9 @@ public class GUI extends JFrame {
 		panel_10.add(btnSeeReleased, gbc_btnSeeReleased);
 		
 		JButton btnTakeShifts = new JButton("Take Shift");
-		btnTakeShifts.addActionListener(e -> {
-			try {
-				takeShiftButtonClicked(e);
-			} catch (DataAccessException e2) {
-				// TODO Auto-generated catch block
-				e2.printStackTrace();
-			}
-		});
+		btnTakeShifts.addActionListener(this::takeShiftButtonClicked);
+		{	
+		}
 		btnTakeShifts.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		GridBagConstraints gbc_btnTakeShifts = new GridBagConstraints();
 		gbc_btnTakeShifts.fill = GridBagConstraints.BOTH;
@@ -510,14 +490,9 @@ public class GUI extends JFrame {
 		panel_19.add(btnCancelReleaseShift);
 		
 		JButton btnCompleteReleaseShift = new JButton("Complete");
-		btnCompleteReleaseShift.addActionListener(e -> {
-			try {
-				completeReleaseShiftsButtonClicked(e);
-			} catch (DataAccessException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-		});
+		btnCompleteReleaseShift.addActionListener(this::completeReleaseShiftsButtonClicked);
+		{
+		}
 		panel_19.add(btnCompleteReleaseShift);
 		
 		JPanel panel_11 = new JPanel();
@@ -568,33 +543,19 @@ public class GUI extends JFrame {
 		gbl_panel_24.rowWeights = new double[]{1.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		panel_24.setLayout(gbl_panel_24);
 		
-		if(checkLogin()) {
 			JButton btnDelegateShifts = new JButton("Delegate Shifts");
-			btnDelegateShifts.addActionListener(e -> {
-				try {
-					delegateShiftsButtonClicked(e);
-				} catch (DataAccessException e2) {
-					// TODO Auto-generated catch block
-					e2.printStackTrace();
-				}
-			}); {
+			btnDelegateShifts.addActionListener(this::delegateShiftsButtonClicked);
 			GridBagConstraints gbc_btnDelegateShifts = new GridBagConstraints();
 			gbc_btnDelegateShifts.fill = GridBagConstraints.BOTH;
 			gbc_btnDelegateShifts.insets = new Insets(0, 0, 5, 0);
 			gbc_btnDelegateShifts.gridx = 0;
 			gbc_btnDelegateShifts.gridy = 1;
 			panel_24.add(btnDelegateShifts, gbc_btnDelegateShifts);
+			{
 		}
 		
 		JButton btnTakeShift = new JButton("Take Shift");
-		btnTakeShift.addActionListener(e -> {
-			try {
-				takeNewShiftButtonClicked(e);
-			} catch (DataAccessException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-		});
+		btnTakeShift.addActionListener(this::takeNewShiftButtonClicked);
 		GridBagConstraints gbc_btnTakeShift = new GridBagConstraints();
 		gbc_btnTakeShift.fill = GridBagConstraints.BOTH;
 		gbc_btnTakeShift.insets = new Insets(0, 0, 5, 0);
@@ -652,8 +613,6 @@ public class GUI extends JFrame {
 		}
 		
 		}
-		
-	}
 	
 	// Methods to handle layout.
 	
@@ -677,28 +636,36 @@ public class GUI extends JFrame {
 	}
 	
 	private void shiftsButtonClicked(ActionEvent e) {
-		if(checkLogin()) { // TODO Er det nødvendigt at tjekke login hvis vi kun bruger en manager som eksempel?
-			getThisCard("ShiftsMenu");
-		}
+		getThisCard("ShiftsMenu");
 	}
 	
 	private void completeReleaseNewShiftsOKButtonClicked(ActionEvent e) {
-		if(checkLogin()) {
-			getThisCard("MainMenu");
+		getThisCard("MainMenu");
+	}
+	
+	private void releaseNewButtonClicked(ActionEvent e) {
+		try {
+			startReleaseNewShifts();
+		} catch (DataAccessException e1) {
+			e1.printStackTrace();
 		}
 	}
 	
-	private void releaseNewButtonClicked(ActionEvent e) throws DataAccessException {
-		startReleaseNewShifts();
-	}
-	
 
-	private void addShiftButtonClicked(ActionEvent e) throws DataAccessException {
-		addShift();
+	private void addShiftButtonClicked(ActionEvent e) {
+		try {
+			addShift();
+		} catch (DataAccessException e1) {
+			e1.printStackTrace();
+		}
 	}
 	
-	private void completeReleaseShiftsButtonClicked(ActionEvent e) throws DataAccessException {
-		completeReleaseNewShifts();
+	private void completeReleaseShiftsButtonClicked(ActionEvent e) {
+		try {
+			completeReleaseNewShifts();
+		} catch (DataAccessException e1) {
+			e1.printStackTrace();
+		}
 	}
 	
 	private void cancelReleaseShiftButtonClicked(ActionEvent e) {
@@ -710,21 +677,37 @@ public class GUI extends JFrame {
 		comboBoxShiftTo.setSelectedIndex(0);
 	}
 	
-	private void deleteShiftCopyButtonClicked(ActionEvent e) throws DataAccessException {
-		deleteShiftCopy();
+	private void deleteShiftCopyButtonClicked(ActionEvent e) {
+		try {
+			deleteShiftCopy();
+		} catch (DataAccessException e1) {
+			e1.printStackTrace();
+		}
 	}
 	
-	private void takeShiftButtonClicked(ActionEvent e) throws DataAccessException {
+	private void takeShiftButtonClicked(ActionEvent e) {
 		getThisCard("TakeShift");
-		startTakeNewShift();
+		try {
+			startTakeNewShift();
+		} catch (DataAccessException e1) {
+			e1.printStackTrace();
+		}
 	}
 	
-	private void takeNewShiftButtonClicked(ActionEvent e) throws DataAccessException {
-		takeNewShift();
+	private void takeNewShiftButtonClicked(ActionEvent e) {
+		try {
+			takeNewShift();
+		} catch(DataAccessException e1) {
+			e1.printStackTrace();
+		}
 	}
 	
-	private void delegateShiftsButtonClicked(ActionEvent e) throws DataAccessException {
-		delegateShifts();
+	private void delegateShiftsButtonClicked(ActionEvent e) {
+		try {
+			delegateShifts();
+		} catch(DataAccessException e1) {
+			e1.printStackTrace();
+		}
 	}
 	
 	private void takeShiftOKButtonClicked(ActionEvent e) {
@@ -739,10 +722,7 @@ public class GUI extends JFrame {
 	
 	private void startReleaseNewShifts() throws DataAccessException {
 		shiftController.startReleaseNewShifts();
-		
-		if(checkLogin()) {
-			getThisCard("ReleaseNewShifts");
-		}
+		getThisCard("ReleaseNewShifts");
 	}
 	
 	private void addShift() throws DataAccessException {
@@ -872,15 +852,4 @@ public class GUI extends JFrame {
 			listModel.addElement("Shift: " + (i + 1) + " Date: " + copyDateFormatted + " From: " + fromHour + " To: " + toHour);
 		}
 	}
-	
-	private boolean checkLogin() {
-		boolean manager = false;
-		Employee employee = employeeController.getLoggedInEmployee();
-		
-		if(employee.getType().equals("Manager")) {
-			manager = true;
-		}
-		return manager;
-	}
-	
 }
