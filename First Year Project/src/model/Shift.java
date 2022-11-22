@@ -32,6 +32,11 @@ public class Shift {
 		
 	}
 	
+	public Copy createFullCopy(int id, Shift shift, LocalDate date, String state, LocalDateTime releasedAt) {
+		Copy copy = new Copy(id, shift, date, state, releasedAt);
+		return copy;
+	}
+	
 	public Copy createCopy(Shift shift, LocalDate date) {
 		Copy copy = new Copy(shift, date, CopyState.RELEASED.getState(), LocalDateTime.now());
 		return copy;

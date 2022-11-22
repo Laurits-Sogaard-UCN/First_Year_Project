@@ -31,6 +31,14 @@ public class Copy {
 		this.releasedAt = releasedAt;
 	}
 	
+	public Copy(int id, Shift shift, LocalDate date, String state, LocalDateTime releasedAt) {
+		this.id = id;
+		this.shift = shift;
+		this.date = date;
+		this.state = state;
+		this.releasedAt = releasedAt;
+	}
+	
 	public Copy(Shift shift, LocalDate date, String state, LocalDateTime releasedAt) {
 		this.shift = shift;
 		this.date = date;
