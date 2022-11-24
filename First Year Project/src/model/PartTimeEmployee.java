@@ -5,6 +5,7 @@ public class PartTimeEmployee extends Employee {
 	private double hourlyWage;
 
 	/**
+	 * Constructor to initialize instance variables.
 	 * @param cPR
 	 * @param lname
 	 * @param fname
@@ -24,14 +25,16 @@ public class PartTimeEmployee extends Employee {
 	}
 
 	/**
-	 * @return the hourlyWage
+	 * Gets hourly wage.
+	 * @return hourlyWage
 	 */
 	public double getHourlyWage() {
 		return hourlyWage;
 	}
 
 	/**
-	 * @param hourlyWage the hourlyWage to set
+	 * Sets a new hourly wage.
+	 * @param hourlyWage
 	 */
 	public void setHourlyWage(double hourlyWage) {
 		this.hourlyWage = hourlyWage;

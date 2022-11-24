@@ -13,6 +13,7 @@ public class Copy {
 	private LocalDateTime releasedAt;
 
 	/**
+	 * Constructor to initialize instance variables.
 	 * @param id
 	 * @param shift
 	 * @param workSchedule
@@ -31,6 +32,14 @@ public class Copy {
 		this.releasedAt = releasedAt;
 	}
 	
+	/**
+	 * Constructor to initialize instance variables.
+	 * @param id
+	 * @param shift
+	 * @param date
+	 * @param state
+	 * @param releasedAt
+	 */
 	public Copy(int id, Shift shift, LocalDate date, String state, LocalDateTime releasedAt) {
 		this.id = id;
 		this.shift = shift;
@@ -39,6 +48,13 @@ public class Copy {
 		this.releasedAt = releasedAt;
 	}
 	
+	/**
+	 * Constructor to initialize instance variables.
+	 * @param shift
+	 * @param date
+	 * @param state
+	 * @param releasedAt
+	 */
 	public Copy(Shift shift, LocalDate date, String state, LocalDateTime releasedAt) {
 		this.shift = shift;
 		this.date = date;
@@ -47,6 +63,7 @@ public class Copy {
 	}
 
 	/**
+	 * Gets id.
 	 * @return the id
 	 */
 	public int getId() {
@@ -54,6 +71,7 @@ public class Copy {
 	}
 
 	/**
+	 * Sets a new id.
 	 * @param id the id to set
 	 */
 	public void setId(int id) {
@@ -61,6 +79,7 @@ public class Copy {
 	}
 
 	/**
+	 * Gets shift.
 	 * @return the shift
 	 */
 	public Shift getShift() {
@@ -68,6 +87,7 @@ public class Copy {
 	}
 
 	/**
+	 * Sets a new shift.
 	 * @param shift the shift to set
 	 */
 	public void setShift(Shift shift) {
@@ -75,6 +95,7 @@ public class Copy {
 	}
 
 	/**
+	 * Gets work schedule. 
 	 * @return the workSchedule
 	 */
 	public WorkSchedule getWorkSchedule() {
@@ -82,6 +103,7 @@ public class Copy {
 	}
 
 	/**
+	 * Sets a new work schedule.
 	 * @param workSchedule the workSchedule to set
 	 */
 	public void setWorkSchedule(WorkSchedule workSchedule) {
@@ -89,6 +111,7 @@ public class Copy {
 	}
 
 	/**
+	 * Gets date.
 	 * @return the date
 	 */
 	public LocalDate getDate() {
@@ -96,6 +119,7 @@ public class Copy {
 	}
 
 	/**
+	 * Sets a new date.
 	 * @param date the date to set
 	 */
 	public void setDate(LocalDate date) {
@@ -103,6 +127,7 @@ public class Copy {
 	}
 
 	/**
+	 * Gets state.
 	 * @return the state
 	 */
 	public String getState() {
@@ -110,6 +135,7 @@ public class Copy {
 	}
 
 	/**
+	 * Sets a new state.
 	 * @param state the state to set
 	 */
 	public void setState(String state) {
@@ -117,6 +143,7 @@ public class Copy {
 	}
 
 	/**
+	 * Gets released at.
 	 * @return the releasedAt
 	 */
 	public LocalDateTime getReleasedAt() {
@@ -124,6 +151,7 @@ public class Copy {
 	}
 
 	/**
+	 * Sets a new released at.
 	 * @param releasedAt the releasedAt to set
 	 */
 	public void setReleasedAt(LocalDateTime releasedAt) {

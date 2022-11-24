@@ -32,9 +32,9 @@ public class ShiftDB implements ShiftDBIF {
 			+ "and s.ToHour = ?");
 	private PreparedStatement findShiftOnFromAndTo;
 	
-	private static final String INSERT_WORKSHIFT_COPY = ("INSERT INTO Copy(ShiftID, Date, State, ReleasedAt)\r\n"
+	private static final String INSERT_SHIFT_COPY = ("INSERT INTO Copy(ShiftID, Date, State, ReleasedAt)\r\n"
 			+ "VALUES (?, ?, ?, ?)");
-	private PreparedStatement insertWorkShiftCopy;
+	private PreparedStatement insertShiftCopy;
 	
 	private static final String CHECK_REST_PERIOD = ("SELECT s.FromHour, s.ToHour, c.Date\r\n"
 			+ "FROM Shift s, Copy c\r\n"
@@ -71,24 +71,22 @@ public class ShiftDB implements ShiftDBIF {
 	
 	/**
 	 * Constructor to initialize instance variables.
-	 * @throws DataAccessException
-	 * @throws SQLException 
+	 * @throws DataAccessException 
 	 */
 	public ShiftDB() throws DataAccessException {
 		init();
 	}
 	
 	/**
-	 * Initialization of Connection and PreparedStatments.
+	 * Initialization of Connection and PreparedStatements.
 	 * @throws DataAccessException
-	 * @throws SQLException 
 	 */
 	private void init() throws DataAccessException {
 		con = DBConnection.getInstance().getConnection();
 		
 		try {
 			findShiftOnFromAndTo = con.prepareStatement(FIND_SHIFT_ON_FROM_AND_TO);
-			insertWorkShiftCopy = con.prepareStatement(INSERT_WORKSHIFT_COPY);
+			insertShiftCopy = con.prepareStatement(INSERT_SHIFT_COPY);
 			checkRestPeriod = con.prepareStatement(CHECK_REST_PERIOD);
 			changeStateOnCopy = con.prepareStatement(CHANGE_STATE_ON_COPY);
 			findReleasedShiftCopies = con.prepareStatement(FIND_RELEASED_SHIFT_COPIES);
@@ -101,6 +99,13 @@ public class ShiftDB implements ShiftDBIF {
 		}
 	}
 	
+	/**
+	 * Finds a shift by executing query and building shift object. 
+	 * @param fromHour
+	 * @param toHour
+	 * @return shift
+	 * @throws DataAccessException
+	 */
 	public Shift findShiftOnFromAndTo(LocalTime fromHour, LocalTime toHour) throws DataAccessException {
 		ResultSet rs;
 		Shift shift = null;
@@ -113,7 +118,6 @@ public class ShiftDB implements ShiftDBIF {
 			findShiftOnFromAndTo.setString(1, from);
 			findShiftOnFromAndTo.setString(2, to);
 			rs = findShiftOnFromAndTo.executeQuery();
-			
 			if(rs.next()) {
 				shift = buildShiftObject(rs);
 			}
@@ -124,6 +128,12 @@ public class ShiftDB implements ShiftDBIF {
 		return shift;
 	}
 	
+	/**
+	 * Inserts a list of shift copies to database by executing update. 
+	 * @param shiftCopies
+	 * @return completed
+	 * @throws DataAccessException
+	 */
 	public boolean completeReleaseNewShifts(ArrayList<Copy> shiftCopies) throws DataAccessException {
 		boolean completed = false;
 		int rowsAffected = -1;
@@ -143,11 +153,11 @@ public class ShiftDB implements ShiftDBIF {
 				date = java.sql.Date.valueOf(localDate);
 				timestamp = Timestamp.valueOf(LocalDateTime.now());
 				
-				insertWorkShiftCopy.setInt(1, id);
-				insertWorkShiftCopy.setDate(2, date);
-				insertWorkShiftCopy.setString(3, CopyState.RELEASED.getState());
-				insertWorkShiftCopy.setTimestamp(4, timestamp);
-				rowsAffected += insertWorkShiftCopy.executeUpdate();
+				insertShiftCopy.setInt(1, id);
+				insertShiftCopy.setDate(2, date);
+				insertShiftCopy.setString(3, CopyState.RELEASED.getState());
+				insertShiftCopy.setTimestamp(4, timestamp);
+				rowsAffected += insertShiftCopy.executeUpdate();
 			}
 			DBConnection.getInstance().commitTransaction();
 			
@@ -162,6 +172,12 @@ public class ShiftDB implements ShiftDBIF {
 		return completed;
 	}
 	
+	/**
+	 * Finds a work schedule ID on a copy with a given ID by executing query.
+	 * @param id
+	 * @return workScheduleID
+	 * @throws DataAccessException
+	 */
 	private int findCopyWorkScheduleIDOnID(int id) throws DataAccessException {
 		int workScheduleID = 0;
 		ResultSet rs;
@@ -179,6 +195,14 @@ public class ShiftDB implements ShiftDBIF {
 		return workScheduleID;
 	}
 	
+	/**
+	 * Sets state and work schedule ID on a copy in the database. 
+	 * @param copy
+	 * @param workScheduleID
+	 * @param state
+	 * @return taken
+	 * @throws DataAccessException
+	 */
 	public boolean takeNewShift(Copy copy, int workScheduleID, String state) throws DataAccessException {
 		boolean taken = false;
 		boolean sufficientRest = checkRestPeriod(copy, workScheduleID);
@@ -188,7 +212,7 @@ public class ShiftDB implements ShiftDBIF {
 			try {
 				con.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
 				DBConnection.getInstance().startTransaction();
-				if(findCopyWorkScheduleIDOnID(copyID) == 0) {
+				if(findCopyWorkScheduleIDOnID(copyID) == 0) { // TODO Skal vi tjekke at det virker?
 					setState(copy, state);
 					setWorkScheduleIDOnCopy(copy, workScheduleID);
 				}
@@ -203,6 +227,14 @@ public class ShiftDB implements ShiftDBIF {
 		return taken;
 	}
 	
+	/**
+	 * Checks if a given copy violates the business rules of 11 hour rest period, 
+	 * and a maximum of one shift a day, for a given work schedule.
+	 * @param copy
+	 * @param workScheduleID
+	 * @return sufficientRest
+	 * @throws DataAccessException
+	 */
 	private boolean checkRestPeriod(Copy copy, int workScheduleID) throws DataAccessException {
 		boolean sufficientRest = false;
 		ResultSet rs;
@@ -266,6 +298,12 @@ public class ShiftDB implements ShiftDBIF {
 		return sufficientRest;
 	}
 	
+	/**
+	 * Sets new state on a copy in database by executing update.
+	 * @param copy
+	 * @param state
+	 * @throws DataAccessException
+	 */
 	private void setState(Copy copy, String state) throws DataAccessException {
 		int id = copy.getId();
 		
@@ -280,6 +318,12 @@ public class ShiftDB implements ShiftDBIF {
 		
 	}
 	
+	/**
+	 * Sets a new work schedule ID on copy by executing update.
+	 * @param copy
+	 * @param workScheduleID
+	 * @throws DataAccessException
+	 */
 	private void setWorkScheduleIDOnCopy(Copy copy, int workScheduleID) throws DataAccessException {
 		int copyID = copy.getId();
 		
@@ -294,6 +338,12 @@ public class ShiftDB implements ShiftDBIF {
 		
 	}
 	
+	/**
+	 * Builds shift object from ResultSet.
+	 * @param rs
+	 * @return shift
+	 * @throws DataAccessException
+	 */
 	private Shift buildShiftObject(ResultSet rs) throws DataAccessException {
 		Shift shift;
 		LocalTime fromHour;
@@ -312,6 +362,11 @@ public class ShiftDB implements ShiftDBIF {
 		return shift;
 	}
 	
+	/**
+	 * Finds all copies in database marked as 'Released' by executing query.
+	 * @return releasedShiftCopies
+	 * @throws DataAccessException
+	 */
 	public ArrayList<Copy> findReleasedShiftCopies() throws DataAccessException {
 		ArrayList<Copy> releasedShiftCopies = new ArrayList<>();
 		ResultSet rs = null;
@@ -327,6 +382,12 @@ public class ShiftDB implements ShiftDBIF {
 		return releasedShiftCopies;
 	}
 	
+	/**
+	 * Builds a collection of copies by building one or more copy objects.
+	 * @param rs
+	 * @return shiftCopies
+	 * @throws DataAccessException
+	 */
 	private ArrayList<Copy> buildCopyObjects(ResultSet rs) throws DataAccessException {
 		ArrayList<Copy> shiftCopies = new ArrayList<>();
 		Copy copy;
@@ -343,7 +404,12 @@ public class ShiftDB implements ShiftDBIF {
 
 	}
 	
-
+	/**
+	 * Builds a full copy object, including a shift object, from ResultSet.
+	 * @param rs
+	 * @return copy
+	 * @throws DataAccessException
+	 */
 	private Copy buildCopyObject(ResultSet rs) throws DataAccessException {
 		ResultSet rs2;
 		Shift shift = null;
