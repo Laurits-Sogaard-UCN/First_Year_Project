@@ -5,7 +5,8 @@ public class FullTimeEmployee extends Employee {
 	private double monthlyWage;
 	
 	/**
-	 * @param cPR
+	 * Constructor to initialize instance variables.
+	 * @param CPR
 	 * @param lname
 	 * @param fname
 	 * @param email
@@ -24,14 +25,16 @@ public class FullTimeEmployee extends Employee {
 	}
 
 	/**
-	 * @return the monthlyWage
+	 * Gets monthly wage.
+	 * @return monthlyWage
 	 */
 	public double getMonthlyWage() {
 		return monthlyWage;
 	}
 
 	/**
-	 * @param monthlyWage the monthlyWage to set
+	 * Sets a new monthly wage.
+	 * @param monthlyWage
 	 */
 	public void setMonthlyWage(double monthlyWage) {
 		this.monthlyWage = monthlyWage;
