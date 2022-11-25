@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -89,13 +90,86 @@ class TestShiftController {
 	
 
 	@Test
-	public void DelegateShifts() throws DataAccessException {
+	public void DelegateShifts() throws DataAccessException, SQLException {
 		// Arrange
 		ShiftController shiftController = new ShiftController();
 		Connection con = DBConnection.getInstance().getConnection();
 		
+		ArrayList<String> employeeCPRs = new ArrayList<>();
+		ArrayList<Integer> copyIDs = new ArrayList<>();
+		
+		int copyid;
+		int employeeID = 0;
+		int employeeWorkScheduleID = 0;
+		String CPR = "";
+		String listCPR = "";
+		String updateEmployeeType = "";
+		String insertNewPartTimeEmployee1 = "";
+		String insertNewPartTimeEmployee2 = "";
+		String insertNewWorkScheduleForEmployee1 = "";
+		String insertNewWorkScheduleForEmployee2 = "";
+		String insertShiftCopyOccupied = "";
+		String insertShiftCopyReleased = "";
+		String listCopyID = "";
+		String updateCopiesStateToOccupied = "";
+		String getEmployeeWorkScheduleID = "";
+		String updateWorkScheduleTotalHours = "";
+		PreparedStatement listCPRPS = con.prepareStatement(listCPR);
+		PreparedStatement updateEmployeeTypePS = con.prepareStatement(updateEmployeeType);
+		PreparedStatement insertNewPartTimeEmployee1PS = con.prepareStatement(insertNewPartTimeEmployee1);
+		PreparedStatement insertNewPartTimeEmployee2PS = con.prepareStatement(insertNewPartTimeEmployee2);
+		PreparedStatement insertNewWorkScheduleForEmployee1PS = con.prepareStatement(insertNewWorkScheduleForEmployee1);
+		PreparedStatement insertNewWorkScheduleForEmployee2PS = con.prepareStatement(insertNewWorkScheduleForEmployee2);
+		PreparedStatement insertShiftCopyOccupiedPS = con.prepareStatement(insertShiftCopyOccupied);
+		PreparedStatement insertShiftCopyReleasedPS = con.prepareStatement(insertShiftCopyReleased);
+		PreparedStatement listCopyIDPS = con.prepareStatement(listCopyID);
+		PreparedStatement updateCopiesStateToOccupiedPS = con.prepareStatement(updateCopiesStateToOccupied);
+		PreparedStatement getEmployeeWorkScheduleIDPS = con.prepareStatement(getEmployeeWorkScheduleID);
+		PreparedStatement updateWorkScheduleTotalHoursPS = con.prepareStatement(updateWorkScheduleTotalHours);
+		ResultSet employeeCPR = null;
+		ResultSet copyID = null;
+		ResultSet employeeWorkScheduleIDRS = null;
+		
 		
 		// Act
+		DBConnection.getInstance().startTransaction();
+		employeeCPR = listCPRPS.executeQuery();
+		copyID = listCopyIDPS.executeQuery(); 
+		try {
+			while(employeeCPR.next()) {
+				CPR = employeeCPR.getString("CPR");
+				employeeCPRs.add(CPR);
+				updateEmployeeTypePS.setString(1, CPR);
+				updateEmployeeTypePS.executeUpdate();
+			}
+			while(copyID.next()) {
+				copyid = copyID.getInt("ID");
+				copyIDs.add(copyid);
+				updateCopiesStateToOccupiedPS.setInt(1, copyid);
+				updateCopiesStateToOccupiedPS.executeUpdate();
+			}
+			
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
+		insertNewPartTimeEmployee1PS.executeUpdate();
+		insertNewPartTimeEmployee2PS.executeUpdate();
+		insertNewWorkScheduleForEmployee1PS.executeUpdate();
+		insertNewWorkScheduleForEmployee2PS.executeUpdate();
+		
+		getEmployeeWorkScheduleIDPS.setString(1, "7492657491");
+		employeeWorkScheduleIDRS = getEmployeeWorkScheduleIDPS.executeQuery();
+		employeeWorkScheduleID = employeeWorkScheduleIDRS.getInt("ID");
+		
+		insertShiftCopyOccupiedPS.setInt(1, employeeWorkScheduleID);
+		insertShiftCopyOccupiedPS.executeQuery();
+		insertShiftCopyReleasedPS.executeQuery();
+		
+		updateWorkScheduleTotalHoursPS.setString(1, "7492657491");
+		updateWorkScheduleTotalHoursPS.setString(1, "8364751917");
+		updateWorkScheduleTotalHoursPS.executeUpdate();
+		
+		
 	
 		// Assert
 		
