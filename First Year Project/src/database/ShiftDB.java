@@ -210,7 +210,7 @@ public class ShiftDB implements ShiftDBIF {
 		
 		if(sufficientRest) {
 			try {
-				con.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
+				con.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ); // TODO: måske vi skal være helt sikre på isolationsniveauerne?
 				DBConnection.getInstance().startTransaction();
 				if(findCopyWorkScheduleIDOnID(copyID) == 0) { // TODO Skal vi tjekke at det virker?
 					setState(copy, state);

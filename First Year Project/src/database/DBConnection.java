@@ -14,8 +14,8 @@ public class DBConnection {
 	private static final int serverPort = 1433;
 	private static final String userName = "DMA-CSD-V222_10434664";
 	private static final String password = "Password1!";
-	private static DBConnection dbConnection;
 	private Connection connection = null;
+	private static DBConnection dbConnection;
 
 	/**
 	 * Constructor to create database access.
