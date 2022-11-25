@@ -97,8 +97,7 @@ public class ShiftController {
 	
 	/**
 	 * Sorts the list of work schedules from lowest to highest total working hours. 
-	 * Associates all possible shift copies with the work schedules with lowest
-	 * total working hours. 
+	 * Associates all possible shift copies with the work schedules with lowest total working hours. 
 	 * @param workSchedules
 	 * @throws DataAccessException
 	 */
@@ -132,7 +131,6 @@ public class ShiftController {
 			else if(index < releasedShiftCopies.size() - 1) {
 				releasedShiftCopies.remove(index);
 			}
-			
 		}
 	}
 	
