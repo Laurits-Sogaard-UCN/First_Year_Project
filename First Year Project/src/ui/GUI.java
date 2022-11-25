@@ -782,7 +782,8 @@ public class GUI extends JFrame {
 	
 	private void takeNewShift() throws DataAccessException {
 		int index = getIndexOnSelectedListValue(listOfShiftsToTake);
-		boolean taken = shiftController.takeNewShift(index);
+		Copy copy = shiftController.getReleasedShiftCopiesList().get(index);
+		boolean taken = shiftController.takeNewShift(copy);
 		
 		if(taken) {
 			textAreaTakeNewShiftErrorHandling.setText("Shift was successfully taken");

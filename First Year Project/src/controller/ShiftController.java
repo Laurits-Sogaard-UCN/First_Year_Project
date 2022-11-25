@@ -80,15 +80,14 @@ public class ShiftController {
 		return releasedShiftCopies;
 	}
 	
-	public boolean takeNewShift(int index) throws DataAccessException {
+	public boolean takeNewShift(Copy copy) throws DataAccessException {
 		boolean success = false;
-		Copy copy = releasedShiftCopies.get(index);
 		String employeeCPR = employeeController.getLoggedInEmployee().getCPR();
 		int workScheduleID = workScheduleController.findWorkScheduleIDOnEmployeeCPR(employeeCPR);
 		String state = CopyState.OCCUPIED.getState();
 		
 		if(shiftDB.takeNewShift(copy, workScheduleID, state)) {
-			calculateAndSetTotalHours(copy, employeeCPR, index);
+			calculateAndSetTotalHours(copy, employeeCPR);
 			success = true;
 		}
 		return success;
@@ -138,7 +137,7 @@ public class ShiftController {
 			employeeCPR = workSchedules.get(workScheduleIndex).getEmployeeCPR();
 			
 			if(shiftDB.takeNewShift(copy, workScheduleID, state)) {
-				calculateAndSetTotalHours(copy, employeeCPR, index);
+				calculateAndSetTotalHours(copy, employeeCPR);
 				if(releasedShiftCopies.size() == 0) {
 					releasedShiftCopies = shiftDB.findReleasedShiftCopies();
 				}
@@ -157,10 +156,10 @@ public class ShiftController {
 		}
 	}
 	
-	private void calculateAndSetTotalHours(Copy copy, String employeeCPR, int index) throws DataAccessException {
+	private void calculateAndSetTotalHours(Copy copy, String employeeCPR) throws DataAccessException {
 		int hours = calculateTotalHours(copy);
 		workScheduleController.setTotalHoursOnWorkSchedule(hours, employeeCPR);
-		releasedShiftCopies.remove(index);
+		releasedShiftCopies.remove(copy);
 	}
 	
 	private int calculateTotalHours(Copy copy) {
@@ -181,8 +180,16 @@ public class ShiftController {
 		return releasedShiftCopies;
 	}
 	
+	public ArrayList<Copy> getReleasedShiftCopiesList() {
+		return releasedShiftCopies;
+	}
+	
 	public void clearShiftCopies() {
 		shiftCopies.clear();
+	}
+	
+	public void addCopyToReleasedShiftCopy(Copy copy) {
+		releasedShiftCopies.add(copy);
 	}
 
 }
