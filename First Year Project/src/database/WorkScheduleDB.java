@@ -41,16 +41,14 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 	/**
 	 * Constructor to initialize instance variables.
 	 * @throws DataAccessException
-	 * @throws SQLException 
 	 */
 	public WorkScheduleDB() throws DataAccessException {
 		init();
 	}
 	
 	/**
-	 * Initialization of Connection and PreparedStatments.
+	 * Initialization of Connection and PreparedStatements.
 	 * @throws DataAccessException
-	 * @throws SQLException 
 	 */
 	private void init() throws DataAccessException {
 		con = DBConnection.getInstance().getConnection();
@@ -66,6 +64,12 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 		}
 	}
 	
+	/**
+	 * Finds a work schedule ID on a given employee CPR by executing a query.
+	 * @param CPR
+	 * @return workScheduleID
+	 * @throws DataAccessException
+	 */
 	public int findWorkScheduleIDOnEmployeeCPR(String CPR) throws DataAccessException {
 		int workScheduleID = 0;
 		ResultSet rs;
@@ -83,6 +87,13 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 		return workScheduleID;
 	}
 	
+	/**
+	 * Set new total hours on work schedule. 
+	 * @param hours
+	 * @param employeeCPR
+	 * @return set
+	 * @throws DataAccessException
+	 */
 	public boolean setTotalHoursOnWorkSchedule(int hours, String employeeCPR) throws DataAccessException {
 		boolean set = false;
 		int currentHours;
@@ -102,6 +113,13 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 		return set;
 	}
 	
+	/**
+	 * Sets total hours on a work schedule by executing update. 
+	 * @param currentHours
+	 * @param hours
+	 * @param employeeCPR
+	 * @throws DataAccessException
+	 */
 	private void setTotalHours(int currentHours, int hours, String employeeCPR) throws DataAccessException {
 		try {
 			setTotalHours.setInt(1, currentHours + hours);
@@ -112,6 +130,12 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 		}
 	}
 	
+	/**
+	 * Gets the current total hours on a work schedule with a given employeeCPR by executing query.
+	 * @param employeeCPR
+	 * @return currentHours
+	 * @throws DataAccessException
+	 */
 	private int getCurrentHours(String employeeCPR) throws DataAccessException {
 		int currentHours = 0;
 		ResultSet rs;
@@ -129,6 +153,11 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 		return currentHours;
 	}
 	
+	/**
+	 * Gets all work schedules marked as 'PartTime'.
+	 * @return workSchedules
+	 * @throws DataAccessException
+	 */
 	public ArrayList<WorkSchedule> getAllWorkSchedules() throws DataAccessException {
 		ArrayList<WorkSchedule> workSchedules = new ArrayList<>();
 		ResultSet rs;
@@ -144,6 +173,12 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 		return workSchedules;
 	}
 	
+	/**
+	 * Builds a collection containing one or more work schedules.
+	 * @param rs
+	 * @return workSchedules
+	 * @throws DataAccessException
+	 */
 	private ArrayList<WorkSchedule> buildWorkScheduleObjects(ResultSet rs) throws DataAccessException {
 		ArrayList<WorkSchedule> workSchedules = new ArrayList<>();
 		WorkSchedule workSchedule;
@@ -161,6 +196,12 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 
 	}
 
+	/**
+	 * Builds a work schedule object from a ResultSet.
+	 * @param rs
+	 * @return workSchedule
+	 * @throws DataAccessException
+	 */
 	private WorkSchedule buildWorkScheduleObject(ResultSet rs) throws DataAccessException {
 		WorkSchedule workSchedule;
 		int id;
@@ -178,8 +219,6 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 		}
 		return workSchedule;
 	}
-	
-	
 	
 	
 }

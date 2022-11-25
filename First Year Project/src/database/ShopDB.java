@@ -28,7 +28,7 @@ public class ShopDB implements ShopDBIF {
 	}
 	
 	/**
-	 * Initialization of Connection and PreparedStatments.
+	 * Initialization of Connection and PreparedStatements.
 	 * @throws DataAccessException
 	 */
 	private void init() throws DataAccessException {
@@ -41,6 +41,11 @@ public class ShopDB implements ShopDBIF {
 		}
 	}
 	
+	/**
+	 * Finds shop on ID by executing query.
+	 * @param id
+	 * @return shop
+	 */
 	public Shop findShopOnID(int id) throws DataAccessException {
 		ResultSet rs;
 		Shop shop = null;
@@ -58,6 +63,12 @@ public class ShopDB implements ShopDBIF {
 		return shop;
 	}
 	
+	/**
+	 * Builds shop object from ResultSet.
+	 * @param rs
+	 * @return shop
+	 * @throws DataAccessException
+	 */
 	private Shop buildShopObject(ResultSet rs) throws DataAccessException {
 		Shop shop;
 		String address;

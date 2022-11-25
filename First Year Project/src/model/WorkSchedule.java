@@ -11,7 +11,8 @@ public class WorkSchedule  {
 	private String employeeCPR;
 	
 	/**
-	 * @param iD
+	 * Constructor to initialize instance variables.
+	 * @param ID
 	 * @param fromDate
 	 * @param toDate
 	 * @param totalHours
@@ -25,6 +26,12 @@ public class WorkSchedule  {
 		this.employeeCPR = employeeCPR;
 	}
 	
+	/**
+	 * Constructor to initialize instance variables.
+	 * @param ID
+	 * @param totalHours
+	 * @param employeeCPR
+	 */
 	public WorkSchedule(int ID, int totalHours, String employeeCPR) {
 		this.ID = ID;
 		this.totalHours = totalHours;
@@ -32,70 +39,80 @@ public class WorkSchedule  {
 	}
 
 	/**
-	 * @return the iD
+	 * Gets ID.
+	 * @return ID
 	 */
 	public int getID() {
 		return ID;
 	}
 
 	/**
-	 * @param iD the iD to set
+	 * Sets a new ID.
+	 * @param ID
 	 */
 	public void setID(int ID) {
 		this.ID = ID;
 	}
 
 	/**
-	 * @return the fromDate
+	 * Gets from date.
+	 * @return fromDate
 	 */
 	public LocalDate getFromDate() {
 		return fromDate;
 	}
 
 	/**
-	 * @param fromDate the fromDate to set
+	 * Sets a new from date.
+	 * @param fromDate
 	 */
 	public void setFromDate(LocalDate fromDate) {
 		this.fromDate = fromDate;
 	}
 
 	/**
-	 * @return the toDate
+	 * Gets to date.
+	 * @return toDate
 	 */
 	public LocalDate getToDate() {
 		return toDate;
 	}
 
 	/**
-	 * @param toDate the toDate to set
+	 * Sets a new to date.
+	 * @param toDate
 	 */
 	public void setToDate(LocalDate toDate) {
 		this.toDate = toDate;
 	}
 
 	/**
-	 * @return the totalHours
+	 * Gets total hours.
+	 * @return totalHours
 	 */
 	public Integer getTotalHours() {
 		return totalHours;
 	}
 
 	/**
-	 * @param totalHours the totalHours to set
+	 * Sets a new total hours.
+	 * @param totalHours
 	 */
 	public void setTotalHours(int totalHours) {
 		this.totalHours = totalHours;
 	}
 
 	/**
-	 * @return the employeeCPR
+	 * Gets employee CPR.
+	 * @return employeeCPR
 	 */
 	public String getEmployeeCPR() {
 		return employeeCPR;
 	}
 
 	/**
-	 * @param employeeCPR the employeeCPR to set
+	 * Sets a new employee CPR.
+	 * @param employeeCPR
 	 */
 	public void setEmployeeCPR(String employeeCPR) {
 		this.employeeCPR = employeeCPR;
