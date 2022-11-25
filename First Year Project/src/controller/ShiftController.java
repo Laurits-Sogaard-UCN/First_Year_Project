@@ -58,15 +58,14 @@ public class ShiftController {
 	 * @return success
 	 * @throws DataAccessException
 	 */
-	public boolean takeNewShift(int index) throws DataAccessException {
+	public boolean takeNewShift(Copy copy) throws DataAccessException {
 		boolean success = false;
-		Copy copy = releasedShiftCopies.get(index);
 		String employeeCPR = employeeController.getLoggedInEmployee().getCPR();
 		int workScheduleID = workScheduleController.findWorkScheduleIDOnEmployeeCPR(employeeCPR);
 		String state = CopyState.OCCUPIED.getState();
 		
 		if(shiftDB.takeNewShift(copy, workScheduleID, state)) {
-			calculateAndSetTotalHours(copy, employeeCPR, index);
+			calculateAndSetTotalHours(copy, employeeCPR);
 			success = true;
 		}
 		return success;
@@ -117,7 +116,7 @@ public class ShiftController {
 			employeeCPR = workSchedules.get(workScheduleIndex).getEmployeeCPR();
 			
 			if(shiftDB.takeNewShift(copy, workScheduleID, state)) {
-				calculateAndSetTotalHours(copy, employeeCPR, index);
+				calculateAndSetTotalHours(copy, employeeCPR);
 				if(releasedShiftCopies.size() == 0) {
 					releasedShiftCopies = shiftDB.findReleasedShiftCopies();
 				}
@@ -135,6 +134,7 @@ public class ShiftController {
 		}
 	}
 	
+
 	/**
 	 * Calculates and sets new total hours on work schedule for a given employee. 
 	 * @param copy
@@ -142,10 +142,10 @@ public class ShiftController {
 	 * @param index
 	 * @throws DataAccessException
 	 */
-	private void calculateAndSetTotalHours(Copy copy, String employeeCPR, int index) throws DataAccessException {
+	private void calculateAndSetTotalHours(Copy copy, String employeeCPR) throws DataAccessException {
 		int hours = calculateTotalHours(copy);
 		workScheduleController.setTotalHoursOnWorkSchedule(hours, employeeCPR);
-		releasedShiftCopies.remove(index);
+		releasedShiftCopies.remove(copy);
 	}
 	
 	/**
@@ -251,6 +251,10 @@ public class ShiftController {
 		return shiftCopies;
 	}
 	
+	public ArrayList<Copy> getReleasedShiftCopiesList() {
+		return releasedShiftCopies;
+	}
+  
 	/**
 	 * Clears the list of shift copies. 
 	 */
@@ -258,6 +262,9 @@ public class ShiftController {
 		shiftCopies.clear();
 	}
 	
+	public void addCopyToReleasedShiftCopy(Copy copy) {
+		releasedShiftCopies.add(copy);
+	}
 	/**
 	 * Gets a list of shift copies marked as 'Released'.
 	 * @return releasedShiftCopies
