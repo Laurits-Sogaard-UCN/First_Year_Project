@@ -266,7 +266,7 @@ public class ShiftController {
 	
 	public void addCopyToReleasedShiftCopy(Copy copy) {
 		releasedShiftCopies.add(copy);
-
+	}
 	/**
 	 * Gets a list of shift copies marked as 'Released'.
 	 * @return releasedShiftCopies
