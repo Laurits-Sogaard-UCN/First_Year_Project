@@ -252,6 +252,10 @@ public class ShiftController {
 		return shiftCopies;
 	}
 	
+	/**
+	 * Gets list of released shift copies.
+	 * @return releasedShiftCopies
+	 */
 	public ArrayList<Copy> getReleasedShiftCopiesList() {
 		return releasedShiftCopies;
 	}
@@ -263,9 +267,14 @@ public class ShiftController {
 		shiftCopies.clear();
 	}
 	
+	/**
+	 * Adds a copy object to list of released shift copies. 
+	 * @param copy
+	 */
 	public void addCopyToReleasedShiftCopy(Copy copy) {
 		releasedShiftCopies.add(copy);
 	}
+	
 	/**
 	 * Gets a list of shift copies marked as 'Released'.
 	 * @return releasedShiftCopies

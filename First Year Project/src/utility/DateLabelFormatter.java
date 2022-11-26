@@ -12,11 +12,21 @@ public class DateLabelFormatter extends AbstractFormatter {
 	private String datePattern = "yyyy-MM-dd";
     private SimpleDateFormat dateFormatter = new SimpleDateFormat(datePattern);
      
+    /**
+     * Converts string to object.
+     * @param text
+     * @return Object
+     */
     @Override
     public Object stringToValue(String text) throws ParseException {
         return dateFormatter.parseObject(text);
     }
  
+    /**
+     * Converts object to string.
+     * @param value
+     * @return String
+     */
     @Override
     public String valueToString(Object value) throws ParseException {
         if (value != null) {
