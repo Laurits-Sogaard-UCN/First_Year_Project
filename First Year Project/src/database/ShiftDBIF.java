@@ -1,6 +1,5 @@
 package database;
 
-import java.sql.Connection;
 import java.time.LocalTime;
 import java.util.ArrayList;
 

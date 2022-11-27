@@ -1,12 +1,9 @@
 package controller;
 
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
 
 import database.ShiftDB;
 import database.ShiftDBIF;
@@ -85,7 +82,6 @@ public class ShiftController {
 		
 		releasedShiftCopies = shiftDB.findReleasedShiftCopies();
 		delegate(workSchedules);
-		releasedShiftCopies = shiftDB.findReleasedShiftCopies();
 		
 		if(releasedShiftCopies.isEmpty()) {
 			delegated = 0;
@@ -105,34 +101,39 @@ public class ShiftController {
 	private void delegate(ArrayList<WorkSchedule> workSchedules) throws DataAccessException {
 		int workScheduleID;
 		int workScheduleIndex = 0;
+		int copyIndex = 0;
+		int lastWorkScheduleIndex = workSchedules.size() - 1;
+		int lastCopyIndex = releasedShiftCopies.size() - 1;
 		String employeeCPR;
-		int index = 0;
 		Copy copy;
 		String state = CopyState.DELEGATED.getState();
-		workSchedules.sort((w1,  w2) -> w1.getTotalHours().compareTo(w2.getTotalHours()));
+		workSchedules.sort((w1,  w2) -> w1.getTotalHours().compareTo(w2.getTotalHours()));	// Sorts the list of work schedules.
+		
+		/* Looping through the copies, and trying to delegate them one by one.*/
 		
 		while (!releasedShiftCopies.isEmpty()) {
-			copy = releasedShiftCopies.get(index);
+			copy = releasedShiftCopies.get(copyIndex);
 			workScheduleID = workSchedules.get(workScheduleIndex).getID();
 			employeeCPR = workSchedules.get(workScheduleIndex).getEmployeeCPR();
 			
 			if(shiftDB.takeNewShift(copy, workScheduleID, state)) {
 				calculateAndSetTotalHours(copy, employeeCPR);
-				if(releasedShiftCopies.size() == 0) {
-					releasedShiftCopies = shiftDB.findReleasedShiftCopies();
+				if(releasedShiftCopies.size() == 0) {							// Checks if the list of copies is now empty.
+					releasedShiftCopies = shiftDB.findReleasedShiftCopies();	// Populates the list again, in case some delegable copies have been removed.
 				}
 				delegate(workSchedules);
 			}
-			else if(workScheduleIndex == workSchedules.size() - 1 && index == releasedShiftCopies.size() - 1) {
+			else if(workScheduleIndex == lastWorkScheduleIndex && copyIndex == lastCopyIndex) { 	// Checks if both the last copy and work schedule have been reached.
 				releasedShiftCopies.clear();
 			}
-			else if(index == releasedShiftCopies.size() - 1 && workScheduleIndex < workSchedules.size() - 1) {
+			else if(copyIndex == lastCopyIndex && workScheduleIndex < lastWorkScheduleIndex) { 		// Checks if only the last copy has been reached.
 				workScheduleIndex++;
 			}
-			else if(index < releasedShiftCopies.size() - 1) {
-				releasedShiftCopies.remove(index);
+			else if(copyIndex < lastCopyIndex) { // Checks if there are more copies in the list.
+				releasedShiftCopies.remove(copyIndex);
 			}
 		}
+		releasedShiftCopies = shiftDB.findReleasedShiftCopies();
 	}
 	
 
@@ -159,6 +160,7 @@ public class ShiftController {
 		LocalTime fromHours = copy.getShift().getFromHour();
 		int toHoursToAdd = toHours.getHour();
 		int fromHoursToAdd = fromHours.getHour();
+		
 		int totalHours = toHoursToAdd - fromHoursToAdd;
 		return totalHours;			
 	}
@@ -232,12 +234,12 @@ public class ShiftController {
 	 */
 	public boolean checkReleasedAt() {
 //		boolean canBeDelegated = false;
-		boolean canBeDelegated = true;
+		boolean canBeDelegated = true;	// Set to true in order to show GUI functionality.
 		
 		for(Copy element : releasedShiftCopies) {
 			LocalDateTime current = element.getReleasedAt();
 			LocalDateTime nowMinus24Hours = LocalDateTime.now().minusHours(24);
-			if(nowMinus24Hours.isAfter(current) || nowMinus24Hours.isEqual(current)) {
+			if(nowMinus24Hours.isAfter(current) || nowMinus24Hours.isEqual(current)) { 	// Checks if 24 hours or more has passed.
 				canBeDelegated = true;
 			}
 		}

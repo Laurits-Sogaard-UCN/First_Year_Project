@@ -99,7 +99,7 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 		int currentHours;
 		
 		try {
-			con.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
+			con.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ); 	// Sets isolation level on transaction.
 			DBConnection.getInstance().startTransaction(); 
 			currentHours = getCurrentHours(employeeCPR);
 			setTotalHours(currentHours, hours, employeeCPR);
