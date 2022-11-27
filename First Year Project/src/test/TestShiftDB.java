@@ -42,14 +42,4 @@ class TestShiftDB {
 		assertTrue(shift.getToHour().equals(toHour));
 	}
 	
-	@Test
-	public void checkRestPeriod() throws DataAccessException {
-		// Arrange
-		
-		// Act
-		
-		// Assert
-		
-	}
-	
 }
