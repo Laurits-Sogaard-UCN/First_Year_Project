@@ -100,76 +100,38 @@ public class ShiftDB implements ShiftDBIF {
 	}
 	
 	/**
-	 * Finds a shift by executing query and building shift object. 
-	 * @param fromHour
-	 * @param toHour
-	 * @return shift
+	 * Sets state and work schedule ID on a copy in the database. 
+	 * @param copy
+	 * @param workScheduleID
+	 * @param state
+	 * @return taken
 	 * @throws DataAccessException
 	 */
-	public Shift findShiftOnFromAndTo(LocalTime fromHour, LocalTime toHour) throws DataAccessException {
-		ResultSet rs;
-		Shift shift = null;
-		String from;
-		String to;
+	public boolean takeNewShift(Copy copy, int workScheduleID, String state) throws DataAccessException {
+		boolean taken = false;
+		boolean sufficientRest = checkRestPeriod(copy, workScheduleID);
+		int copyID = copy.getId();
 		
-		try {
-			from = fromHour.truncatedTo(ChronoUnit.SECONDS).format(DateTimeFormatter.ISO_LOCAL_TIME);
-			to = toHour.truncatedTo(ChronoUnit.SECONDS).format(DateTimeFormatter.ISO_LOCAL_TIME);
-			findShiftOnFromAndTo.setString(1, from);
-			findShiftOnFromAndTo.setString(2, to);
-			rs = findShiftOnFromAndTo.executeQuery();
-			if(rs.next()) {
-				shift = buildShiftObject(rs);
-			}
-			
-		} catch(SQLException e) {
-			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
-		}
-		return shift;
-	}
-	
-	/**
-	 * Inserts a list of shift copies to database by executing update. 
-	 * @param shiftCopies
-	 * @return completed
-	 * @throws DataAccessException
-	 */
-	public boolean completeReleaseNewShifts(ArrayList<Copy> shiftCopies) throws DataAccessException {
-		boolean completed = false;
-		int rowsAffected = -1;
-		Shift shift;
-		int id;
-		LocalDate localDate;
-		java.sql.Date date;
-		Timestamp timestamp;
-		
-		try {
-			DBConnection.getInstance().startTransaction();
-			
-			for(Copy element : shiftCopies) {
-				shift = element.getShift();
-				id = shift.getID();
-				localDate = element.getDate();
-				date = java.sql.Date.valueOf(localDate);
-				timestamp = Timestamp.valueOf(LocalDateTime.now());
+		if(sufficientRest) {
+			try {
+				// TODO: måske vi skal være helt sikre på isolationsniveauerne?
+				con.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ); 	// Sets isolation level on transaction.
+				DBConnection.getInstance().startTransaction();
+				// TODO Skal vi tjekke at det virker?
+				if(findCopyWorkScheduleIDOnID(copyID) == 0) { 	// Checks if WorkScheduleID on copy is 0.
+					setState(copy, state);
+					setWorkScheduleIDOnCopy(copy, workScheduleID);
+				}
 				
-				insertShiftCopy.setInt(1, id);
-				insertShiftCopy.setDate(2, date);
-				insertShiftCopy.setString(3, CopyState.RELEASED.getState());
-				insertShiftCopy.setTimestamp(4, timestamp);
-				rowsAffected += insertShiftCopy.executeUpdate();
+				DBConnection.getInstance().commitTransaction();
+				taken = true;
+				
+			} catch(Exception e) {
+				DBConnection.getInstance().rollbackTransaction();
+				throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
 			}
-			DBConnection.getInstance().commitTransaction();
-			
-			
-		} catch(SQLException e) {
-			DBConnection.getInstance().rollbackTransaction();
-			throw new DataAccessException(DBMessages.COULD_NOT_INSERT, e);
 		}
-		if(rowsAffected >= 0) {
-			completed = true;
-		}
-		return completed;
+		return taken;
 	}
 	
 	/**
@@ -193,38 +155,6 @@ public class ShiftDB implements ShiftDBIF {
 			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
 		}
 		return workScheduleID;
-	}
-	
-	/**
-	 * Sets state and work schedule ID on a copy in the database. 
-	 * @param copy
-	 * @param workScheduleID
-	 * @param state
-	 * @return taken
-	 * @throws DataAccessException
-	 */
-	public boolean takeNewShift(Copy copy, int workScheduleID, String state) throws DataAccessException {
-		boolean taken = false;
-		boolean sufficientRest = checkRestPeriod(copy, workScheduleID);
-		int copyID = copy.getId();
-		
-		if(sufficientRest) {
-			try {
-				con.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ); // TODO: måske vi skal være helt sikre på isolationsniveauerne?
-				DBConnection.getInstance().startTransaction();
-				if(findCopyWorkScheduleIDOnID(copyID) == 0) { // TODO Skal vi tjekke at det virker?
-					setState(copy, state);
-					setWorkScheduleIDOnCopy(copy, workScheduleID);
-				}
-				DBConnection.getInstance().commitTransaction();
-				taken = true;
-				
-			} catch(Exception e) {
-				DBConnection.getInstance().rollbackTransaction();
-				throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
-			}
-		}
-		return taken;
 	}
 	
 	/**
@@ -260,8 +190,11 @@ public class ShiftDB implements ShiftDBIF {
 			checkRestPeriod.setInt(1, workScheduleID);
 			rs = checkRestPeriod.executeQuery();
 			
+			/* Loops through all rows in ResultSet, until last row has been reached.*/
+			
 			if(rs.next()) {
 				do {
+					/* Converts values from ResultSet into LocalDateTime object.*/
 					date = rs.getDate("Date").toLocalDate();
 					resultSetFromHour = rs.getString("FromHour");
 					fromHour = LocalTime.parse(resultSetFromHour);
@@ -270,16 +203,18 @@ public class ShiftDB implements ShiftDBIF {
 					dateTimeFrom = LocalDateTime.of(date, fromHour);
 					dateTimeTo = LocalDateTime.of(date, toHour);
 					
+					/* Converts values from copy object into LocalDateTime object.*/
 					copyDate = copy.getDate();
 					copyFromHour = copy.getShift().getFromHour();
 					copyToHour = copy.getShift().getToHour();
 					copyDateTimeFrom = LocalDateTime.of(copyDate, copyFromHour);
 					copyDateTimeTo = LocalDateTime.of(copyDate, copyToHour);
 					
+					/* Finds duration between LocalDateTimeObjects.*/
 					durationBetween1 = Duration.between(dateTimeFrom, copyDateTimeTo).toHours();
 					durationBetween2 = Duration.between(dateTimeTo, copyDateTimeFrom).toHours();
 					
-					if(!date.isEqual(copyDate) && durationBetween1 >= 11 && durationBetween2 >= 11) {
+					if(!date.isEqual(copyDate) && durationBetween1 >= 11 && durationBetween2 >= 11) { 	// Checks if dates are not equal, and 11 hours has passed.
 						sufficientRest = true;
 					}
 					else {
@@ -339,6 +274,102 @@ public class ShiftDB implements ShiftDBIF {
 	}
 	
 	/**
+	 * Finds a shift by executing query and building shift object. 
+	 * @param fromHour
+	 * @param toHour
+	 * @return shift
+	 * @throws DataAccessException
+	 */
+	public Shift findShiftOnFromAndTo(LocalTime fromHour, LocalTime toHour) throws DataAccessException {
+		ResultSet rs;
+		Shift shift = null;
+		String from;
+		String to;
+		
+		try {
+			/* Truncates LocalTime objects to seconds, and parses them to strings.*/
+			from = fromHour.truncatedTo(ChronoUnit.SECONDS).format(DateTimeFormatter.ISO_LOCAL_TIME);
+			to = toHour.truncatedTo(ChronoUnit.SECONDS).format(DateTimeFormatter.ISO_LOCAL_TIME);
+			
+			findShiftOnFromAndTo.setString(1, from);
+			findShiftOnFromAndTo.setString(2, to);
+			rs = findShiftOnFromAndTo.executeQuery();
+			if(rs.next()) {
+				shift = buildShiftObject(rs);
+			}
+			
+		} catch(SQLException e) {
+			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
+		}
+		return shift;
+	}
+	
+	/**
+	 * Inserts a list of shift copies to database by executing update. 
+	 * @param shiftCopies
+	 * @return completed
+	 * @throws DataAccessException
+	 */
+	public boolean completeReleaseNewShifts(ArrayList<Copy> shiftCopies) throws DataAccessException {
+		boolean completed = false;
+		int rowsAffected = -1;
+		Shift shift;
+		int id;
+		LocalDate localDate;
+		java.sql.Date date;
+		Timestamp timestamp;
+		
+		try {
+			DBConnection.getInstance().startTransaction();
+			
+			/* Loops through list of copies and inserts one by one to the database.*/
+			
+			for(Copy element : shiftCopies) {
+				shift = element.getShift();
+				id = shift.getID();
+				localDate = element.getDate();
+				date = java.sql.Date.valueOf(localDate); 	// Converts LocalDate object to SQL Date object.
+				timestamp = Timestamp.valueOf(LocalDateTime.now()); 	// Converts LocalDateTime object to Timestamp object.
+				
+				insertShiftCopy.setInt(1, id);
+				insertShiftCopy.setDate(2, date);
+				insertShiftCopy.setString(3, CopyState.RELEASED.getState());
+				insertShiftCopy.setTimestamp(4, timestamp);
+				rowsAffected += insertShiftCopy.executeUpdate();
+			}
+			DBConnection.getInstance().commitTransaction();
+			
+		} catch(SQLException e) {
+			DBConnection.getInstance().rollbackTransaction();
+			throw new DataAccessException(DBMessages.COULD_NOT_INSERT, e);
+		}
+		if(rowsAffected >= 0) {
+			completed = true;
+		}
+		return completed;
+	}
+	
+	/**
+	 * Finds all copies in database marked as 'Released' by executing query.
+	 * @return releasedShiftCopies
+	 * @throws DataAccessException
+	 */
+	public ArrayList<Copy> findReleasedShiftCopies() throws DataAccessException {
+		ArrayList<Copy> releasedShiftCopies = new ArrayList<>();
+		ResultSet rs = null;
+		
+		try {
+			findReleasedShiftCopies.setString(1, CopyState.RELEASED.getState());
+			rs = findReleasedShiftCopies.executeQuery();
+			releasedShiftCopies = buildCopyObjects(rs);
+			
+		} catch(SQLException e) {
+			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
+		}
+		return releasedShiftCopies;
+	}
+	
+	/**
 	 * Builds shift object from ResultSet.
 	 * @param rs
 	 * @return shift
@@ -360,26 +391,6 @@ public class ShiftDB implements ShiftDBIF {
 			throw new DataAccessException(DBMessages.COULD_NOT_READ_RESULTSET, e);
 		}
 		return shift;
-	}
-	
-	/**
-	 * Finds all copies in database marked as 'Released' by executing query.
-	 * @return releasedShiftCopies
-	 * @throws DataAccessException
-	 */
-	public ArrayList<Copy> findReleasedShiftCopies() throws DataAccessException {
-		ArrayList<Copy> releasedShiftCopies = new ArrayList<>();
-		ResultSet rs = null;
-		
-		try {
-			findReleasedShiftCopies.setString(1, CopyState.RELEASED.getState());
-			rs = findReleasedShiftCopies.executeQuery();
-			releasedShiftCopies = buildCopyObjects(rs);
-			
-		} catch(SQLException e) {
-			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
-		}
-		return releasedShiftCopies;
 	}
 	
 	/**
@@ -424,6 +435,7 @@ public class ShiftDB implements ShiftDBIF {
 		LocalDateTime releasedAt;
 		
 		try {
+			/* Builds shift object.*/
 			id = rs.getInt("ID");
 			shiftID = rs.getInt("ShiftID");
 			findShiftsOnShiftID.setInt(1, shiftID);
@@ -432,6 +444,7 @@ public class ShiftDB implements ShiftDBIF {
 				shift = buildShiftObject(rs2);
 			}
 			
+			/* Creates full copy object.*/
 			date = rs.getDate("Date");
 			localDate = date.toLocalDate();
 			state = rs.getString("State");

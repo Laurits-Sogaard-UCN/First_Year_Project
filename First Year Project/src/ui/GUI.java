@@ -1,7 +1,6 @@
 package ui;
 
 import java.awt.BorderLayout;
-
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -26,7 +25,6 @@ import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
 
-import controller.EmployeeController;
 import controller.ShiftController;
 import model.Copy;
 import utility.DataAccessException;
@@ -644,14 +642,6 @@ public class GUI extends JFrame {
 	}
 	
 	/**
-	 * Goes to MainMenu card.
-	 * @param e
-	 */
-	private void completeReleaseNewShiftsOKButtonClicked(ActionEvent e) {
-		getThisCard("MainMenu");
-	}
-	
-	/**
 	 * Goes to Take Shift card. Makes internal method call to implementation of startTakeNewShift.
 	 * @param e
 	 */
@@ -741,6 +731,14 @@ public class GUI extends JFrame {
 	}
 	
 	/**
+	 * Goes to MainMenu card.
+	 * @param e
+	 */
+	private void completeReleaseNewShiftsOKButtonClicked(ActionEvent e) {
+		getThisCard("MainMenu");
+	}
+	
+	/**
 	 * Goes to Shifts Menu card. List of copies and GUI layout is cleared.
 	 * @param e
 	 */
@@ -775,7 +773,7 @@ public class GUI extends JFrame {
 		ArrayList<Copy> releasedCopies = shiftController.startTakeNewShift();
 		
 		if(!releasedCopies.isEmpty()) {
-			showCopies(releasedCopies, listModelTake);
+			showCopies(releasedCopies, listModelTake); 	// Displaying the copies.
 		}
 	}
 	
@@ -785,13 +783,15 @@ public class GUI extends JFrame {
 	 * @throws DataAccessException
 	 */
 	private void takeNewShift() throws DataAccessException {
+		/* Finds chosen copy on list and takes the copy.*/
 		int index = getIndexOnSelectedListValue(listOfShiftsToTake);
 		Copy copy = shiftController.getReleasedShiftCopiesList().get(index);
 		boolean taken = shiftController.takeNewShift(copy);
 		
+		/* Checks if successfully taken.*/ 
 		if(taken) {
 			textAreaTakeNewShiftErrorHandling.setText("Shift was successfully taken");
-			showCopies(shiftController.getReleasedCopies(), listModelTake);
+			showCopies(shiftController.getReleasedCopies(), listModelTake); 	// Displaying the copies.
 		}
 		else {
 			textAreaTakeNewShiftErrorHandling.setText("Error! Shift has already been taken");
@@ -807,19 +807,19 @@ public class GUI extends JFrame {
 		boolean canBeDelegated = shiftController.checkReleasedAt();
 		int delegated;
 		
-		if(canBeDelegated) {
+		if(canBeDelegated) { 	// Checks if 24 hours or more has passed. 
 			delegated = shiftController.delegateShifts();
 			if(delegated == 0) {
 				textAreaTakeNewShiftErrorHandling.append("All shifts were");
 				textAreaTakeNewShiftErrorHandling.append(" \n");
 				textAreaTakeNewShiftErrorHandling.append("delegated successfully");
-				showCopies(shiftController.getReleasedCopies(), listModelTake);
+				showCopies(shiftController.getReleasedCopies(), listModelTake); 	// Displaying the copies.
 			}
 			else if(delegated == -1) {
 				textAreaTakeNewShiftErrorHandling.append("All possible shifts were delegated.");
 				textAreaTakeNewShiftErrorHandling.append(" \n");
 				textAreaTakeNewShiftErrorHandling.append("Some may be left");
-				showCopies(shiftController.getReleasedCopies(), listModelTake);
+				showCopies(shiftController.getReleasedCopies(), listModelTake);		// Displaying the copies.
 			}
 		}
 		else {
@@ -841,15 +841,20 @@ public class GUI extends JFrame {
 	 * @throws DataAccessException
 	 */
 	private void addShift() throws DataAccessException {
+		/* Gets the picked date, and parses it to a LocalDate object with given format.*/
 		String dateString = datePicker.getJFormattedTextField().getText();
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		LocalDate date = LocalDate.parse(dateString, formatter);
+		
+		/* Gets selected times, and parses the strings to LocalTime objects.*/
 		String fromHourString = (String) comboBoxShiftFrom.getSelectedItem();
 		LocalTime fromHour = LocalTime.parse(fromHourString);
 		String toHourString = (String) comboBoxShiftTo.getSelectedItem();
 		LocalTime toHour = LocalTime.parse(toHourString);
+		
 		textAreaErrorHandling.setText("");
 		
+		/* Defensive programming to verify input.*/
 		if(fromHour.getHour() >= toHour.getHour()) {
 			textAreaErrorHandling.setText("Invalid time period has been chosen");
 		}
@@ -931,6 +936,8 @@ public class GUI extends JFrame {
 		LocalTime fromHour;
 		LocalTime toHour;
 		
+		/* Loops through list of copies, and for each adds a string containing info about the copy
+		 * to the given DefaultListmodel.*/
 		for(int i = 0 ; i < shiftCopies.size() ; i++) {
 			copy = shiftCopies.get(i);
 			copyDate = copy.getDate().toString();
@@ -940,6 +947,7 @@ public class GUI extends JFrame {
 			copyDateFormatted = day + "-" + month + "-" + year;
 			fromHour = copy.getShift().getFromHour();
 			toHour = copy.getShift().getToHour();
+			
 			listModel.addElement("Shift: " + (i + 1) + " Date: " + copyDateFormatted + " From: " + fromHour + " To: " + toHour);
 		}
 	}
