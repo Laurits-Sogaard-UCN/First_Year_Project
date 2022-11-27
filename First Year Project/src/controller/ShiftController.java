@@ -83,6 +83,7 @@ public class ShiftController {
 		workSchedules = workScheduleController.getAllWorkSchedules();
 		int delegated;
 		
+		releasedShiftCopies = shiftDB.findReleasedShiftCopies();
 		delegate(workSchedules);
 		releasedShiftCopies = shiftDB.findReleasedShiftCopies();
 		
