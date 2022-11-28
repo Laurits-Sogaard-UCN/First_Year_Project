@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 
 import controller.ShiftController;
 import database.DBConnection;
+import database.ShiftDB;
 import model.Copy;
 import model.Shift;
 import utility.CopyState;
@@ -477,6 +478,42 @@ class TestShiftController {
 		assertNotNull(list);
 	}
 	
+	@Test
+	public void addShift() throws DataAccessException {
+		// Arrange
+		ShiftController shiftController = new ShiftController();
+		boolean added = false;
+		LocalTime fromHour = LocalTime.parse("06:00:00");
+		LocalTime toHour = LocalTime.parse("14:00:00");
+		LocalDate date = LocalDate.now();
+		Copy copyToTest;
+		
+		// Act
+		shiftController.clearShiftCopies();
+		copyToTest = shiftController.addShift(date, fromHour, toHour).get(0);
+		if(copyToTest.getDate().equals(date) && copyToTest.getShift().getFromHour().equals(fromHour) && copyToTest.getShift().getToHour().equals(toHour) && copyToTest.getShift().getID() == 1) {
+			added = true;
+		}
+		
+		
+		// Assert
+		assertTrue(added);
+	}
 	
-
+	@Test
+	public void clearShiftCopies() throws DataAccessException {
+		// Arrange
+		ShiftController shiftController = new ShiftController();
+		boolean cleared = false;
+		
+		// Act
+		shiftController.clearShiftCopies();
+		cleared = shiftController.getShiftCopies().isEmpty();
+		
+		
+		// Assert
+		assertTrue(cleared);
+	}
+	
+	
 }
