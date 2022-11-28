@@ -1,7 +1,5 @@
 package model;
 
-import java.util.ArrayList;
-
 public class Employee {
 	
 	private String CPR;
@@ -16,7 +14,8 @@ public class Employee {
 	private Shop shop;
 	
 	/**
-	 * @param cPR
+	 * Constructor to initialize instance variables.
+	 * @param CPR
 	 * @param lname
 	 * @param fname
 	 * @param email
@@ -27,10 +26,9 @@ public class Employee {
 	 * @param type
 	 * @param shop
 	 */
-	public Employee(String cPR, String lname, String fname, String email, String address, String phone, String username,
+	public Employee(String CPR, String lname, String fname, String email, String address, String phone, String username,
 			String password, String type, Shop shop) {
-		super();
-		CPR = cPR;
+		this.CPR = CPR;
 		this.lname = lname;
 		this.fname = fname;
 		this.email = email;
@@ -43,121 +41,160 @@ public class Employee {
 	}
 	
 	/**
-	 * @return the cPR
+	 * Gets CPR.
+	 * @return CPR
 	 */
 	public String getCPR() {
 		return CPR;
 	}
+	
 	/**
-	 * @param cPR the cPR to set
+	 * Sets a new CPR.
+	 * @param CPR
 	 */
-	public void setCPR(String cPR) {
-		CPR = cPR;
+	public void setCPR(String CPR) {
+		this.CPR = CPR;
 	}
+	
 	/**
-	 * @return the lname
+	 * gets lname.
+	 * @return lname
 	 */
 	public String getLname() {
 		return lname;
 	}
+	
 	/**
-	 * @param lname the lname to set
+	 * Sets a new lname.
+	 * @param lname
 	 */
 	public void setLname(String lname) {
 		this.lname = lname;
 	}
+	
 	/**
-	 * @return the fname
+	 * Gets fname.
+	 * @return fname
 	 */
 	public String getFname() {
 		return fname;
 	}
+	
 	/**
-	 * @param fname the fname to set
+	 * Sets a new fname.
+	 * @param fname
 	 */
 	public void setFname(String fname) {
 		this.fname = fname;
 	}
+	
 	/**
-	 * @return the email
+	 * Gets email.
+	 * @return email
 	 */
 	public String getEmail() {
 		return email;
 	}
+	
 	/**
-	 * @param email the email to set
+	 * Sets a new email.
+	 * @param email
 	 */
 	public void setEmail(String email) {
 		this.email = email;
 	}
+	
 	/**
-	 * @return the address
+	 * Gets address.
+	 * @return address
 	 */
 	public String getAddress() {
 		return address;
 	}
+	
 	/**
-	 * @param address the address to set
+	 * Sets a new address.
+	 * @param address
 	 */
 	public void setAddress(String address) {
 		this.address = address;
 	}
+	
 	/**
-	 * @return the phone
+	 * Gets phone.
+	 * @return phone
 	 */
 	public String getPhone() {
 		return phone;
 	}
+	
 	/**
-	 * @param phone the phone to set
+	 * Sets a new phone.
+	 * @param phone
 	 */
 	public void setPhone(String phone) {
 		this.phone = phone;
 	}
+	
 	/**
-	 * @return the username
+	 * Gets username.
+	 * @return username
 	 */
 	public String getUsername() {
 		return username;
 	}
+	
 	/**
-	 * @param username the username to set
+	 * Sets a new username.
+	 * @param username
 	 */
 	public void setUsername(String username) {
 		this.username = username;
 	}
+	
 	/**
-	 * @return the password
+	 * Gets password.
+	 * @return password
 	 */
 	public String getPassword() {
 		return password;
 	}
+	
 	/**
-	 * @param password the password to set
+	 * Sets a new password.
+	 * @param password
 	 */
 	public void setPassword(String password) {
 		this.password = password;
 	}
+	
 	/**
-	 * @return the type
+	 * Gets type.
+	 * @return type
 	 */
 	public String getType() {
 		return type;
 	}
+	
 	/**
-	 * @param type the type to set
+	 * Sets a new type.
+	 * @param type
 	 */
 	public void setType(String type) {
 		this.type = type;
 	}
+	
 	/**
-	 * @return the shop
+	 * Gets shop.
+	 * @return shop
 	 */
 	public Shop getShop() {
 		return shop;
 	}
+	
 	/**
-	 * @param shop the shop to set
+	 * Sets a new shop.
+	 * @param shop
 	 */
 	public void setShop(Shop shop) {
 		this.shop = shop;

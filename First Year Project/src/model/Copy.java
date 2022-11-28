@@ -1,33 +1,85 @@
 package model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class Copy {
 	
+	private int id;
 	private Shift shift;
 	private WorkSchedule workSchedule;
-	private Byte[] versionNumber;
 	private LocalDate date;
 	private String state;
-	
+	private LocalDateTime releasedAt;
 
 	/**
+	 * Constructor to initialize instance variables.
+	 * @param id
 	 * @param shift
 	 * @param workSchedule
 	 * @param versionNumber
 	 * @param date
 	 * @param state
+	 * @param releasedAt
 	 */
-	public Copy(Shift shift, WorkSchedule workSchedule, Byte[] versionNumber, LocalDate date, String state) {
-		super();
+	public Copy(int id, Shift shift, WorkSchedule workSchedule, LocalDate date, String state,
+			LocalDateTime releasedAt) {
+		this.id = id;
 		this.shift = shift;
 		this.workSchedule = workSchedule;
-		this.versionNumber = versionNumber;
 		this.date = date;
 		this.state = state;
+		this.releasedAt = releasedAt;
+	}
+	
+	/**
+	 * Constructor to initialize instance variables.
+	 * @param id
+	 * @param shift
+	 * @param date
+	 * @param state
+	 * @param releasedAt
+	 */
+	public Copy(int id, Shift shift, LocalDate date, String state, LocalDateTime releasedAt) {
+		this.id = id;
+		this.shift = shift;
+		this.date = date;
+		this.state = state;
+		this.releasedAt = releasedAt;
+	}
+	
+	/**
+	 * Constructor to initialize instance variables.
+	 * @param shift
+	 * @param date
+	 * @param state
+	 * @param releasedAt
+	 */
+	public Copy(Shift shift, LocalDate date, String state, LocalDateTime releasedAt) {
+		this.shift = shift;
+		this.date = date;
+		this.state = state;
+		this.releasedAt = releasedAt;
 	}
 
 	/**
+	 * Gets id.
+	 * @return the id
+	 */
+	public int getId() {
+		return id;
+	}
+
+	/**
+	 * Sets a new id.
+	 * @param id the id to set
+	 */
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	/**
+	 * Gets shift.
 	 * @return the shift
 	 */
 	public Shift getShift() {
@@ -35,6 +87,7 @@ public class Copy {
 	}
 
 	/**
+	 * Sets a new shift.
 	 * @param shift the shift to set
 	 */
 	public void setShift(Shift shift) {
@@ -42,6 +95,7 @@ public class Copy {
 	}
 
 	/**
+	 * Gets work schedule. 
 	 * @return the workSchedule
 	 */
 	public WorkSchedule getWorkSchedule() {
@@ -49,6 +103,7 @@ public class Copy {
 	}
 
 	/**
+	 * Sets a new work schedule.
 	 * @param workSchedule the workSchedule to set
 	 */
 	public void setWorkSchedule(WorkSchedule workSchedule) {
@@ -56,20 +111,7 @@ public class Copy {
 	}
 
 	/**
-	 * @return the versionNumber
-	 */
-	public Byte[] getVersionNumber() {
-		return versionNumber;
-	}
-
-	/**
-	 * @param versionNumber the versionNumber to set
-	 */
-	public void setVersionNumber(Byte[] versionNumber) {
-		this.versionNumber = versionNumber;
-	}
-
-	/**
+	 * Gets date.
 	 * @return the date
 	 */
 	public LocalDate getDate() {
@@ -77,6 +119,7 @@ public class Copy {
 	}
 
 	/**
+	 * Sets a new date.
 	 * @param date the date to set
 	 */
 	public void setDate(LocalDate date) {
@@ -84,6 +127,7 @@ public class Copy {
 	}
 
 	/**
+	 * Gets state.
 	 * @return the state
 	 */
 	public String getState() {
@@ -91,12 +135,28 @@ public class Copy {
 	}
 
 	/**
+	 * Sets a new state.
 	 * @param state the state to set
 	 */
 	public void setState(String state) {
 		this.state = state;
 	}
-	
-	
+
+	/**
+	 * Gets released at.
+	 * @return the releasedAt
+	 */
+	public LocalDateTime getReleasedAt() {
+		return releasedAt;
+	}
+
+	/**
+	 * Sets a new released at.
+	 * @param releasedAt the releasedAt to set
+	 */
+	public void setReleasedAt(LocalDateTime releasedAt) {
+		this.releasedAt = releasedAt;
+	}
+
 
 }

@@ -5,7 +5,8 @@ public class FullTimeEmployee extends Employee {
 	private double monthlyWage;
 	
 	/**
-	 * @param cPR
+	 * Constructor to initialize instance variables.
+	 * @param CPR
 	 * @param lname
 	 * @param fname
 	 * @param email
@@ -17,21 +18,23 @@ public class FullTimeEmployee extends Employee {
 	 * @param shop
 	 * @param monthlyWage
 	 */
-	public FullTimeEmployee(String cPR, String lname, String fname, String email, String address, String phone,
+	public FullTimeEmployee(String CPR, String lname, String fname, String email, String address, String phone,
 			String username, String password, String type, Shop shop, double monthlyWage) {
-		super(cPR, lname, fname, email, address, phone, username, password, type, shop);
+		super(CPR, lname, fname, email, address, phone, username, password, type, shop);
 		this.monthlyWage = monthlyWage;
 	}
 
 	/**
-	 * @return the monthlyWage
+	 * Gets monthly wage.
+	 * @return monthlyWage
 	 */
 	public double getMonthlyWage() {
 		return monthlyWage;
 	}
 
 	/**
-	 * @param monthlyWage the monthlyWage to set
+	 * Sets a new monthly wage.
+	 * @param monthlyWage
 	 */
 	public void setMonthlyWage(double monthlyWage) {
 		this.monthlyWage = monthlyWage;

@@ -9,8 +9,8 @@ public class Shop {
 	private String name;
 	private int ID;
 
-
 	/**
+	 * Constructor to initialize instance variables.
 	 * @param address
 	 * @param zipcode
 	 * @param city
@@ -18,102 +18,117 @@ public class Shop {
 	 * @param name
 	 * @param iD
 	 */
-	public Shop(String address, int zipcode, String city, String country, String name, int iD) {
-		super();
+	public Shop(String address, int zipcode, String city, String country, String name, int ID) {
 		this.address = address;
 		this.zipcode = zipcode;
 		this.city = city;
 		this.country = country;
 		this.name = name;
-		ID = iD;
+		this.ID = ID;
 	}
 
+	/**
+	 * Constructor to initialize instance variables.
+	 * @param ID
+	 */
 	public Shop(int ID) {
 		this.ID = ID;
 	}
 
 	/**
-	 * @return the address
+	 * Gets address.
+	 * @return address
 	 */
 	public String getAddress() {
 		return address;
 	}
 
 	/**
-	 * @param address the address to set
+	 * Sets a new address.
+	 * @param address
 	 */
 	public void setAddress(String address) {
 		this.address = address;
 	}
 
 	/**
-	 * @return the zipcode
+	 * Gets zipcode.
+	 * @return zipcode
 	 */
 	public int getZipcode() {
 		return zipcode;
 	}
 
 	/**
-	 * @param zipcode the zipcode to set
+	 * Sets a new zipcode.
+	 * @param zipcode
 	 */
 	public void setZipcode(int zipcode) {
 		this.zipcode = zipcode;
 	}
 
 	/**
-	 * @return the city
+	 * Gets city.
+	 * @return city
 	 */
 	public String getCity() {
 		return city;
 	}
 
 	/**
-	 * @param city the city to set
+	 * Sets a new city.
+	 * @param city
 	 */
 	public void setCity(String city) {
 		this.city = city;
 	}
 
 	/**
-	 * @return the country
+	 * Gets country.
+	 * @return country
 	 */
 	public String getCountry() {
 		return country;
 	}
 
 	/**
-	 * @param country the country to set
+	 * Sets a new country.
+	 * @param country
 	 */
 	public void setCountry(String country) {
 		this.country = country;
 	}
 	
 	/**
-	 * @return the name
+	 * Gets name.
+	 * @return name
 	 */
 	public String getName() {
 		return name;
 	}
 
 	/**
-	 * @param name the name to set
+	 * Sets a new name.
+	 * @param name
 	 */
 	public void setName(String name) {
 		this.name = name;
 	}
 
 	/**
-	 * @return the iD
+	 * Gets ID.
+	 * @return ID
 	 */
 	public int getID() {
 		return ID;
 	}
 
 	/**
-	 * @param iD the iD to set
+	 * Sets a new ID:
+	 * @param ID
 	 */
-	public void setID(int iD) {
-		ID = iD;
+	public void setID(int ID) {
+		this.ID = ID;
 	}
 	
 
