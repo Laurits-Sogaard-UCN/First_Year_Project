@@ -919,7 +919,7 @@ public class GUI extends JFrame {
 				textAreaTakeNewShiftErrorHandling.append("All possible shifts were delegated.");
 				textAreaTakeNewShiftErrorHandling.append(" \n");
 				textAreaTakeNewShiftErrorHandling.append("Some may be left");
-				showCopies(shiftController.getReleasedCopies(), listModelTakeNew);		// Displaying the copies.
+				showCopies(shiftController.getReleasedCopies(), listModelTakeNew);	// Displaying the copies.
 			}
 		}
 		else {
