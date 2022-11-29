@@ -57,15 +57,15 @@ public class ShiftDB implements ShiftDBIF {
 			+ "WHERE s.ID = ?");
 	private PreparedStatement findShiftsOnShiftID;
 	
-	private static final String FIND_COPY_WORKSCHEDULEID_ON_ID = ("SELECT c.WorkScheduleID\r\n"
-			+ "FROM Copy c\r\n"
-			+ "WHERE c.ID = ?");
-	private PreparedStatement findCopyWorkScheduleIDOnID;
-	
 	private static final String SET_WORK_SCHEDULE_ID_ON_COPY = ("UPDATE Copy\r\n"
 			+ "SET WorkScheduleID = ?\r\n"
 			+ "WHERE ID = ?");
 	private PreparedStatement setWorkScheduleIDOnCopy;
+	
+	private static final String FIND_COPY_STATE_ON_ID = "SELECT c.State\r\n"
+			+ "FROM Copy c\r\n"
+			+ "WHERE c.ID = ?";
+	private PreparedStatement findCopyStateOnID;
 	
 	private Connection con;
 	
@@ -90,9 +90,9 @@ public class ShiftDB implements ShiftDBIF {
 			checkRestPeriod = con.prepareStatement(CHECK_REST_PERIOD);
 			changeStateOnCopy = con.prepareStatement(CHANGE_STATE_ON_COPY);
 			findShiftCopiesOnState = con.prepareStatement(FIND_SHIFT_COPIES_ON_STATE);
-			findCopyWorkScheduleIDOnID = con.prepareStatement(FIND_COPY_WORKSCHEDULEID_ON_ID);
 			findShiftsOnShiftID = con.prepareStatement(FIND_SHIFTS_ON_SHIFT_ID);
 			setWorkScheduleIDOnCopy = con.prepareStatement(SET_WORK_SCHEDULE_ID_ON_COPY);
+			findCopyStateOnID = con.prepareStatement(FIND_COPY_STATE_ON_ID);
 			
 		} catch(SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_PREPARE_STATEMENT, e);
@@ -111,14 +111,18 @@ public class ShiftDB implements ShiftDBIF {
 		boolean taken = false;
 		boolean sufficientRest = checkRestPeriod(copy, workScheduleID);
 		int copyID = copy.getId();
+		ResultSet rs = null;
 		
 		if(sufficientRest) {
 			try {
 				// TODO: måske vi skal være helt sikre på isolationsniveauerne?
 				con.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ); 	// Sets isolation level on transaction.
 				DBConnection.getInstance().startTransaction();
+				findCopyStateOnID.setInt(1, copyID);
+				rs = findCopyStateOnID.executeQuery();
+				rs.next();
 				// TODO Skal vi tjekke at det virker?
-				if(findCopyWorkScheduleIDOnID(copyID) == 0) { 	// Checks if WorkScheduleID on copy is 0.
+				if(rs.getString("State").equals(CopyState.RELEASED.getState()) || rs.getString("State").equals(CopyState.TRADEABLE.getState())) { 	// Checks if WorkScheduleID on copy is 0.
 					setState(copy, state);
 					setWorkScheduleIDOnCopy(copy, workScheduleID);
 				}
@@ -132,29 +136,6 @@ public class ShiftDB implements ShiftDBIF {
 			}
 		}
 		return taken;
-	}
-	
-	/**
-	 * Finds a work schedule ID on a copy with a given ID by executing query.
-	 * @param id
-	 * @return workScheduleID
-	 * @throws DataAccessException
-	 */
-	private int findCopyWorkScheduleIDOnID(int id) throws DataAccessException {
-		int workScheduleID = 0;
-		ResultSet rs;
-		
-		try {
-			findCopyWorkScheduleIDOnID.setInt(1, id);
-			rs = findCopyWorkScheduleIDOnID.executeQuery();
-			
-			if(rs.next()) {
-				workScheduleID = rs.getInt("WorkScheduleID");
-			}
-		} catch(SQLException e) {
-			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
-		}
-		return workScheduleID;
 	}
 	
 	/**
