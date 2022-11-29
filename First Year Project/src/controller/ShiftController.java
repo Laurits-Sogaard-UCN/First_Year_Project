@@ -41,7 +41,7 @@ public class ShiftController {
 	 * @throws DataAccessException
 	 */
 	public ArrayList<Copy> startTakeNewShift() throws DataAccessException {
-		releasedShiftCopies = shiftDB.findReleasedShiftCopies();
+		releasedShiftCopies = shiftDB.findShiftCopiesOnState(CopyState.RELEASED.getState());
 		return releasedShiftCopies;
 	}
 	
@@ -78,7 +78,7 @@ public class ShiftController {
 		workSchedules = workScheduleController.getAllWorkSchedules();
 		int delegated;
 		
-		releasedShiftCopies = shiftDB.findReleasedShiftCopies();
+		releasedShiftCopies = shiftDB.findShiftCopiesOnState(CopyState.RELEASED.getState());
 		delegate(workSchedules);
 		
 		if(releasedShiftCopies.isEmpty()) {
@@ -117,7 +117,7 @@ public class ShiftController {
 			if(shiftDB.takeNewShift(copy, workScheduleID, state)) {
 				calculateAndSetTotalHours(copy, employeeCPR);
 				if(releasedShiftCopies.size() == 0) {							// Checks if the list of copies is now empty.
-					releasedShiftCopies = shiftDB.findReleasedShiftCopies();	// Populates the list again, in case some delegable copies have been removed.
+					releasedShiftCopies = shiftDB.findShiftCopiesOnState(CopyState.RELEASED.getState());	// Populates the list again, in case some delegable copies have been removed.
 				}
 				delegate(workSchedules);
 			}
@@ -131,7 +131,7 @@ public class ShiftController {
 				releasedShiftCopies.remove(copyIndex);
 			}
 		}
-		releasedShiftCopies = shiftDB.findReleasedShiftCopies();
+		releasedShiftCopies = shiftDB.findShiftCopiesOnState(CopyState.RELEASED.getState());
 	}
 	
 
@@ -231,6 +231,33 @@ public class ShiftController {
 	}
 	
 	/**
+	 * Makes a list of copies where state is Tradeable and sets shiftCopies to that list.
+	 * @return shiftCopies
+	 * @throws DataAccessException
+	 */
+	public ArrayList<Copy> startTakePlannedShift() throws DataAccessException {
+		shiftCopies = shiftDB.findShiftCopiesOnState(CopyState.TRADEABLE.getState());
+		return shiftCopies;
+	}
+	
+	/**
+	 * Associates a shift copy on a given index, with the work schedule belonging
+	 * to the logged in employee.
+	 * Calculates and sets new total hours for logged in employee.
+	 * @param index
+	 * @return success
+	 * @throws DataAccessException
+	 */
+	public boolean takePlannedShift(Copy copy) throws DataAccessException {
+		boolean succes = false; //TODO refaktorer
+		String employeeCPR = employeeController.getLoggedInEmployee().getCPR();
+		int workScheduleID = workScheduleController.findWorkScheduleIDOnEmployeeCPR(employeeCPR);
+		String state = CopyState.OCCUPIED.getState();
+		succes = shiftDB.takeNewShift(copy, workScheduleID, state);
+		return succes;
+	}
+	
+	/**
 	 * Gets list of shift copies. 
 	 * @return shiftCopies. 
 	 */
@@ -267,7 +294,7 @@ public class ShiftController {
 	 * @throws DataAccessException
 	 */
 	public ArrayList<Copy> getReleasedCopies() throws DataAccessException {
-		releasedShiftCopies = shiftDB.findReleasedShiftCopies();
+		releasedShiftCopies = shiftDB.findShiftCopiesOnState(CopyState.RELEASED.getState());
 		return releasedShiftCopies;
 	}
 
