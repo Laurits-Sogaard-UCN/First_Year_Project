@@ -251,6 +251,15 @@ public class ShiftController {
 		return shiftCopies;
 	}
 	
+	public boolean takePlannedShift(Copy copy) throws DataAccessException {
+		boolean succes = false; //TODO refaktorer
+		String employeeCPR = employeeController.getLoggedInEmployee().getCPR();
+		int workScheduleID = workScheduleController.findWorkScheduleIDOnEmployeeCPR(employeeCPR);
+		String state = CopyState.OCCUPIED.getState();
+		succes = shiftDB.takeNewShift(copy, workScheduleID, state);
+		return succes;
+	}
+	
 	/**
 	 * Gets list of shift copies. 
 	 * @return shiftCopies. 
