@@ -47,10 +47,10 @@ public class ShiftDB implements ShiftDBIF {
 			+ "WHERE ID = ?");
 	private PreparedStatement changeStateOnCopy;
 
-	private static final String FIND_RELEASED_SHIFT_COPIES = ("SELECT *\r\n"
+	private static final String FIND_SHIFT_COPIES_ON_STATE = ("SELECT *\r\n"
 			+ "FROM Copy c\r\n"
 			+ "WHERE c.State = ?");
-	private PreparedStatement findReleasedShiftCopies;
+	private PreparedStatement findShiftCopiesOnState;
 	
 	private static final String FIND_SHIFTS_ON_SHIFT_ID = ("SELECT *\r\n"
 			+ "FROM Shift s, Copy c\r\n"
@@ -89,7 +89,7 @@ public class ShiftDB implements ShiftDBIF {
 			insertShiftCopy = con.prepareStatement(INSERT_SHIFT_COPY);
 			checkRestPeriod = con.prepareStatement(CHECK_REST_PERIOD);
 			changeStateOnCopy = con.prepareStatement(CHANGE_STATE_ON_COPY);
-			findReleasedShiftCopies = con.prepareStatement(FIND_RELEASED_SHIFT_COPIES);
+			findShiftCopiesOnState = con.prepareStatement(FIND_SHIFT_COPIES_ON_STATE);
 			findCopyWorkScheduleIDOnID = con.prepareStatement(FIND_COPY_WORKSCHEDULEID_ON_ID);
 			findShiftsOnShiftID = con.prepareStatement(FIND_SHIFTS_ON_SHIFT_ID);
 			setWorkScheduleIDOnCopy = con.prepareStatement(SET_WORK_SCHEDULE_ID_ON_COPY);
@@ -354,14 +354,15 @@ public class ShiftDB implements ShiftDBIF {
 	 * @return releasedShiftCopies
 	 * @throws DataAccessException
 	 */
-	public ArrayList<Copy> findReleasedShiftCopies() throws DataAccessException {
-		ArrayList<Copy> releasedShiftCopies = new ArrayList<>();
+	public ArrayList<Copy> findShiftCopiesOnState(String state) throws DataAccessException {
+		ArrayList<Copy> releasedShiftCopies;
 		ResultSet rs = null;
 		
 		try {
-			findReleasedShiftCopies.setString(1, CopyState.RELEASED.getState());
-			rs = findReleasedShiftCopies.executeQuery();
-			releasedShiftCopies = buildCopyObjects(rs);
+				findShiftCopiesOnState.setString(1, state);
+				rs = findShiftCopiesOnState.executeQuery();
+				releasedShiftCopies = buildCopyObjects(rs);
+			
 			
 		} catch(SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
@@ -457,5 +458,4 @@ public class ShiftDB implements ShiftDBIF {
 		}
 		return copy;
 	}
-
 }

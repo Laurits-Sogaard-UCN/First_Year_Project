@@ -13,7 +13,7 @@ public interface ShiftDBIF {
 	
 	public boolean completeReleaseNewShifts(ArrayList<Copy> copies) throws DataAccessException;
   
-	public ArrayList<Copy> findReleasedShiftCopies() throws DataAccessException;
+	public ArrayList<Copy> findShiftCopiesOnState(String state) throws DataAccessException;
 	
 	public boolean takeNewShift(Copy copy, int workScheduleID, String state) throws DataAccessException;
 
