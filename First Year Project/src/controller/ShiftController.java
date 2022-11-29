@@ -246,11 +246,24 @@ public class ShiftController {
 		return canBeDelegated;
 	}
 	
+	/**
+	 * Makes a list of copies where state is Tradeable and sets shiftCopies to that list.
+	 * @return shiftCopies
+	 * @throws DataAccessException
+	 */
 	public ArrayList<Copy> startTakePlannedShift() throws DataAccessException {
 		shiftCopies = shiftDB.findShiftCopiesOnState(CopyState.TRADEABLE.getState());
 		return shiftCopies;
 	}
 	
+	/**
+	 * Associates a shift copy on a given index, with the work schedule belonging
+	 * to the logged in employee.
+	 * Calculates and sets new total hours for logged in employee.
+	 * @param index
+	 * @return success
+	 * @throws DataAccessException
+	 */
 	public boolean takePlannedShift(Copy copy) throws DataAccessException {
 		boolean succes = false; //TODO refaktorer
 		String employeeCPR = employeeController.getLoggedInEmployee().getCPR();
