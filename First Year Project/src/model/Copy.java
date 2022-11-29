@@ -22,8 +22,7 @@ public class Copy {
 	 * @param state
 	 * @param releasedAt
 	 */
-	public Copy(int id, Shift shift, WorkSchedule workSchedule, LocalDate date, String state,
-			LocalDateTime releasedAt) {
+	public Copy(int id, Shift shift, WorkSchedule workSchedule, LocalDate date, String state, LocalDateTime releasedAt) {
 		this.id = id;
 		this.shift = shift;
 		this.workSchedule = workSchedule;

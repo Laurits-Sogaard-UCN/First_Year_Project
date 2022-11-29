@@ -169,10 +169,10 @@ public class ShiftController {
 	 * Finds the logged in employee object, and finds and sets a shop object to it.
 	 * @throws DataAccessException
 	 */
-	public void startReleaseNewShifts() throws DataAccessException {
+	public void startReleaseNewShifts() throws DataAccessException { // TODO kan denne metode i teorien ikke slettes?
 		Employee employee = employeeController.getLoggedInEmployee();
 		
-		if(employee != null) {
+		if(employee != null) { // TODO skal flyttes ind i employeeController
 			int id = employee.getShop().getID();
 			Shop shop = shopController.findShopOnID(id);
 			employee.setShop(shop);

@@ -40,6 +40,7 @@ import java.util.Properties;
 import java.awt.event.ActionEvent;
 import javax.swing.JList;
 import javax.swing.JTextArea;
+import java.awt.event.ActionListener;
 
 public class GUI extends JFrame {
 
@@ -48,18 +49,25 @@ public class GUI extends JFrame {
 	private JPanel panelMainMenu;
 	private JPanel panelShiftMenu;
 	private JPanel panelReleaseNewShifts;
-	private JPanel panelTakeShift;
+	private JPanel panelTakeNewShift;
+	private JPanel panelCompleteReleaseNewShifts;
+	private JPanel panelTakePlannedShift;
+	
 	private ShiftController shiftController;
+	
 	private JDatePickerImpl datePicker;
 	private JComboBox<String> comboBoxShiftTo;
 	private JComboBox<String> comboBoxShiftFrom;
+	
+	private JList<String> listOfNewShiftsToTake;
+	private DefaultListModel<String> listModelTakeNew;
 	private JList<String> listOfShiftsToRelease;
 	private DefaultListModel<String> listModelRelease;
+	private JList<String> listOfPlannedShiftsToTake;
+	private DefaultListModel<String> listModelTakePlanned;
+	
 	private JTextArea textAreaErrorHandling;
 	private JTextArea textAreaCompleteReleaseNewShifts;
-	private JPanel panelCompleteReleaseNewShifts;
-	private JList<String> listOfShiftsToTake;
-	private DefaultListModel<String> listModelTake;
 	private JTextArea textAreaTakeNewShiftErrorHandling;
 
 	/**
@@ -307,9 +315,9 @@ public class GUI extends JFrame {
 		panel_9.add(panel_10);
 		GridBagLayout gbl_panel_10 = new GridBagLayout();
 		gbl_panel_10.columnWidths = new int[]{0, 0};
-		gbl_panel_10.rowHeights = new int[]{0, 0, 0, 0};
+		gbl_panel_10.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0};
 		gbl_panel_10.columnWeights = new double[]{1.0, Double.MIN_VALUE};
-		gbl_panel_10.rowWeights = new double[]{1.0, 1.0, 1.0, Double.MIN_VALUE};
+		gbl_panel_10.rowWeights = new double[]{1.0, 0.0, 0.0, 1.0, 1.0, 1.0, Double.MIN_VALUE};
 		panel_10.setLayout(gbl_panel_10);
 		
 		JButton btnReleaseNew = new JButton("Release New");
@@ -323,26 +331,28 @@ public class GUI extends JFrame {
 		gbc_btnReleaseNew.gridx = 0;
 		gbc_btnReleaseNew.gridy = 0;
 		panel_10.add(btnReleaseNew, gbc_btnReleaseNew);
-		
-		JButton btnSeeReleased = new JButton("See Released");
-		btnSeeReleased.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		GridBagConstraints gbc_btnSeeReleased = new GridBagConstraints();
-		gbc_btnSeeReleased.fill = GridBagConstraints.BOTH;
-		gbc_btnSeeReleased.insets = new Insets(0, 0, 5, 0);
-		gbc_btnSeeReleased.gridx = 0;
-		gbc_btnSeeReleased.gridy = 1;
-		panel_10.add(btnSeeReleased, gbc_btnSeeReleased);
-		
-		JButton btnTakeShifts = new JButton("Take Shift");
-		btnTakeShifts.addActionListener(this::takeShiftButtonClicked);
 		{	
 		}
-		btnTakeShifts.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		GridBagConstraints gbc_btnTakeShifts = new GridBagConstraints();
-		gbc_btnTakeShifts.fill = GridBagConstraints.BOTH;
-		gbc_btnTakeShifts.gridx = 0;
-		gbc_btnTakeShifts.gridy = 2;
-		panel_10.add(btnTakeShifts, gbc_btnTakeShifts);
+		
+		JButton btnTakeNewShift = new JButton("Take New Shift");
+		btnTakeNewShift.addActionListener(this::takeNewShiftButtonClicked);
+		btnTakeNewShift.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		GridBagConstraints gbc_btnTakeNewShift = new GridBagConstraints();
+		gbc_btnTakeNewShift.insets = new Insets(0, 0, 5, 0);
+		gbc_btnTakeNewShift.fill = GridBagConstraints.BOTH;
+		gbc_btnTakeNewShift.gridx = 0;
+		gbc_btnTakeNewShift.gridy = 1;
+		panel_10.add(btnTakeNewShift, gbc_btnTakeNewShift);
+		
+		JButton btnTakePlannedShift = new JButton("Take Planned Shift");
+		btnTakePlannedShift.addActionListener(this::takePlannedShiftButtonClicked);
+		btnTakePlannedShift.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		GridBagConstraints gbc_btnTakePlannedShift = new GridBagConstraints();
+		gbc_btnTakePlannedShift.fill = GridBagConstraints.BOTH;
+		gbc_btnTakePlannedShift.insets = new Insets(0, 0, 5, 0);
+		gbc_btnTakePlannedShift.gridx = 0;
+		gbc_btnTakePlannedShift.gridy = 2;
+		panel_10.add(btnTakePlannedShift, gbc_btnTakePlannedShift);
 		
 		// Creating Release New Shift panel. 
 		
@@ -488,35 +498,33 @@ public class GUI extends JFrame {
 		btnCancelShiftMenu.setHorizontalAlignment(SwingConstants.RIGHT);
 		panel_11.add(btnCancelShiftMenu);
 		
-		
-		
-		panelTakeShift = new JPanel();
-		contentPane.add(panelTakeShift, "name_1023562824879300");
-		panelTakeShift.setLayout(new BorderLayout(0, 0));
+		panelTakeNewShift = new JPanel();
+		contentPane.add(panelTakeNewShift, "name_1023562824879300");
+		panelTakeNewShift.setLayout(new BorderLayout(0, 0));
 		
 		JPanel panel_20 = new JPanel();
-		panelTakeShift.add(panel_20, BorderLayout.NORTH);
+		panelTakeNewShift.add(panel_20, BorderLayout.NORTH);
 		
-		JLabel lblNewLabel_12 = new JLabel("Take Shift");
+		JLabel lblNewLabel_12 = new JLabel("Take New Shift");
 		lblNewLabel_12.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_20.add(lblNewLabel_12);
 		
 		JPanel panel_21 = new JPanel();
 		FlowLayout flowLayout_4 = (FlowLayout) panel_21.getLayout();
 		flowLayout_4.setAlignment(FlowLayout.RIGHT);
-		panelTakeShift.add(panel_21, BorderLayout.SOUTH);
+		panelTakeNewShift.add(panel_21, BorderLayout.SOUTH);
 		
 		JButton btnTakeShiftBack = new JButton("Back");
-		btnTakeShiftBack.addActionListener(this::takeShiftBackButtonClicked);
+		btnTakeShiftBack.addActionListener(this::takeNewShiftBackButtonClicked);
 		btnTakeShiftBack.setHorizontalAlignment(SwingConstants.RIGHT);
 		panel_21.add(btnTakeShiftBack);
 		
 		JButton btnTakeShiftOK = new JButton("OK");
-		btnTakeShiftOK.addActionListener(this::takeShiftOKButtonClicked);
+		btnTakeShiftOK.addActionListener(this::takeNewShiftOKButtonClicked);
 		panel_21.add(btnTakeShiftOK);
 		
 		JPanel panel_22 = new JPanel();
-		panelTakeShift.add(panel_22, BorderLayout.CENTER);
+		panelTakeNewShift.add(panel_22, BorderLayout.CENTER);
 		panel_22.setLayout(new BorderLayout(0, 0));
 		
 		JPanel panel_24 = new JPanel();
@@ -539,14 +547,14 @@ public class GUI extends JFrame {
 		{
 		}
 		
-		JButton btnTakeShift = new JButton("Take Shift");
-		btnTakeShift.addActionListener(this::takeNewShiftButtonClicked);
-		GridBagConstraints gbc_btnTakeShift = new GridBagConstraints();
-		gbc_btnTakeShift.fill = GridBagConstraints.BOTH;
-		gbc_btnTakeShift.insets = new Insets(0, 0, 5, 0);
-		gbc_btnTakeShift.gridx = 0;
-		gbc_btnTakeShift.gridy = 2;
-		panel_24.add(btnTakeShift, gbc_btnTakeShift);
+		JButton btnTakeThisNewShift = new JButton("Take Shift");
+		btnTakeThisNewShift.addActionListener(this::takeThisNewShiftButtonClicked);
+		GridBagConstraints gbc_btnTakeThisNewShift = new GridBagConstraints();
+		gbc_btnTakeThisNewShift.fill = GridBagConstraints.BOTH;
+		gbc_btnTakeThisNewShift.insets = new Insets(0, 0, 5, 0);
+		gbc_btnTakeThisNewShift.gridx = 0;
+		gbc_btnTakeThisNewShift.gridy = 2;
+		panel_24.add(btnTakeThisNewShift, gbc_btnTakeThisNewShift);
 		
 		textAreaTakeNewShiftErrorHandling = new JTextArea();
 		GridBagConstraints gbc_textAreaTakeNewShiftErrorHandling = new GridBagConstraints();
@@ -558,9 +566,9 @@ public class GUI extends JFrame {
 		JScrollPane scrollPane_1 = new JScrollPane();
 		panel_22.add(scrollPane_1, BorderLayout.CENTER);
 		
-		listModelTake = new DefaultListModel<>();
-		listOfShiftsToTake = new JList<>(listModelTake);
-		scrollPane_1.setViewportView(listOfShiftsToTake);
+		listModelTakeNew = new DefaultListModel<>();
+		listOfNewShiftsToTake = new JList<>(listModelTakeNew);
+		scrollPane_1.setViewportView(listOfNewShiftsToTake);
 		
 		JPanel panel_23 = new JPanel();
 		panel_22.add(panel_23, BorderLayout.SOUTH);
@@ -594,6 +602,72 @@ public class GUI extends JFrame {
 		btnOK.setHorizontalAlignment(SwingConstants.RIGHT);
 		panel_15.add(btnOK);
 		
+		// Creating Take Planned Shift panel.
+		
+		panelTakePlannedShift = new JPanel();
+		contentPane.add(panelTakePlannedShift, "name_1033478473034800");
+		panelTakePlannedShift.setLayout(new BorderLayout(0, 0));
+		
+		JPanel panel_16 = new JPanel();
+		panelTakePlannedShift.add(panel_16, BorderLayout.NORTH);
+		
+		JLabel lblNewLabel_5 = new JLabel("Take Planned Shift");
+		lblNewLabel_5.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel_16.add(lblNewLabel_5);
+		
+		JPanel panel_17 = new JPanel();
+		FlowLayout flowLayout_5 = (FlowLayout) panel_17.getLayout();
+		flowLayout_5.setAlignment(FlowLayout.RIGHT);
+		panelTakePlannedShift.add(panel_17, BorderLayout.SOUTH);
+		
+		JButton btnTakePlannedShiftBack = new JButton("Back");
+		panel_17.add(btnTakePlannedShiftBack);
+		
+		JButton btnTakePlannedShiftOK = new JButton("OK");
+		panel_17.add(btnTakePlannedShiftOK);
+		
+		JPanel panel_18 = new JPanel();
+		panelTakePlannedShift.add(panel_18, BorderLayout.CENTER);
+		panel_18.setLayout(new BorderLayout(0, 0));
+		
+		JPanel panel_25 = new JPanel();
+		panel_18.add(panel_25, BorderLayout.SOUTH);
+		
+		JLabel lblNewLabel_6 = new JLabel(" ");
+		panel_25.add(lblNewLabel_6);
+		
+		JPanel panel_26 = new JPanel();
+		panel_18.add(panel_26, BorderLayout.EAST);
+		GridBagLayout gbl_panel_26 = new GridBagLayout();
+		gbl_panel_26.columnWidths = new int[]{0, 0};
+		gbl_panel_26.rowHeights = new int[]{0, 0, 0, 0};
+		gbl_panel_26.columnWeights = new double[]{1.0, Double.MIN_VALUE};
+		gbl_panel_26.rowWeights = new double[]{1.0, 0.0, 0.0, Double.MIN_VALUE};
+		panel_26.setLayout(gbl_panel_26);
+		
+		JButton btnTakeThisPlannedShift = new JButton("Take Shift");
+		btnTakeThisPlannedShift.addActionListener(this::takeThisPlannedShiftButtonClicked);
+		GridBagConstraints gbc_btnTakeThisPlannedShift = new GridBagConstraints();
+		gbc_btnTakeThisPlannedShift.fill = GridBagConstraints.BOTH;
+		gbc_btnTakeThisPlannedShift.insets = new Insets(0, 0, 5, 0);
+		gbc_btnTakeThisPlannedShift.gridx = 0;
+		gbc_btnTakeThisPlannedShift.gridy = 1;
+		panel_26.add(btnTakeThisPlannedShift, gbc_btnTakeThisPlannedShift);
+		
+		JTextArea textAreaErrorHandlingTakePlannedShift = new JTextArea();
+		GridBagConstraints gbc_textAreaErrorHandlingTakePlannedShift = new GridBagConstraints();
+		gbc_textAreaErrorHandlingTakePlannedShift.fill = GridBagConstraints.BOTH;
+		gbc_textAreaErrorHandlingTakePlannedShift.gridx = 0;
+		gbc_textAreaErrorHandlingTakePlannedShift.gridy = 2;
+		panel_26.add(textAreaErrorHandlingTakePlannedShift, gbc_textAreaErrorHandlingTakePlannedShift);
+		
+		JScrollPane scrollPane_2 = new JScrollPane();
+		panel_18.add(scrollPane_2, BorderLayout.CENTER);
+		
+		listModelTakePlanned = new DefaultListModel<>();
+		listOfPlannedShiftsToTake = new JList<>(listModelTakePlanned);
+		scrollPane_1.setViewportView(listOfPlannedShiftsToTake);
+		
 		// Adds all panels to the cardlayout of the JFrame.
 		
 		addPanelsToCardLayout();
@@ -611,8 +685,9 @@ public class GUI extends JFrame {
 		container.add("MainMenu", panelMainMenu);
 		container.add("ShiftsMenu", panelShiftMenu);
 		container.add("ReleaseNewShifts", panelReleaseNewShifts);
-		container.add("TakeShift", panelTakeShift);
+		container.add("TakeNewShift", panelTakeNewShift);
 		container.add("CompleteReleaseNewShifts", panelCompleteReleaseNewShifts);
+		container.add("TakePlannedShift", panelTakePlannedShift);
 	}
 	
 	/**
@@ -645,8 +720,8 @@ public class GUI extends JFrame {
 	 * Goes to Take Shift card. Makes internal method call to implementation of startTakeNewShift.
 	 * @param e
 	 */
-	private void takeShiftButtonClicked(ActionEvent e) {
-		getThisCard("TakeShift");
+	private void takeNewShiftButtonClicked(ActionEvent e) {
+		getThisCard("TakeNewShift");
 		try {
 			startTakeNewShift();
 		} catch (DataAccessException e1) {
@@ -658,7 +733,7 @@ public class GUI extends JFrame {
 	 * Internal method call to implementation of takeNewShift.
 	 * @param e
 	 */
-	private void takeNewShiftButtonClicked(ActionEvent e) {
+	private void takeThisNewShiftButtonClicked(ActionEvent e) {
 		try {
 			takeNewShift();
 		} catch(DataAccessException e1) {
@@ -682,7 +757,7 @@ public class GUI extends JFrame {
 	 * Goes to Main Menu card.
 	 * @param e
 	 */
-	private void takeShiftOKButtonClicked(ActionEvent e) {
+	private void takeNewShiftOKButtonClicked(ActionEvent e) {
 		getThisCard("MainMenu");
 	}
 	
@@ -690,7 +765,7 @@ public class GUI extends JFrame {
 	 * Goes to Shifts Menu card.
 	 * @param e
 	 */
-	private void takeShiftBackButtonClicked(ActionEvent e) {
+	private void takeNewShiftBackButtonClicked(ActionEvent e) {
 		getThisCard("ShiftsMenu");
 	}
 	
@@ -763,6 +838,31 @@ public class GUI extends JFrame {
 		}
 	}
 	
+	/**
+	 * Internal method call to implementation of startTakePlannedShift.
+	 * @param e
+	 */
+	private void takePlannedShiftButtonClicked(ActionEvent e) { // TODO skal implementeres
+//		getThisCard("TakePlannedShift");
+//		try {
+//			startTakePlannedShift();
+//		} catch (DataAccessException e1) {
+//			e1.printStackTrace();
+//		}
+	}
+	
+	/**
+	 * Internal method call to implementation of takePlannedShift.
+	 * @param e
+	 */
+	private void takeThisPlannedShiftButtonClicked(ActionEvent e) { // TODO skal implementeres
+//		try {
+//			takePlannedShift();
+//		} catch (DataAccessException e1) {
+//			e1.printStackTrace();
+//		}
+	}
+	
 	// Implementation of use case methods.
 	
 	/**
@@ -773,7 +873,7 @@ public class GUI extends JFrame {
 		ArrayList<Copy> releasedCopies = shiftController.startTakeNewShift();
 		
 		if(!releasedCopies.isEmpty()) {
-			showCopies(releasedCopies, listModelTake); 	// Displaying the copies.
+			showCopies(releasedCopies, listModelTakeNew); 	// Displaying the copies.
 		}
 	}
 	
@@ -784,14 +884,14 @@ public class GUI extends JFrame {
 	 */
 	private void takeNewShift() throws DataAccessException {
 		/* Finds chosen copy on list and takes the copy.*/
-		int index = getIndexOnSelectedListValue(listOfShiftsToTake);
+		int index = getIndexOnSelectedListValue(listOfNewShiftsToTake);
 		Copy copy = shiftController.getReleasedShiftCopiesList().get(index);
 		boolean taken = shiftController.takeNewShift(copy);
 		
 		/* Checks if successfully taken.*/ 
 		if(taken) {
 			textAreaTakeNewShiftErrorHandling.setText("Shift was successfully taken");
-			showCopies(shiftController.getReleasedCopies(), listModelTake); 	// Displaying the copies.
+			showCopies(shiftController.getReleasedCopies(), listModelTakeNew); 	// Displaying the copies.
 		}
 		else {
 			textAreaTakeNewShiftErrorHandling.setText("Error! Shift has already been taken");
@@ -813,13 +913,13 @@ public class GUI extends JFrame {
 				textAreaTakeNewShiftErrorHandling.append("All shifts were");
 				textAreaTakeNewShiftErrorHandling.append(" \n");
 				textAreaTakeNewShiftErrorHandling.append("delegated successfully");
-				showCopies(shiftController.getReleasedCopies(), listModelTake); 	// Displaying the copies.
+				showCopies(shiftController.getReleasedCopies(), listModelTakeNew); 	// Displaying the copies.
 			}
 			else if(delegated == -1) {
 				textAreaTakeNewShiftErrorHandling.append("All possible shifts were delegated.");
 				textAreaTakeNewShiftErrorHandling.append(" \n");
 				textAreaTakeNewShiftErrorHandling.append("Some may be left");
-				showCopies(shiftController.getReleasedCopies(), listModelTake);		// Displaying the copies.
+				showCopies(shiftController.getReleasedCopies(), listModelTakeNew);	// Displaying the copies.
 			}
 		}
 		else {
@@ -900,6 +1000,30 @@ public class GUI extends JFrame {
 		else {
 			textAreaErrorHandling.setText("Error! Shift could not be deleted");
 		}
+	}
+	
+	private void startTakePlannedShift() { // TODO skal implementeres
+//		ArrayList<Copy> tradeableCopies = shiftController.startTakePlannedShift();
+//		
+//		if(!tradeableCopies.isEmpty()) {
+//			showCopies(tradeableCopies, listModelTakePlanned); 	// Displaying the copies.
+//		}
+	}
+	
+	private void takePlannedShift() { // TODO skal implementeres
+//		/* Finds chosen copy on list and takes the copy.*/
+//		int index = getIndexOnSelectedListValue(listOfPlannedShiftsToTake);
+//		Copy copy = shiftController.getTradeableShiftCopiesList().get(index);
+//		boolean taken = shiftController.takePlannedShift(copy);
+//		
+//		/* Checks if successfully taken.*/ 
+//		if(taken) {
+//			textAreaTakeNewShiftErrorHandling.setText("Shift was successfully taken");
+//			showCopies(shiftController.getTradeableCopies(), listModelTakePlanned); 	// Displaying the copies.
+//		}
+//		else {
+//			textAreaTakeNewShiftErrorHandling.setText("Error! Shift has already been taken");
+//		}
 	}
 	
 	/**
