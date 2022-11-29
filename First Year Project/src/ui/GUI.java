@@ -774,11 +774,7 @@ public class GUI extends JFrame {
 	 * @param e
 	 */
 	private void releaseNewButtonClicked(ActionEvent e) {
-		try {
-			startReleaseNewShifts();
-		} catch (DataAccessException e1) {
-			e1.printStackTrace();
-		}
+		getThisCard("ReleaseNewShifts");
 	}
 	
 	/**
@@ -925,15 +921,6 @@ public class GUI extends JFrame {
 		else {
 			textAreaTakeNewShiftErrorHandling.setText("Error! 24 hours hasn't passed.");
 		}
-	}
-	
-	/**
-	 * Starts release of new shifts. Goes to Release New Shifts card.
-	 * @throws DataAccessException
-	 */
-	private void startReleaseNewShifts() throws DataAccessException {
-		shiftController.startReleaseNewShifts();
-		getThisCard("ReleaseNewShifts");
 	}
 	
 	/**
