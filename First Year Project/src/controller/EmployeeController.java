@@ -9,14 +9,13 @@ import utility.DataAccessException;
 public class EmployeeController {
 	
 	private Employee loggedInEmployee;
-	private Shop shop;
 	
 	/**
 	 * Constructor to initialize instance variables. 
 	 * @throws DataAccessException
 	 */
 	public EmployeeController() throws DataAccessException {
-		this.shop = new Shop(1);
+		Shop shop = new Shop(1);
 		loggedInEmployee = new FullTimeEmployee("9876512345", "Kallesen", "Mathias", "MathiasKS@mail.com", "Millionvej 44", "+4512344321", "331", "opetdss2", "Manager", shop, 25000);
 	}
 	

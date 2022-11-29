@@ -18,7 +18,6 @@ import utility.DataAccessException;
 public class ShiftController {
 	
 	private EmployeeController employeeController;
-	private ShopController shopController;
 	private WorkScheduleController workScheduleController;
 	private ShiftDBIF shiftDB;
 	private ArrayList<Copy> shiftCopies;
@@ -30,7 +29,6 @@ public class ShiftController {
 	 */
 	public ShiftController() throws DataAccessException {
 		employeeController = new EmployeeController();
-		shopController = new ShopController();
 		workScheduleController = new WorkScheduleController();
 		shiftDB = new ShiftDB();
 		shiftCopies = new ArrayList<>();
@@ -163,20 +161,6 @@ public class ShiftController {
 		
 		int totalHours = toHoursToAdd - fromHoursToAdd;
 		return totalHours;			
-	}
-
-	/**
-	 * Finds the logged in employee object, and finds and sets a shop object to it.
-	 * @throws DataAccessException
-	 */
-	public void startReleaseNewShifts() throws DataAccessException {
-		Employee employee = employeeController.getLoggedInEmployee();
-		
-		if(employee != null) {
-			int id = employee.getShop().getID();
-			Shop shop = shopController.findShopOnID(id);
-			employee.setShop(shop);
-		}
 	}
 	
 	/**

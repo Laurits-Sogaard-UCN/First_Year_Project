@@ -12,7 +12,6 @@ public class Copy {
 	private String state;
 	private LocalDateTime releasedAt;
 	
-	
 	/**
 	 * Constructor to initialize instance variables.
 	 * @param id
