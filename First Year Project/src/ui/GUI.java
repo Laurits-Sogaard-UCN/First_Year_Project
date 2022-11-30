@@ -18,6 +18,8 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.Font;
 import javax.swing.SwingConstants;
+import javax.swing.SwingWorker;
+
 import java.awt.FlowLayout;
 import javax.swing.JComboBox;
 
@@ -42,9 +44,10 @@ import javax.swing.JList;
 import javax.swing.JTextArea;
 import java.awt.event.ActionListener;
 
-public class GUI extends JFrame {
+public class GUI extends SwingWorker<String, Object> {
 
 	private CardLayout cardLayout;
+	private JFrame frame;
 	private JPanel contentPane;
 	private JPanel panelMainMenu;
 	private JPanel panelShiftMenu;
@@ -69,6 +72,9 @@ public class GUI extends JFrame {
 	private JTextArea textAreaErrorHandling;
 	private JTextArea textAreaCompleteReleaseNewShifts;
 	private JTextArea textAreaTakeNewShiftErrorHandling;
+	
+	private int delegated;
+
 
 	/**
 	 * Launch the application.
@@ -77,8 +83,8 @@ public class GUI extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					GUI frame = new GUI();
-					frame.setVisible(true);
+					GUI window = new GUI();
+					window.frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -93,18 +99,19 @@ public class GUI extends JFrame {
 	 */
 	public GUI() throws DataAccessException {
 		shiftController = new ShiftController();
+		frame = new JFrame();
 		
 		// Creating content pane panel.
 		
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 300);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		setContentPane(contentPane);
+		frame.setContentPane(contentPane);
 		
-		setPreferredSize(new Dimension(500, 400));
-	    pack();
-	    setLocationRelativeTo(null);
+		frame.setPreferredSize(new Dimension(500, 400));
+		frame.pack();
+		frame.setLocationRelativeTo(null);
 	    
 		cardLayout = new CardLayout(0, 0);
 		contentPane.setLayout(cardLayout);
@@ -416,7 +423,6 @@ public class GUI extends JFrame {
 		comboBoxShiftFrom.addItem("");
 		comboBoxShiftFrom.addItem("06:00:00");
 		comboBoxShiftFrom.addItem("14:00:00");
-		comboBoxShiftFrom.addItem("22:00:00");
 		
 		JLabel lblNewLabel_11 = new JLabel("To time:");
 		GridBagConstraints gbc_lblNewLabel_11 = new GridBagConstraints();
@@ -434,7 +440,6 @@ public class GUI extends JFrame {
 		gbc_comboBoxShiftTo.gridy = 7;
 		panel_13.add(comboBoxShiftTo, gbc_comboBoxShiftTo);
 		comboBoxShiftTo.addItem("");
-		comboBoxShiftTo.addItem("06:00:00");
 		comboBoxShiftTo.addItem("14:00:00");
 		comboBoxShiftTo.addItem("22:00:00");
 		
@@ -470,7 +475,6 @@ public class GUI extends JFrame {
 		
 		listModelRelease = new DefaultListModel<>();
 		listOfShiftsToRelease = new JList<>(listModelRelease);
-		
 		JScrollPane scrollPane = new JScrollPane();
 		panelReleaseNewShifts.add(scrollPane, BorderLayout.CENTER);
 		scrollPane.setViewportView(listOfShiftsToRelease);
@@ -565,11 +569,10 @@ public class GUI extends JFrame {
 		gbc_textAreaTakeNewShiftErrorHandling.gridy = 3;
 		panel_24.add(textAreaTakeNewShiftErrorHandling, gbc_textAreaTakeNewShiftErrorHandling);
 		
-		JScrollPane scrollPane_1 = new JScrollPane();
-		panel_22.add(scrollPane_1, BorderLayout.CENTER);
-		
 		listModelTakeNew = new DefaultListModel<>();
 		listOfNewShiftsToTake = new JList<>(listModelTakeNew);
+		JScrollPane scrollPane_1 = new JScrollPane();
+		panel_22.add(scrollPane_1, BorderLayout.CENTER);
 		scrollPane_1.setViewportView(listOfNewShiftsToTake);
 		
 		JPanel panel_23 = new JPanel();
@@ -668,7 +671,7 @@ public class GUI extends JFrame {
 		
 		listModelTakePlanned = new DefaultListModel<>();
 		listOfPlannedShiftsToTake = new JList<>(listModelTakePlanned);
-		scrollPane_1.setViewportView(listOfPlannedShiftsToTake);
+		scrollPane_2.setViewportView(listOfPlannedShiftsToTake);
 		
 		// Adds all panels to the cardlayout of the JFrame.
 		
@@ -683,7 +686,7 @@ public class GUI extends JFrame {
 	 * Adds all created panels to card layout. 
 	 */
 	private void addPanelsToCardLayout() {
-		Container container = getContentPane();
+		Container container = frame.getContentPane();
 		container.add("MainMenu", panelMainMenu);
 		container.add("ShiftsMenu", panelShiftMenu);
 		container.add("ReleaseNewShifts", panelReleaseNewShifts);
@@ -903,22 +906,9 @@ public class GUI extends JFrame {
 	 */
 	private void delegateShifts() throws DataAccessException {
 		boolean canBeDelegated = shiftController.checkReleasedAt();
-		int delegated;
 		
 		if(canBeDelegated) { 	// Checks if 24 hours or more has passed. 
-			delegated = shiftController.delegateShifts();
-			if(delegated == 0) {
-				textAreaTakeNewShiftErrorHandling.append("All shifts were");
-				textAreaTakeNewShiftErrorHandling.append(" \n");
-				textAreaTakeNewShiftErrorHandling.append("delegated successfully");
-				showCopies(shiftController.getReleasedCopies(), listModelTakeNew); 	// Displaying the copies.
-			}
-			else if(delegated == -1) {
-				textAreaTakeNewShiftErrorHandling.append("All possible shifts were delegated.");
-				textAreaTakeNewShiftErrorHandling.append(" \n");
-				textAreaTakeNewShiftErrorHandling.append("Some may be left");
-				showCopies(shiftController.getReleasedCopies(), listModelTakeNew);	// Displaying the copies.
-			}
+			GUI.this.execute();
 		}
 		else {
 			textAreaTakeNewShiftErrorHandling.setText("Error! 24 hours hasn't passed.");
@@ -1062,6 +1052,33 @@ public class GUI extends JFrame {
 			toHour = copy.getShift().getToHour();
 			
 			listModel.addElement("Shift: " + (i + 1) + " Date: " + copyDateFormatted + " From: " + fromHour + " To: " + toHour);
+		}
+	}
+
+	@Override
+	protected String doInBackground() throws Exception {
+		String returnString = "Delegating in background...";
+		delegated = shiftController.delegateShifts();
+		return returnString;
+	}
+	
+	@Override
+	protected void done() {
+		try {
+			if(delegated == 0) {
+				textAreaTakeNewShiftErrorHandling.append("All shifts were");
+				textAreaTakeNewShiftErrorHandling.append(" \n");
+				textAreaTakeNewShiftErrorHandling.append("delegated successfully");
+				showCopies(shiftController.getReleasedCopies(), listModelTakeNew); 	// Displaying the copies.
+			}
+			else if(delegated == -1) {
+				textAreaTakeNewShiftErrorHandling.append("All possible shifts were delegated.");
+				textAreaTakeNewShiftErrorHandling.append(" \n");
+				textAreaTakeNewShiftErrorHandling.append("Some may be left");
+				showCopies(shiftController.getReleasedCopies(), listModelTakeNew);	// Displaying the copies.
+			}
+		} catch(DataAccessException e) {
+			e.printStackTrace();
 		}
 	}
 }
