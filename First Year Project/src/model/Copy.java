@@ -11,26 +11,6 @@ public class Copy {
 	private LocalDate date;
 	private String state;
 	private LocalDateTime releasedAt;
-
-	/**
-	 * Constructor to initialize instance variables.
-	 * @param id
-	 * @param shift
-	 * @param workSchedule
-	 * @param versionNumber
-	 * @param date
-	 * @param state
-	 * @param releasedAt
-	 */
-	public Copy(int id, Shift shift, WorkSchedule workSchedule, LocalDate date, String state,
-			LocalDateTime releasedAt) {
-		this.id = id;
-		this.shift = shift;
-		this.workSchedule = workSchedule;
-		this.date = date;
-		this.state = state;
-		this.releasedAt = releasedAt;
-	}
 	
 	/**
 	 * Constructor to initialize instance variables.
@@ -87,59 +67,11 @@ public class Copy {
 	}
 
 	/**
-	 * Sets a new shift.
-	 * @param shift the shift to set
-	 */
-	public void setShift(Shift shift) {
-		this.shift = shift;
-	}
-
-	/**
-	 * Gets work schedule. 
-	 * @return the workSchedule
-	 */
-	public WorkSchedule getWorkSchedule() {
-		return workSchedule;
-	}
-
-	/**
-	 * Sets a new work schedule.
-	 * @param workSchedule the workSchedule to set
-	 */
-	public void setWorkSchedule(WorkSchedule workSchedule) {
-		this.workSchedule = workSchedule;
-	}
-
-	/**
 	 * Gets date.
 	 * @return the date
 	 */
 	public LocalDate getDate() {
 		return date;
-	}
-
-	/**
-	 * Sets a new date.
-	 * @param date the date to set
-	 */
-	public void setDate(LocalDate date) {
-		this.date = date;
-	}
-
-	/**
-	 * Gets state.
-	 * @return the state
-	 */
-	public String getState() {
-		return state;
-	}
-
-	/**
-	 * Sets a new state.
-	 * @param state the state to set
-	 */
-	public void setState(String state) {
-		this.state = state;
 	}
 
 	/**
@@ -149,14 +81,5 @@ public class Copy {
 	public LocalDateTime getReleasedAt() {
 		return releasedAt;
 	}
-
-	/**
-	 * Sets a new released at.
-	 * @param releasedAt the releasedAt to set
-	 */
-	public void setReleasedAt(LocalDateTime releasedAt) {
-		this.releasedAt = releasedAt;
-	}
-
 
 }

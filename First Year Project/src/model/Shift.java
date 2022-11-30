@@ -24,21 +24,6 @@ public class Shift {
 		this.toHour = toHour;
 		this.ID = ID;
 	}
-
-	/**
-	 * Constructor to initialize instance variables.
-	 * @param ID
-	 */
-	public Shift(int ID) {
-		this.ID = ID;
-	}
-
-	/**
-	 * Constructor to initialize instance variables.
-	 */
-	public Shift() {
-		
-	}
 	
 	/**
 	 * Creates a full copy object. 
@@ -74,27 +59,11 @@ public class Shift {
 	}
 
 	/**
-	 * Sets a new from hour.
-	 * @param fromHour
-	 */
-	public void setFromHour(LocalTime fromHour) {
-		this.fromHour = fromHour;
-	}
-
-	/**
 	 * Gets to hour.
 	 * @return toHour
 	 */
 	public LocalTime getToHour() {
 		return toHour;
-	}
-
-	/**
-	 * Sets a new to hour.
-	 * @param toHour
-	 */
-	public void setToHour(LocalTime toHour) {
-		this.toHour = toHour;
 	}
 
 	/**
@@ -105,12 +74,5 @@ public class Shift {
 		return ID;
 	}
 
-	/**
-	 * Sets a new ID.
-	 * @param ID
-	 */
-	public void setID(int ID) {
-		this.ID = ID;
-	}
 
 }

@@ -50,7 +50,7 @@ class TestShiftController {
 		String workschedule = "Select WorkScheduleID\r\n"
 				+ "From Copy\r\n"
 				+ "Where Date = '2070-12-10' and State = 'Occupied';";
-		String restoreDateBase = "DELETE FROM Copy WHERE Date = '2070-12-10';";
+		String restoreDateBase = "DELETE FROM Copy WHERE Date = '2070-12-10'";
 		String restoreWorkscheduleHours = "Update WorkSchedule\r\n"
 				+ "Set TotalHours = 0\r\n"
 				+ "Where EmployeeCPR = ?;";
