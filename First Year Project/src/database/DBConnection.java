@@ -6,7 +6,7 @@ import java.sql.SQLException;
 
 import utility.DataAccessException;
 
-public class DBConnection {
+public abstract class DBConnection {
 	
 	protected Connection connection = null;
 
