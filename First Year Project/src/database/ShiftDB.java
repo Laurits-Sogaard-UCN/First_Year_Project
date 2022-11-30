@@ -22,7 +22,8 @@ import model.Copy;
 import model.Shift;
 import utility.CopyState;
 import utility.DBMessages;
-import utility.DataAccessException;;
+import utility.DataAccessException;
+import utility.DatabaseType;;
 
 public class ShiftDB implements ShiftDBIF {
 	
@@ -68,6 +69,7 @@ public class ShiftDB implements ShiftDBIF {
 	private PreparedStatement findCopyStateOnID;
 	
 	private Connection con;
+	private DBConnection dbConnection;
 	
 	/**
 	 * Constructor to initialize instance variables.
@@ -82,7 +84,8 @@ public class ShiftDB implements ShiftDBIF {
 	 * @throws DataAccessException
 	 */
 	private void init() throws DataAccessException {
-		con = DBConnection.getInstance().getConnection();
+		dbConnection = ConnectionFactory.createDatabase(DatabaseType.REALDATABASE);
+		con = dbConnection.getConnection();
 		
 		try {
 			findShiftOnFromAndTo = con.prepareStatement(FIND_SHIFT_ON_FROM_AND_TO);
@@ -117,7 +120,7 @@ public class ShiftDB implements ShiftDBIF {
 			try {
 				// TODO: måske vi skal være helt sikre på isolationsniveauerne?
 				con.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ); 	// Sets isolation level on transaction.
-				DBConnection.getInstance().startTransaction();
+				dbConnection.startTransaction();
 				findCopyStateOnID.setInt(1, copyID);
 				rs = findCopyStateOnID.executeQuery();
 				rs.next();
@@ -127,11 +130,11 @@ public class ShiftDB implements ShiftDBIF {
 					setWorkScheduleIDOnCopy(copy, workScheduleID);
 				}
 				
-				DBConnection.getInstance().commitTransaction();
+				dbConnection.commitTransaction();
 				taken = true;
 				
 			} catch(Exception e) {
-				DBConnection.getInstance().rollbackTransaction();
+				dbConnection.rollbackTransaction();
 				throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
 			}
 		}
@@ -307,7 +310,7 @@ public class ShiftDB implements ShiftDBIF {
 		Timestamp timestamp;
 		
 		try {
-			DBConnection.getInstance().startTransaction();
+			dbConnection.startTransaction();
 			
 			/* Loops through list of copies and inserts one by one to the database.*/
 			
@@ -324,10 +327,10 @@ public class ShiftDB implements ShiftDBIF {
 				insertShiftCopy.setTimestamp(4, timestamp);
 				rowsAffected += insertShiftCopy.executeUpdate();
 			}
-			DBConnection.getInstance().commitTransaction();
+			dbConnection.commitTransaction();
 			
 		} catch(SQLException e) {
-			DBConnection.getInstance().rollbackTransaction();
+			dbConnection.rollbackTransaction();
 			throw new DataAccessException(DBMessages.COULD_NOT_INSERT, e);
 		}
 		if(rowsAffected >= 0) {

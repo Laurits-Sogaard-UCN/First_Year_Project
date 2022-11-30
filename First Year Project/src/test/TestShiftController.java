@@ -16,12 +16,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import controller.ShiftController;
+import database.ConnectionFactory;
 import database.DBConnection;
+import database.DBConnectionMock;
 import database.ShiftDB;
 import model.Copy;
 import model.Shift;
 import utility.CopyState;
 import utility.DataAccessException;
+import utility.DatabaseType;
 import utility.EmployeeType;
 
 class TestShiftController {
@@ -38,7 +41,7 @@ class TestShiftController {
 	public void TakeNewShift() throws DataAccessException, SQLException {
 		// Arrange
 		ShiftController shiftController = new ShiftController();
-		Connection con = DBConnection.getInstance().getConnection();
+		Connection con = ConnectionFactory.createDatabase(DatabaseType.MOCKDATABASE).getConnection();
 		
 		int added = 0;
 		boolean take = false;
@@ -101,8 +104,7 @@ class TestShiftController {
 	public void DelegateShifts1() throws DataAccessException, SQLException {
 		// Arrange
 		ShiftController shiftController = new ShiftController();
-		Connection con = DBConnection.getInstance().getConnection();
-		
+		Connection con = ConnectionFactory.createDatabase(DatabaseType.MOCKDATABASE).getConnection();
 		ArrayList<String> cprs = new ArrayList<>();
 		ArrayList<Integer> copyIDs = new ArrayList<>();
 		
@@ -187,7 +189,7 @@ class TestShiftController {
 		
 		// Act
 		try {
-		DBConnection.getInstance().startTransaction();
+		DBConnectionMock.getInstance().startTransaction();
 		employeeCPR = listCPRPS.executeQuery();
 		copyID = listCopyIDPS.executeQuery(); 
 		
@@ -267,9 +269,9 @@ class TestShiftController {
 		} catch(SQLException e) {
 			e.printStackTrace();
 		}
-		DBConnection.getInstance().commitTransaction();
+		DBConnectionMock.getInstance().commitTransaction();
 		} catch(SQLException e) {
-			DBConnection.getInstance().rollbackTransaction();
+			DBConnectionMock.getInstance().rollbackTransaction();
 			e.printStackTrace();
 		}
 	
@@ -284,7 +286,7 @@ class TestShiftController {
 	public void DelegateShifts2() throws DataAccessException, SQLException {
 		// Arrange
 		ShiftController shiftController = new ShiftController();
-		Connection con = DBConnection.getInstance().getConnection();
+		Connection con = ConnectionFactory.createDatabase(DatabaseType.MOCKDATABASE).getConnection();
 		
 		ArrayList<String> cprs = new ArrayList<>();
 		ArrayList<Integer> copyIDs = new ArrayList<>();
@@ -373,7 +375,7 @@ class TestShiftController {
 		
 		// Act
 		try {
-		DBConnection.getInstance().startTransaction();
+		DBConnectionMock.getInstance().startTransaction();
 		employeeCPR = listCPRPS.executeQuery();
 		copyID = listCopyIDPS.executeQuery(); 
 		
@@ -454,9 +456,9 @@ class TestShiftController {
 		} catch(SQLException e) {
 			e.printStackTrace();
 		}
-		DBConnection.getInstance().commitTransaction();
+		DBConnectionMock.getInstance().commitTransaction();
 		} catch(SQLException e) {
-			DBConnection.getInstance().rollbackTransaction();
+			DBConnectionMock.getInstance().rollbackTransaction();
 			e.printStackTrace();
 		}
 	
