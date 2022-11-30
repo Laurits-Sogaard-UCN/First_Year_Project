@@ -193,7 +193,13 @@ public class ShiftDB implements ShiftDBIF {
 					
 					/* Finds duration between LocalDateTimeObjects.*/
 					durationBetween1 = Duration.between(dateTimeFrom, copyDateTimeTo).toHours();
+					if(durationBetween1 < 0) {
+						durationBetween1 = durationBetween1 * -1;
+					}
 					durationBetween2 = Duration.between(dateTimeTo, copyDateTimeFrom).toHours();
+					if(durationBetween2 < 0) {
+						durationBetween2 = durationBetween2 * -1;
+					}
 					
 					if(!date.isEqual(copyDate) && durationBetween1 >= 11 && durationBetween2 >= 11) { 	// Checks if dates are not equal, and 11 hours has passed.
 						sufficientRest = true;
