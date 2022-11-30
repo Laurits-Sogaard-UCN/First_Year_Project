@@ -12,6 +12,7 @@ import utility.EmployeeType;
 import model.WorkSchedule;
 import utility.DBMessages;
 import utility.DataAccessException;
+import utility.DatabaseType;
 
 public class WorkScheduleDB implements WorkScheduleDBIF {
 
@@ -36,6 +37,7 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 			+ "and e.EmployeeType = ?");
 	private PreparedStatement getAllPartTimeWorkSchedules;
 	
+	private DBConnection dbConnection;
 	private Connection con;
 	
 	/**
@@ -51,7 +53,8 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 	 * @throws DataAccessException
 	 */
 	private void init() throws DataAccessException {
-		con = DBConnection.getInstance().getConnection();
+		dbConnection = ConnectionFactory.createDatabase(DatabaseType.REALDATABASE);
+		con = dbConnection.getConnection();
 		
 		try {
 			findWorkScheduleIDOnCPR = con.prepareStatement(FIND_WORK_SCHEDULE_ID_ON_CPR, PreparedStatement.RETURN_GENERATED_KEYS);
@@ -100,14 +103,14 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 		
 		try {
 			con.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ); 	// Sets isolation level on transaction.
-			DBConnection.getInstance().startTransaction(); 
+			dbConnection.startTransaction(); 
 			currentHours = getCurrentHours(employeeCPR);
 			setTotalHours(currentHours, hours, employeeCPR);
-			DBConnection.getInstance().commitTransaction();
+			dbConnection.commitTransaction();
 			set = true;
 			
 		} catch(Exception e) {
-			DBConnection.getInstance().rollbackTransaction();
+			dbConnection.rollbackTransaction();
 			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
 		}
 		return set;
