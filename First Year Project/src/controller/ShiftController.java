@@ -8,9 +8,7 @@ import java.util.ArrayList;
 import database.ShiftDB;
 import database.ShiftDBIF;
 import model.Copy;
-import model.Employee;
 import model.Shift;
-import model.Shop;
 import model.WorkSchedule;
 import utility.CopyState;
 import utility.DataAccessException;
@@ -75,7 +73,7 @@ public class ShiftController {
 	 */
 	public int delegateShifts() throws DataAccessException {
 		ArrayList<WorkSchedule> workSchedules;
-		workSchedules = workScheduleController.getAllWorkSchedules();
+		workSchedules = workScheduleController.getAllPartTimeWorkSchedules();
 		int delegated;
 		
 		releasedShiftCopies = shiftDB.findShiftCopiesOnState(CopyState.RELEASED.getState());
