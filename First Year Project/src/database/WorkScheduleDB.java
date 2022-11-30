@@ -30,11 +30,11 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 			+ "WHERE EmployeeCPR = ?");
 	private PreparedStatement setTotalHours;
 	
-	private static final String GET_ALL_WORK_SCHEDULES = ("SELECT ws.*\r\n"
+	private static final String GET_ALL_PART_TIME_WORK_SCHEDULES = ("SELECT ws.*\r\n"
 			+ "FROM WorkSchedule ws, Employee e\r\n"
 			+ "WHERE ws.EmployeeCPR = e.CPR\r\n"
 			+ "and e.EmployeeType = ?");
-	private PreparedStatement getAllWorkSchedules;
+	private PreparedStatement getAllPartTimeWorkSchedules;
 	
 	private Connection con;
 	
@@ -57,7 +57,7 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 			findWorkScheduleIDOnCPR = con.prepareStatement(FIND_WORK_SCHEDULE_ID_ON_CPR, PreparedStatement.RETURN_GENERATED_KEYS);
 			getCurrentHours = con.prepareStatement(GET_CURRENT_HOURS);
 			setTotalHours = con.prepareStatement(SET_TOTAL_HOURS);
-			getAllWorkSchedules = con.prepareStatement(GET_ALL_WORK_SCHEDULES);
+			getAllPartTimeWorkSchedules = con.prepareStatement(GET_ALL_PART_TIME_WORK_SCHEDULES);
 			
 		} catch(SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_PREPARE_STATEMENT, e);
@@ -158,13 +158,13 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 	 * @return workSchedules
 	 * @throws DataAccessException
 	 */
-	public ArrayList<WorkSchedule> getAllWorkSchedules() throws DataAccessException {
+	public ArrayList<WorkSchedule> getAllPartTimeWorkSchedules() throws DataAccessException {
 		ArrayList<WorkSchedule> workSchedules = new ArrayList<>();
 		ResultSet rs;
 		
 		try {
-			getAllWorkSchedules.setString(1, EmployeeType.PARTTIME.getType());
-			rs = getAllWorkSchedules.executeQuery();
+			getAllPartTimeWorkSchedules.setString(1, EmployeeType.PARTTIME.getType());
+			rs = getAllPartTimeWorkSchedules.executeQuery();
 			workSchedules = buildWorkScheduleObjects(rs);
 			
 		} catch(SQLException e) {

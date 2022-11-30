@@ -82,6 +82,4 @@ public class Copy {
 		return releasedAt;
 	}
 
-
-
 }
