@@ -52,8 +52,8 @@ public class WorkScheduleController {
 	 * @return workSchedules
 	 * @throws DataAccessException
 	 */
-	public ArrayList<WorkSchedule> getAllWorkSchedules() throws DataAccessException {
-		ArrayList<WorkSchedule> workSchedules = workScheduleDB.getAllWorkSchedules();
+	public ArrayList<WorkSchedule> getAllPartTimeWorkSchedules() throws DataAccessException {
+		ArrayList<WorkSchedule> workSchedules = workScheduleDB.getAllPartTimeWorkSchedules();
 		return workSchedules;
 	}
 	

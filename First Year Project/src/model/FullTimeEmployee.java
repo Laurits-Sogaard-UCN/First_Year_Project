@@ -24,21 +24,4 @@ public class FullTimeEmployee extends Employee {
 		this.monthlyWage = monthlyWage;
 	}
 
-	/**
-	 * Gets monthly wage.
-	 * @return monthlyWage
-	 */
-	public double getMonthlyWage() {
-		return monthlyWage;
-	}
-
-	/**
-	 * Sets a new monthly wage.
-	 * @param monthlyWage
-	 */
-	public void setMonthlyWage(double monthlyWage) {
-		this.monthlyWage = monthlyWage;
-	}
-
-
 }

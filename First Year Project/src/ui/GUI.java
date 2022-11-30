@@ -416,6 +416,7 @@ public class GUI extends JFrame {
 		comboBoxShiftFrom.addItem("");
 		comboBoxShiftFrom.addItem("06:00:00");
 		comboBoxShiftFrom.addItem("14:00:00");
+		comboBoxShiftFrom.addItem("22:00:00");
 		
 		JLabel lblNewLabel_11 = new JLabel("To time:");
 		GridBagConstraints gbc_lblNewLabel_11 = new GridBagConstraints();
@@ -433,6 +434,7 @@ public class GUI extends JFrame {
 		gbc_comboBoxShiftTo.gridy = 7;
 		panel_13.add(comboBoxShiftTo, gbc_comboBoxShiftTo);
 		comboBoxShiftTo.addItem("");
+		comboBoxShiftTo.addItem("06:00:00");
 		comboBoxShiftTo.addItem("14:00:00");
 		comboBoxShiftTo.addItem("22:00:00");
 		
