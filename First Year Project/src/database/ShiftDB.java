@@ -114,6 +114,8 @@ public class ShiftDB implements ShiftDBIF {
 		boolean taken = false;
 		boolean sufficientRest = checkRestPeriod(copy, workScheduleID);
 		int copyID = copy.getId();
+		boolean equalsReleased;
+		boolean equalsTradeable;
 		ResultSet rs = null;
 		
 		if(sufficientRest) {
@@ -125,7 +127,10 @@ public class ShiftDB implements ShiftDBIF {
 				rs = findCopyStateOnID.executeQuery();
 				rs.next();
 				// TODO Skal vi tjekke at det virker?
-				if(rs.getString("State").equals(CopyState.RELEASED.getState()) || rs.getString("State").equals(CopyState.TRADEABLE.getState())) { 	// Checks if WorkScheduleID on copy is 0.
+				equalsReleased = rs.getString("State").equals(CopyState.RELEASED.getState());
+				equalsTradeable = rs.getString("State").equals(CopyState.TRADEABLE.getState());
+				
+				if(equalsReleased || equalsTradeable) { 	// Checks if State is 'Released' or 'Tradeable'.
 					setState(copy, state);
 					setWorkScheduleIDOnCopy(copy, workScheduleID);
 				}
