@@ -252,7 +252,7 @@ public class ShiftController {
 		String employeeCPR = employeeController.getLoggedInEmployee().getCPR();
 		int workScheduleID = workScheduleController.findWorkScheduleIDOnEmployeeCPR(employeeCPR);
 		String state = CopyState.OCCUPIED.getState();
-		succes = shiftDB.takeNewShift(copy, workScheduleID, state);
+		succes = shiftDB.takeNewShift(copy, workScheduleID, state); // Navngivning skal ændres til takeShift.
 		return succes;
 	}
 	
