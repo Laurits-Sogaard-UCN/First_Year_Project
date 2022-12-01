@@ -6,6 +6,7 @@ import database.WorkScheduleDB;
 import database.WorkScheduleDBIF;
 import model.WorkSchedule;
 import utility.DataAccessException;
+import utility.DatabaseType;
 
 public class WorkScheduleController {
 	
@@ -15,8 +16,8 @@ public class WorkScheduleController {
 	 * Constructor to initialize instance variables. 
 	 * @throws DataAccessException
 	 */
-	public WorkScheduleController() throws DataAccessException {
-		workScheduleDB = new WorkScheduleDB();
+	public WorkScheduleController(DatabaseType database) throws DataAccessException {
+		workScheduleDB = new WorkScheduleDB(database);
 	}
 	
 	/**

@@ -2,14 +2,18 @@ package test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.awt.Taskbar.State;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+
+import javax.lang.model.element.ExecutableElement;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,48 +32,108 @@ import utility.DatabaseType;
 import utility.EmployeeType;
 
 class TestShiftController {
+	
+	private Connection con;
+	private ShiftController shiftController;
+	private int addressID;
+	private int shopID;
+	private int shiftID;
+	
+	String ADD_ADDRESS_CITY = "INSERT INTO AddressCity (Zipcode, City, Country)\r\n"
+			+ "VALUES (9000, 'Aalborg', 'Denmark')";
+	PreparedStatement addAddressCity;
+	
+	String ADD_ADDRESS = "INSERT INTO Address (Street, StreetNumber, Zipcode)\r\n"
+			+ "VALUES ('Jernbanegade', '42', 9000)";
+	PreparedStatement addAddress;
+	
+	String ADD_SHOP = "INSERT INTO Shop (Name, AddressID)\r\n"
+			+ "VALUES ('OK Plus Tordenvej', ?)";
+	PreparedStatement addShop;
+	
+	String ADD_EMPLOYEE_MANAGER = "INSERT INTO Employee (CPR, Lname, Fname, Email, AddressID, Phone, Username, Password, EmployeeType, ShopID)\r\n"
+			+ "VALUES ('9876512345', 'Kallesen', 'Mathias', 'MathiasKS@mail.com', ?, '+4512344321', '331', 'opetdss2', 'Manager', ?)";
+	PreparedStatement addEmployeeManager;
+	
+	String ADD_WORKSCHEDULE_FOR_MANAGER = "INSERT INTO WorkSchedule(FromDate, ToDate, EmployeeCPR)\r\n"
+			+ "VALUES ('2022-11-03', '2022-12-3', '9876512345')";
+	PreparedStatement addWorkScheduleForManager;
+	
+	String ADD_COPY_TO_TAKE = "INSERT INTO Copy (ShiftID, Date, State, ReleasedAt)\r\n"
+			+ "VALUES (?, '2070-12-10', 'Released', GETDATE())";
+	PreparedStatement addCopyToTake;
+	
+	String ADD_SHIFT = "INSERT INTO Shift (FromHour, ToHour)\r\n"
+			+ "VALUES ('06:00:00', '14:00:00')";
+	PreparedStatement addShift;
+	
+	String SET_NOCHECK_TO_FALSE = "EXEC sys.sp_msforeachtable 'ALTER TABLE ? NOCHECK CONSTRAINT ALL'";
+	PreparedStatement setNoCheckToFalse;
+	
+	String DELETE_ALL_FOREACH_TABLE = "EXEC sys.sp_msforeachtable 'DELETE FROM ?'";
+	PreparedStatement deleteAllForeachTable;
+	
+	String SET_NOCHECK_TO_TRUE = "EXEC sys.sp_MSForEachTable 'ALTER TABLE ? CHECK CONSTRAINT ALL'";
+	PreparedStatement setNoCheckToTrue;
+	
 
 	@BeforeEach
 	void setUp() throws Exception {
+		shiftController = new ShiftController(DatabaseType.MOCKDATABASE);
+		con = ConnectionFactory.createDatabase(DatabaseType.MOCKDATABASE).getConnection();
+		ResultSet addressIDRS;
+		ResultSet shopIDRS;
+		ResultSet ShiftIDRS;
+		
+		addAddressCity = con.prepareStatement(ADD_ADDRESS_CITY);
+		addAddressCity.executeUpdate();
+		
+		addAddress = con.prepareStatement(ADD_ADDRESS, Statement.RETURN_GENERATED_KEYS);
+		addAddress.executeUpdate();
+		addressIDRS = addAddress.getGeneratedKeys();
+		addressIDRS.next();
+		addressID = addressIDRS.getInt(1);
+		
+		addShop = con.prepareStatement(ADD_SHOP, Statement.RETURN_GENERATED_KEYS);
+		addShop.setInt(1, addressID);
+		addShop.executeUpdate();
+		shopIDRS = addShop.getGeneratedKeys();
+		shopIDRS.next();
+		shopID = shopIDRS.getInt(1);
+		
+		addShift = con.prepareStatement(ADD_SHIFT, Statement.RETURN_GENERATED_KEYS);
+		addShift.executeUpdate();
+		ShiftIDRS = addShift.getGeneratedKeys();
+		ShiftIDRS.next();
+		shiftID = ShiftIDRS.getInt(1);
+		
+		
+		
+		
+		addEmployeeManager = con.prepareStatement(ADD_EMPLOYEE_MANAGER);
+		addWorkScheduleForManager = con.prepareStatement(ADD_WORKSCHEDULE_FOR_MANAGER);
+		addCopyToTake = con.prepareStatement(ADD_COPY_TO_TAKE, Statement.RETURN_GENERATED_KEYS);
 	}
 
 	@AfterEach
 	void tearDown() throws Exception {
+		setNoCheckToFalse = con.prepareStatement(SET_NOCHECK_TO_FALSE);
+		deleteAllForeachTable = con.prepareStatement(DELETE_ALL_FOREACH_TABLE);
+		setNoCheckToTrue = con.prepareStatement(SET_NOCHECK_TO_TRUE);
+		setNoCheckToFalse.execute();
+		deleteAllForeachTable.execute();
+		setNoCheckToTrue.execute();
 	}
 
 	@Test
 	public void TakeNewShift() throws DataAccessException, SQLException {
 		// Arrange
-		ShiftController shiftController = new ShiftController();
-		Connection con = ConnectionFactory.createDatabase(DatabaseType.MOCKDATABASE).getConnection();
-		
-		int added = 0;
+		int addedManager = 0;
+		int addedManagerWorkSchedule = 0;
+		int addedCopy = 0;
 		boolean take = false;
-		int sqlRestore = 0;
+		
 		int copyID = 0;
-		
-		String addCopyToDatabase = "INSERT INTO Copy (ShiftID, Date, State, ReleasedAt)\r\n"
-				+ "VALUES (1, '2070-12-10', 'Released', GETDATE())";
-		String workschedule = "Select WorkScheduleID\r\n"
-				+ "From Copy\r\n"
-				+ "Where Date = '2070-12-10' and State = 'Occupied';";
-		String restoreDateBase = "DELETE FROM Copy WHERE Date = '2070-12-10'";
-		String restoreWorkscheduleHours = "Update WorkSchedule\r\n"
-				+ "Set TotalHours = 0\r\n"
-				+ "Where EmployeeCPR = ?;";
-		String getIDOnCopy = "SELECT ID\r\n"
-				+ "FROM Copy\r\n"
-				+ "Where Date = '2070-12-10'";
-		
-		PreparedStatement ps = con.prepareStatement(addCopyToDatabase);
-		PreparedStatement ps1 = con.prepareStatement(workschedule);
-		PreparedStatement ps2 = con.prepareStatement(restoreDateBase);
-		PreparedStatement ps3 = con.prepareStatement(getIDOnCopy);
-		PreparedStatement ps4 = con.prepareStatement(restoreWorkscheduleHours);
-		
-		ResultSet rs;
-		ResultSet rs2;
-		
 		String fromHourString = "06:00";
 		String toHourString = "14:00";
 		String date = "2070-12-10";
@@ -77,29 +141,32 @@ class TestShiftController {
 		LocalTime toHour = LocalTime.parse(toHourString);
 		LocalDate localDate = LocalDate.parse(date); 
 		
+		ResultSet rs;
+		
 		Shift shift = new Shift(fromHour, toHour, 1);
 		Copy copy = new Copy(copyID, shift, localDate, CopyState.RELEASED.getState(), LocalDateTime.now());
 		
 		// Act
-		added = ps.executeUpdate();
-		rs2 = ps3.executeQuery();
-		rs2.next();
-		copyID = rs2.getInt("ID");
+		addEmployeeManager.setInt(1, addressID);
+		addEmployeeManager.setInt(2, shopID);
+		addedManager = addEmployeeManager.executeUpdate();
+		addedManagerWorkSchedule = addWorkScheduleForManager.executeUpdate();
+		addCopyToTake.setInt(1, shiftID);
+		addedCopy = addCopyToTake.executeUpdate();
+		rs = addCopyToTake.getGeneratedKeys();
+		rs.next();
+		copyID = rs.getInt(1);
 		copy.setId(copyID);
 		take = shiftController.takeNewShift(copy);
-		rs = ps1.executeQuery();
-		sqlRestore = ps2.executeUpdate();
-		ps4.setString(1, "9876512345");
-		ps4.executeUpdate();
 
 		// Assert
-		assertTrue(added == 1);
+		assertTrue(addedManager == 1);
+		assertTrue(addedManagerWorkSchedule == 1);
+		assertTrue(addedCopy == 1);
 		assertTrue(take);
-		assertTrue(rs.next() && rs.getInt("WorkScheduleID") == 3);
-		assertTrue(sqlRestore == 1);
 	}
 
-
+/*
 	@Test
 	public void DelegateShifts1() throws DataAccessException, SQLException {
 		// Arrange
@@ -468,7 +535,8 @@ class TestShiftController {
 		assertTrue(employeesRemoved == 2);
 		assertTrue(copiesRemoved == 2);
 	}
-	
+	*/
+	/*
 	@Test
 	public void getReleasedShiftCopiesList() throws DataAccessException {
 		//Arrange
@@ -516,6 +584,6 @@ class TestShiftController {
 		// Assert
 		assertTrue(cleared);
 	}
-	
+	*/
 	
 }

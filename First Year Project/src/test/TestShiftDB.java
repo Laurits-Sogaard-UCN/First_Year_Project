@@ -24,13 +24,14 @@ import model.Copy;
 import model.Shift;
 import utility.CopyState;
 import utility.DataAccessException;
+import utility.DatabaseType;
 
 class TestShiftDB {
 	
 	@Test
 	public void findShiftOnFromAndTo() throws DataAccessException {
 		// Arrange
-		ShiftDB shiftDB = new ShiftDB();
+		ShiftDB shiftDB = new ShiftDB(DatabaseType.MOCKDATABASE);
 		Shift shift;
 		LocalTime fromHour = LocalTime.parse("06:00:00");
 		LocalTime toHour = LocalTime.parse("14:00:00");

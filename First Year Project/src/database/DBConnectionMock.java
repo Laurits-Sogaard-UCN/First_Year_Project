@@ -10,10 +10,10 @@ public class DBConnectionMock extends DBConnection {
 
 
 	private static final String driverClass = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
-	private static final String dbName = "DMA-CSD-V222_10434664";
+	private static final String dbName = "DMA-CSD-V222_10414004";
 	private static final String serverAddress = "hildur.ucn.dk";
 	private static final int serverPort = 1433;
-	private static final String userName = "DMA-CSD-V222_10434664";
+	private static final String userName = "DMA-CSD-V222_10414004";
 	private static final String password = "Password1!";
 	private static DBConnectionMock dbConnectionMock;
 

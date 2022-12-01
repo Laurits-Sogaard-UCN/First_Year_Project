@@ -12,6 +12,7 @@ import model.Shift;
 import model.WorkSchedule;
 import utility.CopyState;
 import utility.DataAccessException;
+import utility.DatabaseType;
 
 public class ShiftController {
 	
@@ -25,10 +26,10 @@ public class ShiftController {
 	 * Constructor to initialize instance variables. 
 	 * @throws DataAccessException
 	 */
-	public ShiftController() throws DataAccessException {
+	public ShiftController(DatabaseType database) throws DataAccessException {
 		employeeController = new EmployeeController();
-		workScheduleController = new WorkScheduleController();
-		shiftDB = new ShiftDB();
+		workScheduleController = new WorkScheduleController(database);
+		shiftDB = new ShiftDB(database);
 		shiftCopies = new ArrayList<>();
 		releasedShiftCopies = new ArrayList<>();
 	}
