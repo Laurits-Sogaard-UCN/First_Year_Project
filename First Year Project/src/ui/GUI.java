@@ -30,6 +30,7 @@ import org.jdatepicker.impl.UtilDateModel;
 import controller.ShiftController;
 import model.Copy;
 import utility.DataAccessException;
+import utility.DatabaseType;
 import utility.DateLabelFormatter;
 
 import javax.swing.JScrollPane;
@@ -98,7 +99,7 @@ public class GUI extends SwingWorker<String, Object> {
 	 * @throws SQLException 
 	 */
 	public GUI() throws DataAccessException {
-		shiftController = new ShiftController();
+		shiftController = new ShiftController(DatabaseType.REALDATABASE);
 		frame = new JFrame();
 		
 		// Creating content pane panel.
