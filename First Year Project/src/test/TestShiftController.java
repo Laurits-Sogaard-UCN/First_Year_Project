@@ -446,4 +446,110 @@ class TestShiftController {
 		assertTrue(cleared);
 	}
 	
+	@Test
+	public void startTakePlannedShift() throws DataAccessException {
+		// Arrange
+		boolean succes = true;
+		int employeeWorkScheduleID = 0;
+		boolean correctState = false;
+		ResultSet employeeWorkScheduleIDRS;
+		Copy copy = null;
+		
+		// Act
+		try {
+			addEmployee.setString(1, "7492657491");
+			addEmployee.setString(2, "Tordenmolle");
+			addEmployee.setString(3, "Karl");
+			addEmployee.setString(4, "KarkTM@mail.com");
+			addEmployee.setInt(5, addressID);
+			addEmployee.setString(6, "+4574839268");
+			addEmployee.setString(7, "888");
+			addEmployee.setString(8, "321cbadl");
+			addEmployee.setString(9, "Parttime");
+			addEmployee.setInt(10, shopID);
+			addEmployee.executeUpdate();
+		
+			addWorkSchedule.setString(1, "2022-11-03");
+			addWorkSchedule.setString(2, "2022-12-3");
+			addWorkSchedule.setInt(3, 8);
+			addWorkSchedule.setString(4, "7492657491");
+			addWorkSchedule.executeUpdate();
+			employeeWorkScheduleIDRS = addWorkSchedule.getGeneratedKeys();
+			employeeWorkScheduleIDRS.next();
+			employeeWorkScheduleID = employeeWorkScheduleIDRS.getInt(1);
+			
+			addCopy.setInt(1, shiftID);
+			addCopy.setInt(2, employeeWorkScheduleID);
+			addCopy.setString(3, "2070-12-11");
+			addCopy.setString(4, "Tradeable");
+			addCopy.executeUpdate();
+			
+			succes = shiftController.startTakePlannedShift().isEmpty();
+			copy = shiftController.startTakePlannedShift().get(0);
+			correctState = copy.getState().equals("Tradeable");
+			
+			
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		// Assert
+		assertFalse(succes);
+		assertTrue(correctState);
+	}
+	
+	@Test
+	public void takePlannedShift() throws SQLException, DataAccessException {
+		// Arrange
+		boolean succes = false;
+		int copyID = 0;
+		String fromHourString = "06:00";
+		String toHourString = "14:00";
+		String date = "2070-12-10";
+		LocalTime fromHour = LocalTime.parse(fromHourString);
+		LocalTime toHour = LocalTime.parse(toHourString);
+		LocalDate localDate = LocalDate.parse(date); 
+		
+		ResultSet rs;
+		
+		Shift shift = new Shift(fromHour, toHour, 1);
+		Copy copy = new Copy(copyID, shift, localDate, CopyState.TRADEABLE.getState(), LocalDateTime.now());
+		// Act
+		addEmployee.setString(1, "9876512345");
+		addEmployee.setString(2, "Kallesen");
+		addEmployee.setString(3, "Mathias");
+		addEmployee.setString(4, "MathiasKS@mail.com");
+		addEmployee.setInt(5, addressID);
+		addEmployee.setString(6, "+4512344321");
+		addEmployee.setString(7, "331");
+		addEmployee.setString(8, "+opetdss2");
+		addEmployee.setString(9, "Manager");
+		addEmployee.setInt(10, shopID);
+		addEmployee.executeUpdate();
+		
+		//Add WorkSchedule for manager
+		addWorkSchedule.setString(1, "2022-11-03");
+		addWorkSchedule.setString(2, "2022-12-3");
+		addWorkSchedule.setInt(3, 0);
+		addWorkSchedule.setString(4, "9876512345");
+		addWorkSchedule.executeUpdate();
+		
+		addCopy.setInt(1, shiftID);
+		addCopy.setNull(2, java.sql.Types.NULL);
+		addCopy.setString(3, "2070-12-11");
+		addCopy.setString(4, "Tradeable");
+		addCopy.executeUpdate();
+		rs = addCopy.getGeneratedKeys();
+		rs.next();
+		copy.setId(rs.getInt(1));
+		
+		succes = shiftController.takePlannedShift(copy);
+		
+		
+		// Assert
+		assertTrue(succes);
+	}
+	
 }
