@@ -44,16 +44,16 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 	 * Constructor to initialize instance variables.
 	 * @throws DataAccessException
 	 */
-	public WorkScheduleDB() throws DataAccessException {
-		init();
+	public WorkScheduleDB(DatabaseType database) throws DataAccessException {
+		init(database);
 	}
 	
 	/**
 	 * Initialization of Connection and PreparedStatements.
 	 * @throws DataAccessException
 	 */
-	private void init() throws DataAccessException {
-		dbConnection = ConnectionFactory.createDatabase(DatabaseType.REALDATABASE);
+	private void init(DatabaseType database) throws DataAccessException {
+		dbConnection = ConnectionFactory.createDatabase(database);
 		con = dbConnection.getConnection();
 		
 		try {
