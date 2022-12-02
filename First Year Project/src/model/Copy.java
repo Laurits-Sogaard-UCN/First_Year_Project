@@ -65,6 +65,14 @@ public class Copy {
 	public Shift getShift() {
 		return shift;
 	}
+	
+	/**
+	 * Gets state.
+	 * @return the state
+	 */
+	public String getState() {
+		return state;
+	}
 
 	/**
 	 * Gets date.
