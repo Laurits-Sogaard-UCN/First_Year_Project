@@ -58,7 +58,7 @@ public class ShiftController {
 		int workScheduleID = workScheduleController.findWorkScheduleIDOnEmployeeCPR(employeeCPR);
 		String state = CopyState.OCCUPIED.getState();
 		
-		if(shiftDB.takeNewShift(copy, workScheduleID, state)) {
+		if(shiftDB.takeShift(copy, workScheduleID, state)) {
 			calculateAndSetTotalHours(copy, employeeCPR);
 			success = true;
 		}
@@ -114,7 +114,7 @@ public class ShiftController {
 			workScheduleID = workSchedules.get(workScheduleIndex).getID();
 			employeeCPR = workSchedules.get(workScheduleIndex).getEmployeeCPR();
 			
-			if(shiftDB.takeNewShift(copy, workScheduleID, state)) {
+			if(shiftDB.takeShift(copy, workScheduleID, state)) {
 				calculateAndSetTotalHours(copy, employeeCPR);
 				if(releasedShiftCopies.size() == 0) {							// Checks if the list of copies is now empty.
 					releasedShiftCopies = shiftDB.findShiftCopiesOnState(CopyState.RELEASED.getState());	// Populates the list again, in case some delegable copies have been removed.
@@ -249,11 +249,11 @@ public class ShiftController {
 	 * @throws DataAccessException
 	 */
 	public boolean takePlannedShift(Copy copy) throws DataAccessException {
-		boolean succes = false; //TODO refaktorer
+		boolean succes = false;
 		String employeeCPR = employeeController.getLoggedInEmployee().getCPR();
 		int workScheduleID = workScheduleController.findWorkScheduleIDOnEmployeeCPR(employeeCPR);
 		String state = CopyState.OCCUPIED.getState();
-		succes = shiftDB.takeNewShift(copy, workScheduleID, state); // Navngivning skal ændres til takeShift.
+		succes = shiftDB.takeShift(copy, workScheduleID, state);
 		return succes;
 	}
 	

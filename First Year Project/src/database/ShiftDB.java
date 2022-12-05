@@ -110,7 +110,7 @@ public class ShiftDB implements ShiftDBIF {
 	 * @return taken
 	 * @throws DataAccessException
 	 */
-	public boolean takeNewShift(Copy copy, int workScheduleID, String state) throws DataAccessException {
+	public boolean takeShift(Copy copy, int workScheduleID, String state) throws DataAccessException {
 		boolean taken = false;
 		boolean sufficientRest = checkRestPeriod(copy, workScheduleID);
 		int copyID = copy.getId();
@@ -354,10 +354,9 @@ public class ShiftDB implements ShiftDBIF {
 		ResultSet rs = null;
 		
 		try {
-				findShiftCopiesOnState.setString(1, state);
-				rs = findShiftCopiesOnState.executeQuery();
-				releasedShiftCopies = buildCopyObjects(rs);
-			
+			findShiftCopiesOnState.setString(1, state);
+			rs = findShiftCopiesOnState.executeQuery();
+			releasedShiftCopies = buildCopyObjects(rs);
 			
 		} catch(SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
