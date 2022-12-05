@@ -73,12 +73,12 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 	 * @return workScheduleID
 	 * @throws DataAccessException
 	 */
-	public int findWorkScheduleIDOnEmployeeCPR(String CPR) throws DataAccessException {
+	public int findWorkScheduleIDOnEmployeeCPR(String employeeCPR) throws DataAccessException {
 		int workScheduleID = 0;
 		ResultSet rs;
 		
 		try {
-			findWorkScheduleIDOnCPR.setString(1, CPR);
+			findWorkScheduleIDOnCPR.setString(1, employeeCPR);
 			rs = findWorkScheduleIDOnCPR.executeQuery();
 			if(rs.next()) {
 				workScheduleID = rs.getInt("ID");
