@@ -30,7 +30,7 @@ public class WorkScheduleController {
 		int workScheduleID = workScheduleDB.findWorkScheduleIDOnEmployeeCPR(employeeCPR);
 		return workScheduleID;
 	}
-	
+
 	/**
 	 * Sets a given new total hours on a work schedule belonging to an employee
 	 * with given CPR number. 
