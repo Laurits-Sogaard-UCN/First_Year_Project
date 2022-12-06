@@ -57,6 +57,11 @@ public class WorkScheduleController {
 		ArrayList<WorkSchedule> workSchedules = workScheduleDB.getAllPartTimeWorkSchedules();
 		return workSchedules;
 	}
+
+	public String getEmployeeCPROnID(int id) throws DataAccessException {
+		String employeeCPR = workScheduleDB.getEmployeeCPROnID(id);
+		return employeeCPR;
+	}
 	
 	
 

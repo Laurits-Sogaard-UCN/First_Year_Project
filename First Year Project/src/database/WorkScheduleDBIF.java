@@ -12,5 +12,7 @@ public interface WorkScheduleDBIF {
 	public boolean setTotalHoursOnWorkSchedule(int hours, String employeeCPR) throws DataAccessException;
 	
 	public ArrayList<WorkSchedule> getAllPartTimeWorkSchedules() throws DataAccessException;
+	
+	public String getEmployeeCPROnID(int id) throws DataAccessException;
 
 }
