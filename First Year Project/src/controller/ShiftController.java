@@ -247,7 +247,7 @@ public class ShiftController {
 		}
 		return shiftCopies;
 	}
-	
+
 	/**
 	 * Associates a shift copy on a given index, with the work schedule belonging
 	 * to the logged in employee.
