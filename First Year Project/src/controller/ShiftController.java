@@ -26,10 +26,10 @@ public class ShiftController {
 	 * Constructor to initialize instance variables. 
 	 * @throws DataAccessException
 	 */
-	public ShiftController(DatabaseType database) throws DataAccessException {
+	public ShiftController(DatabaseType databaseType) throws DataAccessException {
 		employeeController = new EmployeeController();
-		workScheduleController = new WorkScheduleController(database);
-		shiftDB = new ShiftDB(database);
+		workScheduleController = new WorkScheduleController(databaseType);
+		shiftDB = new ShiftDB(databaseType);
 		shiftCopies = new ArrayList<>();
 		releasedShiftCopies = new ArrayList<>();
 	}
