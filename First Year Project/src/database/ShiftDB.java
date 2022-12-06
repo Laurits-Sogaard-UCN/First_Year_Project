@@ -1,9 +1,6 @@
 package database;
 
 import java.sql.Connection;
-
-
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -76,16 +73,16 @@ public class ShiftDB implements ShiftDBIF {
 	 * Constructor to initialize instance variables.
 	 * @throws DataAccessException 
 	 */
-	public ShiftDB(DatabaseType database) throws DataAccessException {
-		init(database);
+	public ShiftDB(DatabaseType databaseType) throws DataAccessException {
+		init(databaseType);
 	}
 	
 	/**
 	 * Initialization of Connection and PreparedStatements.
 	 * @throws DataAccessException
 	 */
-	private void init(DatabaseType database) throws DataAccessException {
-		dbConnection = ConnectionFactory.createDatabase(database);
+	private void init(DatabaseType databaseType) throws DataAccessException {
+		dbConnection = ConnectionFactory.createDatabase(databaseType);
 		con = dbConnection.getConnection();
 		
 		try {
