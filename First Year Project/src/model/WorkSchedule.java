@@ -33,6 +33,14 @@ public class WorkSchedule  {
 	public int getID() {
 		return ID;
 	}
+	
+
+	/**
+	 * @param iD the iD to set
+	 */
+	public void setID(int iD) {
+		ID = iD;
+	}
 
 	/**
 	 * Gets total hours.

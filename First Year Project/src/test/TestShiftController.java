@@ -492,7 +492,6 @@ class TestShiftController {
 			
 			
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -506,6 +505,7 @@ class TestShiftController {
 		// Arrange
 		boolean succes = false;
 		int copyID = 0;
+		int workScheduleID = 0;
 		String fromHourString = "06:00";
 		String toHourString = "14:00";
 		String date = "2070-12-10";
@@ -516,9 +516,8 @@ class TestShiftController {
 		ResultSet rs;
 		
 		Shift shift = new Shift(fromHour, toHour, 1);
-		WorkSchedule workSchedule = null;
+		WorkSchedule workSchedule = new WorkSchedule(workScheduleID);
 		Copy copy = new Copy(copyID, shift, workSchedule, localDate, CopyState.TRADEABLE.getState(), LocalDateTime.now());
-		workSchedule = new WorkSchedule(copyID);
 		// Act
 		addEmployee.setString(1, "9876512345");
 		addEmployee.setString(2, "Kallesen");
@@ -539,6 +538,13 @@ class TestShiftController {
 		addWorkSchedule.setString(4, "9876512345");
 		addWorkSchedule.executeUpdate();
 		
+		//Sets values for the copy workSchedule object
+		rs =  addWorkSchedule.getGeneratedKeys();
+		rs.next();
+		copy.getWorkSchedule().setEmployeeCPR("9876512345");
+		copy.getWorkSchedule().setID(rs.getInt(1));
+		
+		//Adds copy to the database
 		addCopy.setInt(1, shiftID);
 		addCopy.setNull(2, java.sql.Types.NULL);
 		addCopy.setString(3, "2070-12-11");
