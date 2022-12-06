@@ -399,11 +399,11 @@ class TestShiftController {
 	
 
 	@Test
-	public void getReleasedShiftCopiesList() throws DataAccessException {
+	public void getShiftCopiesList() throws DataAccessException {
 		//Arrange
 		ArrayList<Copy> list = null;
 		//Act
-		list = shiftController.getReleasedShiftCopiesList();
+		list = shiftController.getShiftCopies();
 		//Assert
 		assertNotNull(list);
 	}
