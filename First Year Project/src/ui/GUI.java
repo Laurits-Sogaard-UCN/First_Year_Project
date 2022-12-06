@@ -1099,12 +1099,14 @@ public class GUI extends SwingWorker<String, Object> {
 	@Override
 	protected String doInBackground() throws Exception {
 		String returnString = "Delegating in background...";
+		textAreaTakeNewShiftErrorHandling.setText(returnString);
 		delegated = shiftController.delegateShifts();
 		return returnString;
 	}
 	
 	@Override
 	protected void done() {
+		textAreaTakeNewShiftErrorHandling.setText("");
 		try {
 			if(delegated == 0) {
 				textAreaTakeNewShiftErrorHandling.append("All shifts were");

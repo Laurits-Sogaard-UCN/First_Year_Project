@@ -20,6 +20,7 @@ public class ShiftController {
 	private WorkScheduleController workScheduleController;
 	private ShiftDBIF shiftDB;
 	private ArrayList<Copy> shiftCopies;
+	private ArrayList<Copy> shiftCopiesToBeReleased;
 	
 	/**
 	 * Constructor to initialize instance variables. 
@@ -30,6 +31,7 @@ public class ShiftController {
 		workScheduleController = new WorkScheduleController(databaseType);
 		shiftDB = new ShiftDB(databaseType);
 		shiftCopies = new ArrayList<>();
+		shiftCopiesToBeReleased = new ArrayList<>();
 	}
 	
 	/**
@@ -169,8 +171,8 @@ public class ShiftController {
 	public ArrayList<Copy> addShift(LocalDate date, LocalTime fromHour, LocalTime toHour) throws DataAccessException {
 		Shift shift = shiftDB.findShiftOnFromAndTo(fromHour, toHour);
 		Copy copy = shift.createCopy(shift, date);
-		shiftCopies.add(copy);
-		return shiftCopies;
+		shiftCopiesToBeReleased.add(copy);
+		return shiftCopiesToBeReleased;
 	}
 	
 	/**
@@ -182,9 +184,9 @@ public class ShiftController {
 	public boolean completeReleaseNewShifts() throws DataAccessException {
 		boolean completed = false;
 		
-		if(shiftDB.completeReleaseNewShifts(shiftCopies)) {
+		if(shiftDB.completeReleaseNewShifts(shiftCopiesToBeReleased)) {
 			completed = true;
-			shiftCopies.clear();
+			shiftCopiesToBeReleased.clear();
 		}
 		return completed;
 	}
