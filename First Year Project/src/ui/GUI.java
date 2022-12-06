@@ -1112,6 +1112,12 @@ public class GUI extends SwingWorker<String, Object> {
 				textAreaTakeNewShiftErrorHandling.append("delegated successfully");
 				showCopies(shiftController.getShiftCopiesAgain(CopyState.RELEASED.getState()), listModelTakeNew); 	// Displaying the copies.
 			}
+			else if(delegated == 1) {
+				textAreaTakeNewShiftErrorHandling.append("None of the shifts");
+				textAreaTakeNewShiftErrorHandling.append(" \n");
+				textAreaTakeNewShiftErrorHandling.append("could be delegated");
+				showCopies(shiftController.getShiftCopiesAgain(CopyState.RELEASED.getState()), listModelTakeNew);	// Displaying the copies.
+			}
 			else if(delegated == -1) {
 				textAreaTakeNewShiftErrorHandling.append("All possible shifts were delegated.");
 				textAreaTakeNewShiftErrorHandling.append(" \n");
