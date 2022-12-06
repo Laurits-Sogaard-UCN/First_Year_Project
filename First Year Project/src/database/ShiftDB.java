@@ -439,8 +439,6 @@ public class ShiftDB implements ShiftDBIF {
 				shift = buildShiftObject(rs2);
 			}
 			
-			
-			
 			/* Creates full copy object.*/
 			date = rs.getDate("Date");
 			localDate = date.toLocalDate();

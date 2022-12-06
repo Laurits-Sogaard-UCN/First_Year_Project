@@ -241,7 +241,7 @@ public class ShiftController {
 		shiftCopies = shiftDB.findShiftCopiesOnState(CopyState.TRADEABLE.getState());
 		
 		for(Copy element : shiftCopies) {
-			id = element.getId();
+			id = element.getWorkSchedule().getID();
 			employeeCPR = workScheduleController.getEmployeeCPROnID(id);
 			element.getWorkSchedule().setEmployeeCPR(employeeCPR);
 		}
