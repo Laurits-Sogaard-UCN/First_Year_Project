@@ -236,7 +236,14 @@ public class ShiftController {
 	 * @throws DataAccessException
 	 */
 	public ArrayList<Copy> startTakePlannedShift() throws DataAccessException {
+		String employeeCPR = "";
+		int id = 0;
 		shiftCopies = shiftDB.findShiftCopiesOnState(CopyState.TRADEABLE.getState());
+		for(Copy element : shiftCopies) {
+			id = element.getId();
+			employeeCPR = workScheduleController.getEmployeeCPROnID(id);
+			element.getWorkSchedule().setEmployeeCPR(employeeCPR);
+		}
 		return shiftCopies;
 	}
 	
@@ -250,10 +257,19 @@ public class ShiftController {
 	 */
 	public boolean takePlannedShift(Copy copy) throws DataAccessException {
 		boolean succes = false;
+		int hours = 0;
+		hours = calculateTotalHours(copy) * -1;
+		String currentEmployeeCPR = copy.getWorkSchedule().getEmployeeCPR();
 		String employeeCPR = employeeController.getLoggedInEmployee().getCPR();
 		int workScheduleID = workScheduleController.findWorkScheduleIDOnEmployeeCPR(employeeCPR);
 		String state = CopyState.OCCUPIED.getState();
-		succes = shiftDB.takeShift(copy, workScheduleID, state);
+		if(shiftDB.takeShift(copy, workScheduleID, state)) {
+			workScheduleController.setTotalHoursOnWorkSchedule(hours, currentEmployeeCPR);
+			hours = hours * -1;
+			workScheduleController.setTotalHoursOnWorkSchedule(hours, employeeCPR);
+			releasedShiftCopies.remove(copy);
+			succes = true;
+		}
 		return succes;
 	}
 	

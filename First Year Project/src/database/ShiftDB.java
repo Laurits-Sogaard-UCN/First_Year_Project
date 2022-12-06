@@ -20,6 +20,7 @@ import java.util.Date;
 
 import model.Copy;
 import model.Shift;
+import model.WorkSchedule;
 import utility.CopyState;
 import utility.DBMessages;
 import utility.DataAccessException;
@@ -421,6 +422,8 @@ public class ShiftDB implements ShiftDBIF {
 		Shift shift = null;
 		int id;
 		int shiftID;
+		WorkSchedule workschedule;
+		int workScheduleID;
 		
 		Copy copy = null;
 		java.sql.Date date;
@@ -439,13 +442,17 @@ public class ShiftDB implements ShiftDBIF {
 				shift = buildShiftObject(rs2);
 			}
 			
+			
+			
 			/* Creates full copy object.*/
 			date = rs.getDate("Date");
 			localDate = date.toLocalDate();
 			state = rs.getString("State");
 			releasedAtTimestamp = rs.getTimestamp("ReleasedAt");
 			releasedAt = releasedAtTimestamp.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-			copy = shift.createFullCopy(id, shift, localDate, state, releasedAt);
+			workScheduleID = rs.getInt("WorkScheduleID");
+			workschedule = new WorkSchedule(workScheduleID);
+			copy = shift.createFullCopy(id, shift, workschedule, localDate, state, releasedAt);
 			
 		} catch(SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);

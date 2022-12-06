@@ -22,6 +22,10 @@ public class WorkSchedule  {
 		this.employeeCPR = employeeCPR;
 	}
 
+	public WorkSchedule(int id) {
+		this.ID = id;
+	}
+
 	/**
 	 * Gets ID.
 	 * @return ID
@@ -45,5 +49,14 @@ public class WorkSchedule  {
 	public String getEmployeeCPR() {
 		return employeeCPR;
 	}
+
+	/**
+	 * @param employeeCPR the employeeCPR to set
+	 */
+	public void setEmployeeCPR(String employeeCPR) {
+		this.employeeCPR = employeeCPR;
+	}
+	
+	
 
 }

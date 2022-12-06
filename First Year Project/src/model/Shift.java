@@ -34,8 +34,8 @@ public class Shift {
 	 * @param releasedAt
 	 * @return copy
 	 */
-	public Copy createFullCopy(int id, Shift shift, LocalDate date, String state, LocalDateTime releasedAt) {
-		Copy copy = new Copy(id, shift, date, state, releasedAt);
+	public Copy createFullCopy(int id, Shift shift, WorkSchedule workSchedule, LocalDate date, String state, LocalDateTime releasedAt) {
+		Copy copy = new Copy(id, shift, workSchedule, date, state, releasedAt);
 		return copy;
 	}
 	
