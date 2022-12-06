@@ -52,12 +52,14 @@ public class ShiftController {
 	 */
 	public boolean takeNewShift(Copy copy) throws DataAccessException {
 		boolean success = false;
+		int hours = calculateTotalHours(copy);
 		String employeeCPR = employeeController.getLoggedInEmployee().getCPR();
 		int workScheduleID = workScheduleController.findWorkScheduleIDOnEmployeeCPR(employeeCPR);
 		String state = CopyState.OCCUPIED.getState();
 		
 		if(shiftDB.takeShift(copy, workScheduleID, state)) {
-			calculateAndSetTotalHours(copy, employeeCPR);
+			workScheduleController.setTotalHoursOnWorkSchedule(hours, employeeCPR);
+			shiftCopies.remove(copy);
 			success = true;
 		}
 		return success;
@@ -74,12 +76,17 @@ public class ShiftController {
 		ArrayList<WorkSchedule> workSchedules;
 		workSchedules = workScheduleController.getAllPartTimeWorkSchedules();
 		int delegated;
-		
+		int size = 0;
+
 		shiftCopies = shiftDB.findShiftCopiesOnState(CopyState.RELEASED.getState());
+		size = shiftCopies.size();
 		delegate(workSchedules);
 		
 		if(shiftCopies.isEmpty()) {
 			delegated = 0;
+		}
+		else if(size == shiftCopies.size()) {
+			delegated = 1;
 		}
 		else {
 			delegated = -1;
@@ -101,6 +108,7 @@ public class ShiftController {
 		int copyIndex = 0;
 		int lastWorkScheduleIndex = workSchedules.size() - 1;
 		int lastCopyIndex = shiftCopies.size() - 1;
+		int hours = 0;
 		String employeeCPR;
 		Copy copy;
 		String state = CopyState.DELEGATED.getState();
@@ -113,7 +121,9 @@ public class ShiftController {
 			employeeCPR = workSchedules.get(workScheduleIndex).getEmployeeCPR();
 			
 			if(shiftDB.takeShift(copy, workScheduleID, state)) {
-				calculateAndSetTotalHours(copy, employeeCPR);
+				hours = calculateTotalHours(copy);
+				workScheduleController.setTotalHoursOnWorkSchedule(hours, employeeCPR);
+				shiftCopies.remove(copy);
 				if(shiftCopies.size() == 0) {							// Checks if the list of copies is now empty.
 					shiftCopies = shiftDB.findShiftCopiesOnState(CopyState.RELEASED.getState());	// Populates the list again, in case some delegable copies have been removed.
 				}
@@ -130,20 +140,6 @@ public class ShiftController {
 			}
 		}
 		shiftCopies = shiftDB.findShiftCopiesOnState(CopyState.RELEASED.getState());
-	}
-	
-
-	/**
-	 * Calculates and sets new total hours on work schedule for a given employee. 
-	 * @param copy
-	 * @param employeeCPR
-	 * @param index
-	 * @throws DataAccessException
-	 */
-	private void calculateAndSetTotalHours(Copy copy, String employeeCPR) throws DataAccessException {
-		int hours = calculateTotalHours(copy);
-		workScheduleController.setTotalHoursOnWorkSchedule(hours, employeeCPR);
-		shiftCopies.remove(copy);
 	}
 	
 	/**
