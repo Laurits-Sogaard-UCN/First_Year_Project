@@ -1039,7 +1039,7 @@ public class GUI extends SwingWorker<String, Object> {
 		/* Checks if successfully taken.*/ 
 		if(taken) {
 			textAreaErrorHandlingTakePlannedShift.setText("Shift was successfully taken");
-			showCopies(shiftController.getShiftCopiesAgain(CopyState.TRADEABLE.getState()), listModelTakePlanned); 	// Displaying the copies.
+			showCopies(shiftController.startTakePlannedShift(), listModelTakePlanned); 	// Displaying the copies.
 		}
 		else {
 			textAreaErrorHandlingTakePlannedShift.setText("Error! Shift has already been taken");
