@@ -212,6 +212,7 @@ public class ShiftDB implements ShiftDBIF {
 					}
 					else {
 						sufficientRest = false;
+						break;
 					}
 					
 				} while(rs.next());
