@@ -29,6 +29,7 @@ import org.jdatepicker.impl.UtilDateModel;
 
 import controller.ShiftController;
 import model.Copy;
+import utility.CopyState;
 import utility.DataAccessException;
 import utility.DatabaseType;
 import utility.DateLabelFormatter;
@@ -867,12 +868,12 @@ public class GUI extends SwingWorker<String, Object> {
 	 * @param e
 	 */
 	private void takePlannedShiftButtonClicked(ActionEvent e) { // TODO skal implementeres
-//		getThisCard("TakePlannedShift");
-//		try {
-//			startTakePlannedShift();
-//		} catch (DataAccessException e1) {
-//			e1.printStackTrace();
-//		}
+		getThisCard("TakePlannedShift");
+		try {
+			startTakePlannedShift();
+		} catch (DataAccessException e1) {
+			e1.printStackTrace();
+		}
 	}
 	
 	/**
@@ -880,11 +881,12 @@ public class GUI extends SwingWorker<String, Object> {
 	 * @param e
 	 */
 	private void takeThisPlannedShiftButtonClicked(ActionEvent e) { // TODO skal implementeres
-//		try {
-//			takePlannedShift();
-//		} catch (DataAccessException e1) {
-//			e1.printStackTrace();
-//		}
+		try {
+			takePlannedShift();
+		} catch (DataAccessException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 	}
 	
 	/**
@@ -910,10 +912,10 @@ public class GUI extends SwingWorker<String, Object> {
 	 * @throws DataAccessException
 	 */
 	private void startTakeNewShift() throws DataAccessException {
-		ArrayList<Copy> releasedCopies = shiftController.startTakeNewShift();
+		ArrayList<Copy> shiftCopies = shiftController.startTakeNewShift();
 		
-		if(!releasedCopies.isEmpty()) {
-			showCopies(releasedCopies, listModelTakeNew); 	// Displaying the copies.
+		if(!shiftCopies.isEmpty()) {
+			showCopies(shiftCopies, listModelTakeNew); 	// Displaying the copies.
 		}
 	}
 	
@@ -925,13 +927,13 @@ public class GUI extends SwingWorker<String, Object> {
 	private void takeNewShift() throws DataAccessException {
 		/* Finds chosen copy on list and takes the copy.*/
 		int index = getIndexOnSelectedListValue(listOfNewShiftsToTake);
-		Copy copy = shiftController.getReleasedShiftCopiesList().get(index);
+		Copy copy = shiftController.getShiftCopies().get(index);
 		boolean taken = shiftController.takeNewShift(copy);
 		
 		/* Checks if successfully taken.*/ 
 		if(taken) {
 			textAreaTakeNewShiftErrorHandling.setText("Shift was successfully taken");
-			showCopies(shiftController.getReleasedCopies(), listModelTakeNew); 	// Displaying the copies.
+			showCopies(shiftController.getShiftCopiesAgain(CopyState.RELEASED.getState()), listModelTakeNew); 	// Displaying the copies.
 		}
 		else {
 			textAreaTakeNewShiftErrorHandling.setText("Error! Shift has already been taken");
@@ -1020,28 +1022,28 @@ public class GUI extends SwingWorker<String, Object> {
 		}
 	}
 	
-	private void startTakePlannedShift() { // TODO skal implementeres
-//		ArrayList<Copy> tradeableCopies = shiftController.startTakePlannedShift();
-//		
-//		if(!tradeableCopies.isEmpty()) {
-//			showCopies(tradeableCopies, listModelTakePlanned); 	// Displaying the copies.
-//		}
+	private void startTakePlannedShift() throws DataAccessException {
+		ArrayList<Copy> shiftCopies = shiftController.startTakePlannedShift();
+		
+		if(!shiftCopies.isEmpty()) {
+			showCopies(shiftCopies, listModelTakePlanned); 	// Displaying the copies.
+		}
 	}
 	
-	private void takePlannedShift() { // TODO skal implementeres
-//		/* Finds chosen copy on list and takes the copy.*/
-//		int index = getIndexOnSelectedListValue(listOfPlannedShiftsToTake);
-//		Copy copy = shiftController.getTradeableShiftCopiesList().get(index);
-//		boolean taken = shiftController.takePlannedShift(copy);
-//		
-//		/* Checks if successfully taken.*/ 
-//		if(taken) {
-//			textAreaTakeNewShiftErrorHandling.setText("Shift was successfully taken");
-//			showCopies(shiftController.getTradeableCopies(), listModelTakePlanned); 	// Displaying the copies.
-//		}
-//		else {
-//			textAreaTakeNewShiftErrorHandling.setText("Error! Shift has already been taken");
-//		}
+	private void takePlannedShift() throws DataAccessException {
+		/* Finds chosen copy on list and takes the copy.*/
+		int index = getIndexOnSelectedListValue(listOfPlannedShiftsToTake);
+		Copy copy = shiftController.getShiftCopies().get(index);
+		boolean taken = shiftController.takePlannedShift(copy);
+		
+		/* Checks if successfully taken.*/ 
+		if(taken) {
+			textAreaErrorHandlingTakePlannedShift.setText("Shift was successfully taken");
+			showCopies(shiftController.startTakePlannedShift(), listModelTakePlanned); 	// Displaying the copies.
+		}
+		else {
+			textAreaErrorHandlingTakePlannedShift.setText("Error! Shift has already been taken");
+		}
 	}
 	
 	/**
@@ -1108,13 +1110,13 @@ public class GUI extends SwingWorker<String, Object> {
 				textAreaTakeNewShiftErrorHandling.append("All shifts were");
 				textAreaTakeNewShiftErrorHandling.append(" \n");
 				textAreaTakeNewShiftErrorHandling.append("delegated successfully");
-				showCopies(shiftController.getReleasedCopies(), listModelTakeNew); 	// Displaying the copies.
+				showCopies(shiftController.getShiftCopiesAgain(CopyState.RELEASED.getState()), listModelTakeNew); 	// Displaying the copies.
 			}
 			else if(delegated == -1) {
 				textAreaTakeNewShiftErrorHandling.append("All possible shifts were delegated.");
 				textAreaTakeNewShiftErrorHandling.append(" \n");
 				textAreaTakeNewShiftErrorHandling.append("Some may be left");
-				showCopies(shiftController.getReleasedCopies(), listModelTakeNew);	// Displaying the copies.
+				showCopies(shiftController.getShiftCopiesAgain(CopyState.RELEASED.getState()), listModelTakeNew);	// Displaying the copies.
 			}
 		} catch(DataAccessException e) {
 			e.printStackTrace();
