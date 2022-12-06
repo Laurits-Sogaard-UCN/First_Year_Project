@@ -70,9 +70,10 @@ public class GUI extends SwingWorker<String, Object> {
 	private JList<String> listOfPlannedShiftsToTake;
 	private DefaultListModel<String> listModelTakePlanned;
 	
-	private JTextArea textAreaErrorHandling;
-	private JTextArea textAreaCompleteReleaseNewShifts;
+	private JTextArea textAreaReleaseNewShiftsErrorHandling;
 	private JTextArea textAreaTakeNewShiftErrorHandling;
+	private JTextArea textAreaCompleteReleaseNewShifts;
+	private JTextArea textAreaErrorHandlingTakePlannedShift;
 	
 	private int delegated;
 
@@ -466,13 +467,13 @@ public class GUI extends SwingWorker<String, Object> {
 		gbc_btnDeleteShift.gridy = 9;
 		panel_13.add(btnDeleteShift, gbc_btnDeleteShift);
 		
-		textAreaErrorHandling = new JTextArea();
+		textAreaReleaseNewShiftsErrorHandling = new JTextArea();
 		GridBagConstraints gbc_textAreaErrorHandling = new GridBagConstraints();
 		gbc_textAreaErrorHandling.insets = new Insets(0, 0, 5, 0);
 		gbc_textAreaErrorHandling.fill = GridBagConstraints.BOTH;
 		gbc_textAreaErrorHandling.gridx = 0;
 		gbc_textAreaErrorHandling.gridy = 10;
-		panel_13.add(textAreaErrorHandling, gbc_textAreaErrorHandling);
+		panel_13.add(textAreaReleaseNewShiftsErrorHandling, gbc_textAreaErrorHandling);
 		
 		listModelRelease = new DefaultListModel<>();
 		listOfShiftsToRelease = new JList<>(listModelRelease);
@@ -627,9 +628,11 @@ public class GUI extends SwingWorker<String, Object> {
 		panelTakePlannedShift.add(panel_17, BorderLayout.SOUTH);
 		
 		JButton btnTakePlannedShiftBack = new JButton("Back");
+		btnTakePlannedShiftBack.addActionListener(this::takePlannedShiftBackButtonClicked);
 		panel_17.add(btnTakePlannedShiftBack);
 		
 		JButton btnTakePlannedShiftOK = new JButton("OK");
+		btnTakePlannedShiftOK.addActionListener(this::takePlannedShiftOKButtonClicked);
 		panel_17.add(btnTakePlannedShiftOK);
 		
 		JPanel panel_18 = new JPanel();
@@ -660,7 +663,7 @@ public class GUI extends SwingWorker<String, Object> {
 		gbc_btnTakeThisPlannedShift.gridy = 1;
 		panel_26.add(btnTakeThisPlannedShift, gbc_btnTakeThisPlannedShift);
 		
-		JTextArea textAreaErrorHandlingTakePlannedShift = new JTextArea();
+		textAreaErrorHandlingTakePlannedShift = new JTextArea();
 		GridBagConstraints gbc_textAreaErrorHandlingTakePlannedShift = new GridBagConstraints();
 		gbc_textAreaErrorHandlingTakePlannedShift.fill = GridBagConstraints.BOTH;
 		gbc_textAreaErrorHandlingTakePlannedShift.gridx = 0;
@@ -702,6 +705,16 @@ public class GUI extends SwingWorker<String, Object> {
 	 */
 	private void getThisCard(String cardName) {
 		cardLayout.show(contentPane, cardName);
+	}
+	
+	/**
+	 * Goes to given card in cardLayout, and clears given text area.
+	 * @param card
+	 * @param textArea
+	 */
+	private void goToThisCardAndClearThisTextArea(String card, JTextArea textArea) {
+		getThisCard(card);
+		textArea.setText("");
 	}
 	
 	// Methods to handle action events.
@@ -760,19 +773,19 @@ public class GUI extends SwingWorker<String, Object> {
 	}
 	
 	/**
-	 * Goes to Main Menu card.
+	 * Goes to Main Menu card and clears text area.
 	 * @param e
 	 */
 	private void takeNewShiftOKButtonClicked(ActionEvent e) {
-		getThisCard("MainMenu");
+		goToThisCardAndClearThisTextArea("MainMenu", textAreaTakeNewShiftErrorHandling);
 	}
 	
 	/**
-	 * Goes to Shifts Menu card.
+	 * Goes to Shifts Menu card and clears text area.
 	 * @param e
 	 */
 	private void takeNewShiftBackButtonClicked(ActionEvent e) {
-		getThisCard("ShiftsMenu");
+		goToThisCardAndClearThisTextArea("ShiftsMenu", textAreaTakeNewShiftErrorHandling);
 	}
 	
 	/**
@@ -808,11 +821,12 @@ public class GUI extends SwingWorker<String, Object> {
 	}
 	
 	/**
-	 * Goes to MainMenu card.
+	 * Goes to MainMenu card and clears panel.
 	 * @param e
 	 */
 	private void completeReleaseNewShiftsOKButtonClicked(ActionEvent e) {
 		getThisCard("MainMenu");
+		clearReleaseNewShiftPanel();
 	}
 	
 	/**
@@ -822,10 +836,18 @@ public class GUI extends SwingWorker<String, Object> {
 	private void cancelReleaseShiftButtonClicked(ActionEvent e) {
 		getThisCard("ShiftsMenu");
 		shiftController.clearShiftCopies();
+		clearReleaseNewShiftPanel();
+	}
+	
+	/**
+	 * Clears text fields and combo box fields in panel ReleaseNewShifts.
+	 */
+	private void clearReleaseNewShiftPanel() {
 		listModelRelease.clear();
 		datePicker.getJFormattedTextField().setText("");
 		comboBoxShiftFrom.setSelectedIndex(0);
 		comboBoxShiftTo.setSelectedIndex(0);
+		textAreaReleaseNewShiftsErrorHandling.setText("");
 	}
 	
 	/**
@@ -863,6 +885,22 @@ public class GUI extends SwingWorker<String, Object> {
 //		} catch (DataAccessException e1) {
 //			e1.printStackTrace();
 //		}
+	}
+	
+	/**
+	 * Goes to Main Menu card and clears text area.
+	 * @param e
+	 */
+	private void takePlannedShiftOKButtonClicked(ActionEvent e) {
+		goToThisCardAndClearThisTextArea("MainMenu", textAreaErrorHandlingTakePlannedShift);
+	}
+	
+	/**
+	 * Goes to Main Menu card and clears text area.
+	 * @param e
+	 */
+	private void takePlannedShiftBackButtonClicked(ActionEvent e) {
+		goToThisCardAndClearThisTextArea("ShiftsMenu", textAreaErrorHandlingTakePlannedShift);
 	}
 	
 	// Implementation of use case methods.
@@ -932,17 +970,17 @@ public class GUI extends SwingWorker<String, Object> {
 		String toHourString = (String) comboBoxShiftTo.getSelectedItem();
 		LocalTime toHour = LocalTime.parse(toHourString);
 		
-		textAreaErrorHandling.setText("");
+		textAreaReleaseNewShiftsErrorHandling.setText("");
 		
 		/* Defensive programming to verify input.*/
 		if(fromHour.getHour() >= toHour.getHour()) {
-			textAreaErrorHandling.setText("Invalid time period has been chosen");
+			textAreaReleaseNewShiftsErrorHandling.setText("Invalid time period has been chosen");
 		}
 		else if(toHour.getHour() - fromHour.getHour() > 8) {
-			textAreaErrorHandling.setText("A shift can be no longer than 8 hours");
+			textAreaReleaseNewShiftsErrorHandling.setText("A shift can be no longer than 8 hours");
 		}
 		else if(date.isBefore(LocalDate.now())) {
-			textAreaErrorHandling.setText("Invalid date has been chosen");
+			textAreaReleaseNewShiftsErrorHandling.setText("Invalid date has been chosen");
 		}
 		else {
 			ArrayList<Copy> shiftCopies = shiftController.addShift(date, fromHour, toHour);
@@ -978,7 +1016,7 @@ public class GUI extends SwingWorker<String, Object> {
 			showCopies(shiftController.getShiftCopies(), listModelRelease);
 		}
 		else {
-			textAreaErrorHandling.setText("Error! Shift could not be deleted");
+			textAreaReleaseNewShiftsErrorHandling.setText("Error! Shift could not be deleted");
 		}
 	}
 	

@@ -16,8 +16,8 @@ public class WorkScheduleController {
 	 * Constructor to initialize instance variables. 
 	 * @throws DataAccessException
 	 */
-	public WorkScheduleController(DatabaseType database) throws DataAccessException {
-		workScheduleDB = new WorkScheduleDB(database);
+	public WorkScheduleController(DatabaseType databaseType) throws DataAccessException {
+		workScheduleDB = new WorkScheduleDB(databaseType);
 	}
 	
 	/**
