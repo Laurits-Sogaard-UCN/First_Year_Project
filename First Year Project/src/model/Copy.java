@@ -20,9 +20,10 @@ public class Copy {
 	 * @param state
 	 * @param releasedAt
 	 */
-	public Copy(int id, Shift shift, LocalDate date, String state, LocalDateTime releasedAt) {
+	public Copy(int id, Shift shift, WorkSchedule workSchedule, LocalDate date, String state, LocalDateTime releasedAt) {
 		this.id = id;
 		this.shift = shift;
+		this.workSchedule = workSchedule;
 		this.date = date;
 		this.state = state;
 		this.releasedAt = releasedAt;
@@ -66,6 +67,20 @@ public class Copy {
 		return shift;
 	}
 	
+	/**
+	 * @return the workSchedule
+	 */
+	public WorkSchedule getWorkSchedule() {
+		return workSchedule;
+	}
+
+	/**
+	 * @param workSchedule the workSchedule to set
+	 */
+	public void setWorkSchedule(WorkSchedule workSchedule) {
+		this.workSchedule = workSchedule;
+	}
+
 	/**
 	 * Gets state.
 	 * @return the state

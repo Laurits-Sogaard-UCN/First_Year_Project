@@ -37,6 +37,11 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 			+ "and e.EmployeeType = ?");
 	private PreparedStatement getAllPartTimeWorkSchedules;
 	
+	private static final String GET_EMPLOYEE_CPR_ON_ID = ("SELECT EmployeeCPR\r\n"
+			+ "FROM WorkSchedule\r\n"
+			+ "WHERE ID = ?");
+	private PreparedStatement getEmployeeCPROnID;
+	
 	private DBConnection dbConnection;
 	private Connection con;
 	
@@ -61,6 +66,7 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 			getCurrentHours = con.prepareStatement(GET_CURRENT_HOURS);
 			setTotalHours = con.prepareStatement(SET_TOTAL_HOURS);
 			getAllPartTimeWorkSchedules = con.prepareStatement(GET_ALL_PART_TIME_WORK_SCHEDULES);
+			getEmployeeCPROnID = con.prepareStatement(GET_EMPLOYEE_CPR_ON_ID);
 			
 		} catch(SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_PREPARE_STATEMENT, e);
@@ -154,6 +160,22 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
 		}
 		return currentHours;
+	}
+	
+	public String getEmployeeCPROnID(int id) throws DataAccessException {
+		ResultSet rs;
+		String cpr;
+		
+		try {
+			getEmployeeCPROnID.setInt(1, id);
+			rs = getEmployeeCPROnID.executeQuery();
+			if(rs.next()) {
+				cpr = rs.getString("EmployeeCPR");
+			}
+		} catch (SQLException e) {
+			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
+		}
+		return null;
 	}
 	
 	/**

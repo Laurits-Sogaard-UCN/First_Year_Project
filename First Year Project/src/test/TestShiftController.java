@@ -26,6 +26,7 @@ import database.DBConnectionMock;
 import database.ShiftDB;
 import model.Copy;
 import model.Shift;
+import model.WorkSchedule;
 import utility.CopyState;
 import utility.DataAccessException;
 import utility.DatabaseType;
@@ -156,7 +157,7 @@ class TestShiftController {
 		ResultSet rs;
 		
 		Shift shift = new Shift(fromHour, toHour, 1);
-		Copy copy = new Copy(copyID, shift, localDate, CopyState.RELEASED.getState(), LocalDateTime.now());
+		Copy copy = new Copy(copyID, shift, null,  localDate, CopyState.RELEASED.getState(), LocalDateTime.now());
 		
 		// Act
 		
@@ -515,7 +516,9 @@ class TestShiftController {
 		ResultSet rs;
 		
 		Shift shift = new Shift(fromHour, toHour, 1);
-		Copy copy = new Copy(copyID, shift, localDate, CopyState.TRADEABLE.getState(), LocalDateTime.now());
+		WorkSchedule workSchedule = null;
+		Copy copy = new Copy(copyID, shift, workSchedule, localDate, CopyState.TRADEABLE.getState(), LocalDateTime.now());
+		workSchedule = new WorkSchedule(copyID);
 		// Act
 		addEmployee.setString(1, "9876512345");
 		addEmployee.setString(2, "Kallesen");
