@@ -76,12 +76,17 @@ public class ShiftController {
 		ArrayList<WorkSchedule> workSchedules;
 		workSchedules = workScheduleController.getAllPartTimeWorkSchedules();
 		int delegated;
-		
+		int size = 0;
+
 		shiftCopies = shiftDB.findShiftCopiesOnState(CopyState.RELEASED.getState());
+		size = shiftCopies.size();
 		delegate(workSchedules);
 		
 		if(shiftCopies.isEmpty()) {
 			delegated = 0;
+		}
+		else if(size == shiftCopies.size()) {
+			delegated = 1;
 		}
 		else {
 			delegated = -1;
