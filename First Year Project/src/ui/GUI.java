@@ -1,6 +1,7 @@
 package ui;
 
 import java.awt.BorderLayout;
+
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -28,7 +29,7 @@ import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
 
 import controller.ShiftController;
-import model.Copy;
+import model.ShiftCopy;
 import utility.CopyState;
 import utility.DataAccessException;
 import utility.DatabaseType;
@@ -44,7 +45,6 @@ import java.util.Properties;
 import java.awt.event.ActionEvent;
 import javax.swing.JList;
 import javax.swing.JTextArea;
-import java.awt.event.ActionListener;
 
 public class GUI extends SwingWorker<String, Object> {
 
@@ -53,8 +53,8 @@ public class GUI extends SwingWorker<String, Object> {
 	private JPanel contentPane;
 	private JPanel panelMainMenu;
 	private JPanel panelShiftMenu;
-	private JPanel panelReleaseNewShifts;
 	private JPanel panelTakeNewShift;
+	private JPanel panelReleaseNewShifts;
 	private JPanel panelCompleteReleaseNewShifts;
 	private JPanel panelTakePlannedShift;
 	
@@ -71,10 +71,10 @@ public class GUI extends SwingWorker<String, Object> {
 	private JList<String> listOfPlannedShiftsToTake;
 	private DefaultListModel<String> listModelTakePlanned;
 	
-	private JTextArea textAreaReleaseNewShiftsErrorHandling;
 	private JTextArea textAreaTakeNewShiftErrorHandling;
+	private JTextArea textAreaReleaseNewShiftsErrorHandling;
 	private JTextArea textAreaCompleteReleaseNewShifts;
-	private JTextArea textAreaErrorHandlingTakePlannedShift;
+	private JTextArea textAreaTakePlannedShiftErrorHandling;
 	
 	private int delegated;
 
@@ -664,12 +664,12 @@ public class GUI extends SwingWorker<String, Object> {
 		gbc_btnTakeThisPlannedShift.gridy = 1;
 		panel_26.add(btnTakeThisPlannedShift, gbc_btnTakeThisPlannedShift);
 		
-		textAreaErrorHandlingTakePlannedShift = new JTextArea();
+		textAreaTakePlannedShiftErrorHandling = new JTextArea();
 		GridBagConstraints gbc_textAreaErrorHandlingTakePlannedShift = new GridBagConstraints();
 		gbc_textAreaErrorHandlingTakePlannedShift.fill = GridBagConstraints.BOTH;
 		gbc_textAreaErrorHandlingTakePlannedShift.gridx = 0;
 		gbc_textAreaErrorHandlingTakePlannedShift.gridy = 2;
-		panel_26.add(textAreaErrorHandlingTakePlannedShift, gbc_textAreaErrorHandlingTakePlannedShift);
+		panel_26.add(textAreaTakePlannedShiftErrorHandling, gbc_textAreaErrorHandlingTakePlannedShift);
 		
 		JScrollPane scrollPane_2 = new JScrollPane();
 		panel_18.add(scrollPane_2, BorderLayout.CENTER);
@@ -894,7 +894,7 @@ public class GUI extends SwingWorker<String, Object> {
 	 * @param e
 	 */
 	private void takePlannedShiftOKButtonClicked(ActionEvent e) {
-		goToThisCardAndClearThisTextArea("MainMenu", textAreaErrorHandlingTakePlannedShift);
+		goToThisCardAndClearThisTextArea("MainMenu", textAreaTakePlannedShiftErrorHandling);
 	}
 	
 	/**
@@ -902,7 +902,7 @@ public class GUI extends SwingWorker<String, Object> {
 	 * @param e
 	 */
 	private void takePlannedShiftBackButtonClicked(ActionEvent e) {
-		goToThisCardAndClearThisTextArea("ShiftsMenu", textAreaErrorHandlingTakePlannedShift);
+		goToThisCardAndClearThisTextArea("ShiftsMenu", textAreaTakePlannedShiftErrorHandling);
 	}
 	
 	// Implementation of use case methods.
@@ -912,7 +912,7 @@ public class GUI extends SwingWorker<String, Object> {
 	 * @throws DataAccessException
 	 */
 	private void startTakeNewShift() throws DataAccessException {
-		ArrayList<Copy> shiftCopies = shiftController.startTakeNewShift();
+		ArrayList<ShiftCopy> shiftCopies = shiftController.startTakeNewShift();
 		
 		if(!shiftCopies.isEmpty()) {
 			showCopies(shiftCopies, listModelTakeNew); 	// Displaying the copies.
@@ -927,8 +927,8 @@ public class GUI extends SwingWorker<String, Object> {
 	private void takeNewShift() throws DataAccessException {
 		/* Finds chosen copy on list and takes the copy.*/
 		int index = getIndexOnSelectedListValue(listOfNewShiftsToTake);
-		Copy copy = shiftController.getShiftCopies().get(index);
-		boolean taken = shiftController.takeNewShift(copy);
+		ShiftCopy shiftCopy = shiftController.getShiftCopies().get(index);
+		boolean taken = shiftController.takeNewShift(shiftCopy);
 		
 		/* Checks if successfully taken.*/ 
 		if(taken) {
@@ -937,6 +937,7 @@ public class GUI extends SwingWorker<String, Object> {
 		}
 		else {
 			textAreaTakeNewShiftErrorHandling.setText("Error! Shift has already been taken");
+			showCopies(shiftController.getShiftCopiesAgain(CopyState.RELEASED.getState()), listModelTakeNew); 	// Displaying the copies.
 		}
 	}
 	
@@ -985,7 +986,7 @@ public class GUI extends SwingWorker<String, Object> {
 			textAreaReleaseNewShiftsErrorHandling.setText("Invalid date has been chosen");
 		}
 		else {
-			ArrayList<Copy> shiftCopies = shiftController.addShift(date, fromHour, toHour);
+			ArrayList<ShiftCopy> shiftCopies = shiftController.addShift(date, fromHour, toHour);
 			showCopies(shiftCopies, listModelRelease);
 		}
 	}
@@ -1023,7 +1024,7 @@ public class GUI extends SwingWorker<String, Object> {
 	}
 	
 	private void startTakePlannedShift() throws DataAccessException {
-		ArrayList<Copy> shiftCopies = shiftController.startTakePlannedShift();
+		ArrayList<ShiftCopy> shiftCopies = shiftController.startTakePlannedShift();
 		
 		if(!shiftCopies.isEmpty()) {
 			showCopies(shiftCopies, listModelTakePlanned); 	// Displaying the copies.
@@ -1033,16 +1034,16 @@ public class GUI extends SwingWorker<String, Object> {
 	private void takePlannedShift() throws DataAccessException {
 		/* Finds chosen copy on list and takes the copy.*/
 		int index = getIndexOnSelectedListValue(listOfPlannedShiftsToTake);
-		Copy copy = shiftController.getShiftCopies().get(index);
-		boolean taken = shiftController.takePlannedShift(copy);
+		ShiftCopy shiftCopy = shiftController.getShiftCopies().get(index);
+		boolean taken = shiftController.takePlannedShift(shiftCopy);
 		
 		/* Checks if successfully taken.*/ 
 		if(taken) {
-			textAreaErrorHandlingTakePlannedShift.setText("Shift was successfully taken");
+			textAreaTakePlannedShiftErrorHandling.setText("Shift was successfully taken");
 			showCopies(shiftController.startTakePlannedShift(), listModelTakePlanned); 	// Displaying the copies.
 		}
 		else {
-			textAreaErrorHandlingTakePlannedShift.setText("Error! Shift has already been taken");
+			textAreaTakePlannedShiftErrorHandling.setText("Error! Shift has already been taken");
 		}
 	}
 	
@@ -1069,9 +1070,9 @@ public class GUI extends SwingWorker<String, Object> {
 	 * @param listModel
 	 * @throws DataAccessException
 	 */
-	private void showCopies(ArrayList<Copy> shiftCopies, DefaultListModel<String> listModel) throws DataAccessException {
+	private void showCopies(ArrayList<ShiftCopy> shiftCopies, DefaultListModel<String> listModel) throws DataAccessException {
 		listModel.clear();
-		Copy copy;
+		ShiftCopy shiftCopy;
 		String copyDate;
 		String day;
 		String month;
@@ -1083,14 +1084,14 @@ public class GUI extends SwingWorker<String, Object> {
 		/* Loops through list of copies, and for each adds a string containing info about the copy
 		 * to the given DefaultListmodel.*/
 		for(int i = 0 ; i < shiftCopies.size() ; i++) {
-			copy = shiftCopies.get(i);
-			copyDate = copy.getDate().toString();
+			shiftCopy = shiftCopies.get(i);
+			copyDate = shiftCopy.getDate().toString();
 			day = copyDate.substring(copyDate.length() - 2);
 			month = copyDate.substring(5, 7);
 			year = copyDate.substring(0, 4);
 			copyDateFormatted = day + "-" + month + "-" + year;
-			fromHour = copy.getShift().getFromHour();
-			toHour = copy.getShift().getToHour();
+			fromHour = shiftCopy.getShift().getFromHour();
+			toHour = shiftCopy.getShift().getToHour();
 			
 			listModel.addElement("Shift: " + (i + 1) + " Date: " + copyDateFormatted + " From: " + fromHour + " To: " + toHour);
 		}

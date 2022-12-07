@@ -34,9 +34,9 @@ public class Shift {
 	 * @param releasedAt
 	 * @return copy
 	 */
-	public Copy createFullCopy(int id, Shift shift, WorkSchedule workSchedule, LocalDate date, String state, LocalDateTime releasedAt) {
-		Copy copy = new Copy(id, shift, workSchedule, date, state, releasedAt);
-		return copy;
+	public ShiftCopy createFullCopy(int id, Shift shift, WorkSchedule workSchedule, LocalDate date, String state, LocalDateTime releasedAt) {
+		ShiftCopy shiftCopy = new ShiftCopy(id, shift, workSchedule, date, state, releasedAt);
+		return shiftCopy;
 	}
 	
 	/**
@@ -45,9 +45,9 @@ public class Shift {
 	 * @param date
 	 * @return copy
 	 */
-	public Copy createCopy(Shift shift, LocalDate date) {
-		Copy copy = new Copy(shift, date, CopyState.RELEASED.getState(), LocalDateTime.now());
-		return copy;
+	public ShiftCopy createCopy(Shift shift, LocalDate date) {
+		ShiftCopy shiftCopy = new ShiftCopy(shift, date, CopyState.RELEASED.getState(), LocalDateTime.now());
+		return shiftCopy;
 	}
 
 	/**

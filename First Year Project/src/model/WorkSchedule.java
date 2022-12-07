@@ -22,6 +22,10 @@ public class WorkSchedule  {
 		this.employeeCPR = employeeCPR;
 	}
 
+	/**
+	 * Constructor to initialize instance variables.
+	 * @param id
+	 */
 	public WorkSchedule(int id) {
 		this.ID = id;
 	}
@@ -34,12 +38,12 @@ public class WorkSchedule  {
 		return ID;
 	}
 	
-
 	/**
-	 * @param iD the iD to set
+	 * Sets new ID.
+	 * @param ID
 	 */
-	public void setID(int iD) {
-		ID = iD;
+	public void setID(int ID) {
+		this.ID = ID;
 	}
 
 	/**
@@ -59,12 +63,11 @@ public class WorkSchedule  {
 	}
 
 	/**
-	 * @param employeeCPR the employeeCPR to set
+	 * Sets new employee CPR.
+	 * @param employeeCPR
 	 */
 	public void setEmployeeCPR(String employeeCPR) {
 		this.employeeCPR = employeeCPR;
 	}
-	
-	
 
 }
