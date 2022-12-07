@@ -3,9 +3,9 @@ package model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-public class Copy {
+public class ShiftCopy {
 	
-	private int id;
+	private int ID;
 	private Shift shift;
 	private WorkSchedule workSchedule;
 	private LocalDate date;
@@ -20,8 +20,8 @@ public class Copy {
 	 * @param state
 	 * @param releasedAt
 	 */
-	public Copy(int id, Shift shift, WorkSchedule workSchedule, LocalDate date, String state, LocalDateTime releasedAt) {
-		this.id = id;
+	public ShiftCopy(int ID, Shift shift, WorkSchedule workSchedule, LocalDate date, String state, LocalDateTime releasedAt) {
+		this.ID = ID;
 		this.shift = shift;
 		this.workSchedule = workSchedule;
 		this.date = date;
@@ -36,27 +36,28 @@ public class Copy {
 	 * @param state
 	 * @param releasedAt
 	 */
-	public Copy(Shift shift, LocalDate date, String state, LocalDateTime releasedAt) {
+	public ShiftCopy(Shift shift, LocalDate date, String state, LocalDateTime releasedAt) {
 		this.shift = shift;
 		this.date = date;
 		this.state = state;
 		this.releasedAt = releasedAt;
 	}
+	
 
 	/**
 	 * Gets id.
 	 * @return the id
 	 */
-	public int getId() {
-		return id;
+	public int getID() {
+		return ID;
 	}
-
+	
 	/**
-	 * Sets a new id.
-	 * @param id the id to set
+	 * Sets new ID.
+	 * @param ID
 	 */
-	public void setId(int id) {
-		this.id = id;
+	public void setID(int ID) {
+		this.ID = ID;
 	}
 
 	/**
@@ -68,25 +69,11 @@ public class Copy {
 	}
 	
 	/**
-	 * @return the workSchedule
+	 * Gets work schedule.
+	 * @return workSchedule
 	 */
 	public WorkSchedule getWorkSchedule() {
 		return workSchedule;
-	}
-
-	/**
-	 * @param workSchedule the workSchedule to set
-	 */
-	public void setWorkSchedule(WorkSchedule workSchedule) {
-		this.workSchedule = workSchedule;
-	}
-
-	/**
-	 * Gets state.
-	 * @return the state
-	 */
-	public String getState() {
-		return state;
 	}
 
 	/**
@@ -95,6 +82,14 @@ public class Copy {
 	 */
 	public LocalDate getDate() {
 		return date;
+	}
+	
+	/**
+	 * Gets state.
+	 * @return
+	 */
+	public String getState() {
+		return state;
 	}
 
 	/**
@@ -106,3 +101,4 @@ public class Copy {
 	}
 
 }
+

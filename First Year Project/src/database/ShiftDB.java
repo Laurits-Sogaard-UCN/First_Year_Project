@@ -1,6 +1,7 @@
 package database;
 
 import java.sql.Connection;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -14,9 +15,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
-
-import model.Copy;
 import model.Shift;
+import model.ShiftCopy;
 import model.WorkSchedule;
 import utility.CopyState;
 import utility.DBMessages;
@@ -108,10 +108,10 @@ public class ShiftDB implements ShiftDBIF {
 	 * @return taken
 	 * @throws DataAccessException
 	 */
-	public boolean takeShift(Copy copy, int workScheduleID, String state) throws DataAccessException {
+	public boolean takeShift(ShiftCopy shiftCopy, int workScheduleID, String state) throws DataAccessException {
 		boolean taken = false;
-		boolean sufficientRest = checkRestPeriod(copy, workScheduleID);
-		int copyID = copy.getId();
+		boolean sufficientRest = checkRestPeriod(shiftCopy, workScheduleID);
+		int copyID = shiftCopy.getID();
 		boolean equalsReleased = false;
 		boolean equalsTradeable = false;
 		ResultSet rs = null;
@@ -129,8 +129,8 @@ public class ShiftDB implements ShiftDBIF {
 				equalsTradeable = rs.getString("State").equals(CopyState.TRADEABLE.getState());
 				
 				if(equalsReleased || equalsTradeable) { 	// Checks if State is 'Released' or 'Tradeable'.
-					setState(copy, state);
-					setWorkScheduleIDOnCopy(copy, workScheduleID);
+					setState(shiftCopy, state);
+					setWorkScheduleIDOnCopy(shiftCopy, workScheduleID);
 				}
 				
 				dbConnection.commitTransaction();
@@ -152,7 +152,7 @@ public class ShiftDB implements ShiftDBIF {
 	 * @return sufficientRest
 	 * @throws DataAccessException
 	 */
-	private boolean checkRestPeriod(Copy copy, int workScheduleID) throws DataAccessException {
+	private boolean checkRestPeriod(ShiftCopy shiftCopy, int workScheduleID) throws DataAccessException {
 		boolean sufficientRest = false;
 		ResultSet rs;
 		
@@ -191,9 +191,9 @@ public class ShiftDB implements ShiftDBIF {
 					dateTimeTo = LocalDateTime.of(date, toHour);
 					
 					/* Converts values from copy object into LocalDateTime object.*/
-					copyDate = copy.getDate();
-					copyFromHour = copy.getShift().getFromHour();
-					copyToHour = copy.getShift().getToHour();
+					copyDate = shiftCopy.getDate();
+					copyFromHour = shiftCopy.getShift().getFromHour();
+					copyToHour = shiftCopy.getShift().getToHour();
 					copyDateTimeFrom = LocalDateTime.of(copyDate, copyFromHour);
 					copyDateTimeTo = LocalDateTime.of(copyDate, copyToHour);
 					
@@ -233,8 +233,8 @@ public class ShiftDB implements ShiftDBIF {
 	 * @param state
 	 * @throws DataAccessException
 	 */
-	private void setState(Copy copy, String state) throws DataAccessException {
-		int id = copy.getId();
+	private void setState(ShiftCopy shiftCopy, String state) throws DataAccessException {
+		int id = shiftCopy.getID();
 		
 		try {
 			changeStateOnCopy.setString(1, state);
@@ -253,8 +253,8 @@ public class ShiftDB implements ShiftDBIF {
 	 * @param workScheduleID
 	 * @throws DataAccessException
 	 */
-	private void setWorkScheduleIDOnCopy(Copy copy, int workScheduleID) throws DataAccessException {
-		int copyID = copy.getId();
+	private void setWorkScheduleIDOnCopy(ShiftCopy shiftCopy, int workScheduleID) throws DataAccessException {
+		int copyID = shiftCopy.getID();
 		
 		try {
 			setWorkScheduleIDOnCopy.setInt(1, workScheduleID);
@@ -304,7 +304,7 @@ public class ShiftDB implements ShiftDBIF {
 	 * @return completed
 	 * @throws DataAccessException
 	 */
-	public boolean completeReleaseNewShifts(ArrayList<Copy> shiftCopies) throws DataAccessException {
+	public boolean completeReleaseNewShifts(ArrayList<ShiftCopy> shiftCopies) throws DataAccessException {
 		boolean completed = false;
 		int rowsAffected = -1;
 		Shift shift;
@@ -318,7 +318,7 @@ public class ShiftDB implements ShiftDBIF {
 			
 			/* Loops through list of copies and inserts one by one to the database.*/
 			
-			for(Copy element : shiftCopies) {
+			for(ShiftCopy element : shiftCopies) {
 				shift = element.getShift();
 				id = shift.getID();
 				localDate = element.getDate();
@@ -348,14 +348,14 @@ public class ShiftDB implements ShiftDBIF {
 	 * @return releasedShiftCopies
 	 * @throws DataAccessException
 	 */
-	public ArrayList<Copy> findShiftCopiesOnState(String state) throws DataAccessException {
-		ArrayList<Copy> releasedShiftCopies;
+	public ArrayList<ShiftCopy> findShiftCopiesOnState(String state) throws DataAccessException {
+		ArrayList<ShiftCopy> releasedShiftCopies;
 		ResultSet rs = null;
 		
 		try {
 			findShiftCopiesOnState.setString(1, state);
 			rs = findShiftCopiesOnState.executeQuery();
-			releasedShiftCopies = buildCopyObjects(rs);
+			releasedShiftCopies = buildShiftCopyObjects(rs);
 			
 		} catch(SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
@@ -393,14 +393,14 @@ public class ShiftDB implements ShiftDBIF {
 	 * @return shiftCopies
 	 * @throws DataAccessException
 	 */
-	private ArrayList<Copy> buildCopyObjects(ResultSet rs) throws DataAccessException {
-		ArrayList<Copy> shiftCopies = new ArrayList<>();
-		Copy copy;
+	private ArrayList<ShiftCopy> buildShiftCopyObjects(ResultSet rs) throws DataAccessException {
+		ArrayList<ShiftCopy> shiftCopies = new ArrayList<>();
+		ShiftCopy shiftCopy;
 		
 		try {
 			while(rs.next()) {
-				copy = buildCopyObject(rs);
-				shiftCopies.add(copy);
+				shiftCopy = buildShiftCopyObject(rs);
+				shiftCopies.add(shiftCopy);
 			} 
 		} catch (SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_READ_RESULTSET, e);
@@ -415,7 +415,7 @@ public class ShiftDB implements ShiftDBIF {
 	 * @return copy
 	 * @throws DataAccessException
 	 */
-	private Copy buildCopyObject(ResultSet rs) throws DataAccessException {
+	private ShiftCopy buildShiftCopyObject(ResultSet rs) throws DataAccessException {
 		ResultSet rs2;
 		Shift shift = null;
 		int id;
@@ -423,7 +423,7 @@ public class ShiftDB implements ShiftDBIF {
 		WorkSchedule workschedule;
 		int workScheduleID;
 		
-		Copy copy = null;
+		ShiftCopy shiftCopy = null;
 		java.sql.Date date;
 		LocalDate localDate;
 		String state;
@@ -448,11 +448,11 @@ public class ShiftDB implements ShiftDBIF {
 			releasedAt = releasedAtTimestamp.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 			workScheduleID = rs.getInt("WorkScheduleID");
 			workschedule = new WorkSchedule(workScheduleID);
-			copy = shift.createFullCopy(id, shift, workschedule, localDate, state, releasedAt);
+			shiftCopy = shift.createFullCopy(id, shift, workschedule, localDate, state, releasedAt);
 			
 		} catch(SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
 		}
-		return copy;
+		return shiftCopy;
 	}
 }
