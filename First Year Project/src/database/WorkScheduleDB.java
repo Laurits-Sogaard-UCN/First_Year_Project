@@ -164,18 +164,18 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 	
 	public String getEmployeeCPROnID(int id) throws DataAccessException {
 		ResultSet rs;
-		String cpr = "";
+		String employeeCPR = "";
 		
 		try {
 			getEmployeeCPROnID.setInt(1, id);
 			rs = getEmployeeCPROnID.executeQuery();
 			if(rs.next()) {
-				cpr = rs.getString("EmployeeCPR");
+				employeeCPR = rs.getString("EmployeeCPR");
 			}
 		} catch (SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
 		}
-		return cpr;
+		return employeeCPR;
 	}
 	
 	/**

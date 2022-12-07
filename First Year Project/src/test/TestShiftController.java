@@ -2,6 +2,7 @@ package test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+
 import java.awt.Taskbar.State;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -24,7 +25,7 @@ import database.ConnectionFactory;
 import database.DBConnection;
 import database.DBConnectionMock;
 import database.ShiftDB;
-import model.Copy;
+import model.ShiftCopy;
 import model.Shift;
 import model.WorkSchedule;
 import utility.CopyState;
@@ -157,7 +158,7 @@ class TestShiftController {
 		ResultSet rs;
 		
 		Shift shift = new Shift(fromHour, toHour, 1);
-		Copy copy = new Copy(copyID, shift, null,  localDate, CopyState.RELEASED.getState(), LocalDateTime.now());
+		ShiftCopy shiftCopy = new ShiftCopy(copyID, shift, null,  localDate, CopyState.RELEASED.getState(), LocalDateTime.now());
 		
 		// Act
 		
@@ -190,8 +191,8 @@ class TestShiftController {
 		rs = addCopy.getGeneratedKeys();
 		rs.next();
 		copyID = rs.getInt(1);
-		copy.setId(copyID);
-		take = shiftController.takeNewShift(copy);
+		shiftCopy.setID(copyID);
+		take = shiftController.takeNewShift(shiftCopy);
 
 		// Assert
 		assertTrue(addedManager == 1);
@@ -401,7 +402,7 @@ class TestShiftController {
 	@Test
 	public void getShiftCopiesList() throws DataAccessException {
 		//Arrange
-		ArrayList<Copy> list = null;
+		ArrayList<ShiftCopy> list = null;
 		//Act
 		list = shiftController.getShiftCopies();
 		//Assert
@@ -415,7 +416,7 @@ class TestShiftController {
 		LocalTime fromHour = LocalTime.parse("06:00:00");
 		LocalTime toHour = LocalTime.parse("14:00:00");
 		LocalDate date = LocalDate.now();
-		Copy copyToTest;
+		ShiftCopy copyToTest;
 		
 		// Act
 		shiftController.clearShiftCopies();
@@ -454,7 +455,7 @@ class TestShiftController {
 		int employeeWorkScheduleID = 0;
 		boolean correctState = false;
 		ResultSet employeeWorkScheduleIDRS;
-		Copy copy = null;
+		ShiftCopy shiftCopy = null;
 		
 		// Act
 		try {
@@ -486,8 +487,8 @@ class TestShiftController {
 			addCopy.executeUpdate();
 			
 			succes = shiftController.startTakePlannedShift().isEmpty();
-			copy = shiftController.startTakePlannedShift().get(0);
-			correctState = copy.getState().equals("Tradeable");
+			shiftCopy = shiftController.startTakePlannedShift().get(0);
+			correctState = shiftCopy.getState().equals("Tradeable");
 			
 			
 			
@@ -517,7 +518,7 @@ class TestShiftController {
 		
 		Shift shift = new Shift(fromHour, toHour, 1);
 		WorkSchedule workSchedule = new WorkSchedule(workScheduleID);
-		Copy copy = new Copy(copyID, shift, workSchedule, localDate, CopyState.TRADEABLE.getState(), LocalDateTime.now());
+		ShiftCopy shiftCopy = new ShiftCopy(copyID, shift, workSchedule, localDate, CopyState.TRADEABLE.getState(), LocalDateTime.now());
 		// Act
 		addEmployee.setString(1, "9876512345");
 		addEmployee.setString(2, "Kallesen");
@@ -541,8 +542,8 @@ class TestShiftController {
 		//Sets values for the copy workSchedule object
 		rs =  addWorkSchedule.getGeneratedKeys();
 		rs.next();
-		copy.getWorkSchedule().setEmployeeCPR("9876512345");
-		copy.getWorkSchedule().setID(rs.getInt(1));
+		shiftCopy.getWorkSchedule().setEmployeeCPR("9876512345");
+		shiftCopy.getWorkSchedule().setID(rs.getInt(1));
 		
 		//Adds copy to the database
 		addCopy.setInt(1, shiftID);
@@ -552,9 +553,9 @@ class TestShiftController {
 		addCopy.executeUpdate();
 		rs = addCopy.getGeneratedKeys();
 		rs.next();
-		copy.setId(rs.getInt(1));
+		shiftCopy.setID(rs.getInt(1));
 		
-		succes = shiftController.takePlannedShift(copy);
+		succes = shiftController.takePlannedShift(shiftCopy);
 		
 		
 		// Assert
