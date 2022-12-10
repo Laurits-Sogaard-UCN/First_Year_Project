@@ -31,39 +31,39 @@ public class ShiftDB implements ShiftDBIF {
 			+ "and s.ToHour = ?");
 	private PreparedStatement findShiftOnFromAndTo;
 	
-	private static final String INSERT_SHIFT_COPY = ("INSERT INTO Copy(ShiftID, Date, State, ReleasedAt)\r\n"
+	private static final String INSERT_SHIFT_COPY = ("INSERT INTO ShiftCopy(ShiftID, Date, State, ReleasedAt)\r\n"
 			+ "VALUES (?, ?, ?, ?)");
 	private PreparedStatement insertShiftCopy;
 	
-	private static final String CHECK_REST_PERIOD = ("SELECT s.FromHour, s.ToHour, c.Date\r\n"
-			+ "FROM Shift s, Copy c\r\n"
-			+ "WHERE c.WorkScheduleID = ?\r\n"
-			+ "and c.ShiftID = s.ID");
+	private static final String CHECK_REST_PERIOD = ("SELECT s.FromHour, s.ToHour, sc.Date\r\n"
+			+ "FROM Shift s, ShiftCopy sc\r\n"
+			+ "WHERE sc.WorkScheduleID = ?\r\n"
+			+ "and sc.ShiftID = s.ID");
 	private PreparedStatement checkRestPeriod;
 	
-	private static final String CHANGE_STATE_ON_COPY = ("UPDATE Copy\r\n"
+	private static final String CHANGE_STATE_ON_COPY = ("UPDATE ShiftCopy\r\n"
 			+ "SET State = ?\r\n"
 			+ "WHERE ID = ?");
 	private PreparedStatement changeStateOnCopy;
 
 	private static final String FIND_SHIFT_COPIES_ON_STATE = ("SELECT *\r\n"
-			+ "FROM Copy c\r\n"
-			+ "WHERE c.State = ?");
+			+ "FROM ShiftCopy sc\r\n"
+			+ "WHERE sc.State = ?");
 	private PreparedStatement findShiftCopiesOnState;
 	
 	private static final String FIND_SHIFTS_ON_SHIFT_ID = ("SELECT *\r\n"
-			+ "FROM Shift s, Copy c\r\n"
+			+ "FROM Shift s, ShiftCopy sc\r\n"
 			+ "WHERE s.ID = ?");
 	private PreparedStatement findShiftsOnShiftID;
 	
-	private static final String SET_WORK_SCHEDULE_ID_ON_COPY = ("UPDATE Copy\r\n"
+	private static final String SET_WORK_SCHEDULE_ID_ON_COPY = ("UPDATE ShiftCopy\r\n"
 			+ "SET WorkScheduleID = ?\r\n"
 			+ "WHERE ID = ?");
 	private PreparedStatement setWorkScheduleIDOnCopy;
 	
-	private static final String FIND_COPY_STATE_ON_ID = "SELECT c.State\r\n"
-			+ "FROM Copy c\r\n"
-			+ "WHERE c.ID = ?";
+	private static final String FIND_COPY_STATE_ON_ID = "SELECT sc.State\r\n"
+			+ "FROM ShiftCopy sc\r\n"
+			+ "WHERE sc.ID = ?";
 	private PreparedStatement findCopyStateOnID;
 	
 	private Connection con;
