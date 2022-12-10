@@ -718,6 +718,12 @@ public class GUI extends SwingWorker<String, Object> {
 		textArea.setText("");
 	}
 	
+	private void errorMessageInCaseOfException(JTextArea textArea) {
+		textArea.append("An unexpected error ocurred.");
+		textArea.append(" \n");
+		textArea.append("Please restart system and try again.");
+	}
+	
 	// Methods to handle action events.
 	
 	/**
@@ -745,9 +751,7 @@ public class GUI extends SwingWorker<String, Object> {
 		try {
 			startTakeNewShift();
 		} catch (DataAccessException e1) {
-			textAreaTakeNewShiftErrorHandling.append("An unexpected error ocurred.");
-			textAreaTakeNewShiftErrorHandling.append(" \n");
-			textAreaTakeNewShiftErrorHandling.append("Please restart system and try again.");
+			errorMessageInCaseOfException(textAreaTakeNewShiftErrorHandling);
 			
 		}
 	}
@@ -760,9 +764,7 @@ public class GUI extends SwingWorker<String, Object> {
 		try {
 			takeNewShift();
 		} catch(DataAccessException e1) {
-			textAreaTakeNewShiftErrorHandling.append("An unexpected error ocurred.");
-			textAreaTakeNewShiftErrorHandling.append(" \n");
-			textAreaTakeNewShiftErrorHandling.append("Please restart system and try again.");
+			errorMessageInCaseOfException(textAreaTakeNewShiftErrorHandling);
 		}
 	}
 	
@@ -774,9 +776,7 @@ public class GUI extends SwingWorker<String, Object> {
 		try {
 			delegateShifts();
 		} catch(DataAccessException e1) {
-			textAreaTakeNewShiftErrorHandling.append("An unexpected error ocurred.");
-			textAreaTakeNewShiftErrorHandling.append(" \n");
-			textAreaTakeNewShiftErrorHandling.append("Please restart system and try again.");
+			errorMessageInCaseOfException(textAreaTakeNewShiftErrorHandling);
 		}
 	}
 	
@@ -812,9 +812,7 @@ public class GUI extends SwingWorker<String, Object> {
 		try {
 			addShift();
 		} catch (DataAccessException e1) {
-			textAreaReleaseNewShiftsErrorHandling.append("An unexpected error ocurred.");
-			textAreaReleaseNewShiftsErrorHandling.append(" \n");
-			textAreaReleaseNewShiftsErrorHandling.append("Please restart system and try again.");
+			errorMessageInCaseOfException(textAreaReleaseNewShiftsErrorHandling);
 		}
 	}
 	
@@ -826,9 +824,7 @@ public class GUI extends SwingWorker<String, Object> {
 		try {
 			completeReleaseNewShifts();
 		} catch (DataAccessException e1) {
-			textAreaCompleteReleaseNewShifts.append("An unexpected error ocurred.");
-			textAreaCompleteReleaseNewShifts.append(" \n");
-			textAreaCompleteReleaseNewShifts.append("Please restart system and try again.");
+			errorMessageInCaseOfException(textAreaCompleteReleaseNewShifts);
 		}
 	}
 	
@@ -870,9 +866,7 @@ public class GUI extends SwingWorker<String, Object> {
 		try {
 			deleteShiftCopy();
 		} catch (DataAccessException e1) {
-			textAreaReleaseNewShiftsErrorHandling.append("An unexpected error ocurred.");
-			textAreaReleaseNewShiftsErrorHandling.append(" \n");
-			textAreaReleaseNewShiftsErrorHandling.append("Please restart system and try again.");
+			errorMessageInCaseOfException(textAreaReleaseNewShiftsErrorHandling);
 		}
 	}
 	
@@ -885,9 +879,7 @@ public class GUI extends SwingWorker<String, Object> {
 		try {
 			startTakePlannedShift();
 		} catch (DataAccessException e1) {
-			textAreaTakePlannedShiftErrorHandling.append("An unexpected error ocurred.");
-			textAreaTakePlannedShiftErrorHandling.append(" \n");
-			textAreaTakePlannedShiftErrorHandling.append("Please restart system and try again.");
+			errorMessageInCaseOfException(textAreaTakePlannedShiftErrorHandling);
 		}
 	}
 	
@@ -899,9 +891,7 @@ public class GUI extends SwingWorker<String, Object> {
 		try {
 			takePlannedShift();
 		} catch (DataAccessException e1) {
-			textAreaTakePlannedShiftErrorHandling.append("An unexpected error ocurred.");
-			textAreaTakePlannedShiftErrorHandling.append(" \n");
-			textAreaTakePlannedShiftErrorHandling.append("Please restart system and try again.");
+			errorMessageInCaseOfException(textAreaTakePlannedShiftErrorHandling);
 		}
 	}
 	
