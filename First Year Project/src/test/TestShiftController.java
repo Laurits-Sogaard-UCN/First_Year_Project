@@ -3,7 +3,6 @@ package test;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-import java.awt.Taskbar.State;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,24 +13,19 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 
-import javax.lang.model.element.ExecutableElement;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import controller.ShiftController;
 import database.ConnectionFactory;
-import database.DBConnection;
 import database.DBConnectionMock;
-import database.ShiftDB;
 import model.ShiftCopy;
 import model.Shift;
 import model.WorkSchedule;
 import utility.CopyState;
 import utility.DataAccessException;
 import utility.DatabaseType;
-import utility.EmployeeType;
 
 class TestShiftController {
 	
