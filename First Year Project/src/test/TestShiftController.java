@@ -56,7 +56,7 @@ class TestShiftController {
 			+ "VALUES (?, ?, ?, ?)";
 	PreparedStatement addWorkSchedule;
 	
-	String ADD_COPY = "INSERT INTO Copy (ShiftID, WorkScheduleID, Date, State, ReleasedAt)\r\n"
+	String ADD_COPY = "INSERT INTO ShiftCopy (ShiftID, WorkScheduleID, Date, State, ReleasedAt)\r\n"
 			+ "VALUES (?, ?, ?, ?, GETDATE())";
 	PreparedStatement addCopy;
 	
@@ -204,7 +204,7 @@ class TestShiftController {
 		int employeeWorkScheduleID2 = 0;
 		boolean correctWorkSchedule = false;
 		String getCopyWorkScheduleIDAndState = "Select WorkScheduleID, State\r\n"
-				+ "From Copy\r\n"
+				+ "From ShiftCopy\r\n"
 				+ "Where Date = '2070-12-10'\r\n"
 				+ "And State = 'Delegated'";
 		PreparedStatement getCopyWorkScheduleIDAndStatePS = con.prepareStatement(getCopyWorkScheduleIDAndState);
@@ -302,7 +302,7 @@ class TestShiftController {
 		int employeeWorkScheduleID2 = 0;
 		boolean correctWorkSchedule = false;
 		String getCopyWorkScheduleIDAndState = "Select WorkScheduleID, State\r\n"
-				+ "From Copy\r\n"
+				+ "From ShiftCopy\r\n"
 				+ "Where Date = '2070-12-10'\r\n"
 				+ "And State = 'Delegated'";
 		PreparedStatement getCopyWorkScheduleIDAndStatePS = con.prepareStatement(getCopyWorkScheduleIDAndState);

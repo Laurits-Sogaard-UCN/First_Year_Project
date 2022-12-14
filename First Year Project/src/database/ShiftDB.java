@@ -118,7 +118,6 @@ public class ShiftDB implements ShiftDBIF {
 		
 		if(sufficientRest) {
 			try {
-				// TODO: måske vi skal være helt sikre på isolationsniveauerne?
 				con.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ); 	// Sets isolation level on transaction.
 				dbConnection.startTransaction();
 				findCopyStateOnID.setInt(1, copyID);
