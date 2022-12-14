@@ -131,10 +131,10 @@ public class ShiftController {
 				}
 				delegate(workSchedules);
 			}
-			else if(workScheduleIndex == lastWorkScheduleIndex && copyIndex == lastCopyIndex) { 	// Checks if both the last copy and work schedule have been reached.
+			else if(workScheduleIndex == lastWorkScheduleIndex && copyIndex == lastCopyIndex) { 	// If both the last copy and work schedule have been reached.
 				shiftCopies.clear();
 			}
-			else if(copyIndex == lastCopyIndex && workScheduleIndex < lastWorkScheduleIndex) { 		// Checks if only the last copy has been reached.
+			else if(copyIndex == lastCopyIndex && workScheduleIndex < lastWorkScheduleIndex) { 		// If only the last copy has been reached.
 				workScheduleIndex++;
 			}
 			else if(copyIndex < lastCopyIndex) { // Checks if there are more copies in the list.
@@ -262,6 +262,7 @@ public class ShiftController {
 		String employeeCPR = employeeController.getLoggedInEmployee().getCPR();
 		int workScheduleID = workScheduleController.findWorkScheduleIDOnEmployeeCPR(employeeCPR);
 		String state = CopyState.OCCUPIED.getState();
+		
 		if(shiftDB.takeShift(shiftCopy, workScheduleID, state)) {
 			workScheduleController.setTotalHoursOnWorkSchedule(hours, currentEmployeeCPR);
 			hours = hours * -1;

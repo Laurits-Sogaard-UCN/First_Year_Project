@@ -124,7 +124,6 @@ public class ShiftDB implements ShiftDBIF {
 				findCopyStateOnID.setInt(1, copyID);
 				rs = findCopyStateOnID.executeQuery();
 				rs.next();
-				// TODO Skal vi tjekke at det virker?
 				equalsReleased = rs.getString("State").equals(CopyState.RELEASED.getState());
 				equalsTradeable = rs.getString("State").equals(CopyState.TRADEABLE.getState());
 				

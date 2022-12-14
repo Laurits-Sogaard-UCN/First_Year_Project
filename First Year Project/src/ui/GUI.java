@@ -874,7 +874,7 @@ public class GUI extends SwingWorker<String, Object> {
 	 * Internal method call to implementation of startTakePlannedShift.
 	 * @param e
 	 */
-	private void takePlannedShiftButtonClicked(ActionEvent e) { // TODO skal implementeres
+	private void takePlannedShiftButtonClicked(ActionEvent e) {
 		getThisCard("TakePlannedShift");
 		try {
 			startTakePlannedShift();
@@ -887,7 +887,7 @@ public class GUI extends SwingWorker<String, Object> {
 	 * Internal method call to implementation of takePlannedShift.
 	 * @param e
 	 */
-	private void takeThisPlannedShiftButtonClicked(ActionEvent e) { // TODO skal implementeres
+	private void takeThisPlannedShiftButtonClicked(ActionEvent e) {
 		try {
 			takePlannedShift();
 		} catch (DataAccessException e1) {
