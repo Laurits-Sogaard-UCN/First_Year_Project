@@ -718,6 +718,12 @@ public class GUI extends SwingWorker<String, Object> {
 		textArea.setText("");
 	}
 	
+	private void errorMessageInCaseOfException(JTextArea textArea) {
+		textArea.append("An unexpected error ocurred.");
+		textArea.append(" \n");
+		textArea.append("Please restart system and try again.");
+	}
+	
 	// Methods to handle action events.
 	
 	/**
@@ -745,7 +751,8 @@ public class GUI extends SwingWorker<String, Object> {
 		try {
 			startTakeNewShift();
 		} catch (DataAccessException e1) {
-			e1.printStackTrace();
+			errorMessageInCaseOfException(textAreaTakeNewShiftErrorHandling);
+			
 		}
 	}
 	
@@ -757,7 +764,7 @@ public class GUI extends SwingWorker<String, Object> {
 		try {
 			takeNewShift();
 		} catch(DataAccessException e1) {
-			e1.printStackTrace();
+			errorMessageInCaseOfException(textAreaTakeNewShiftErrorHandling);
 		}
 	}
 	
@@ -769,7 +776,7 @@ public class GUI extends SwingWorker<String, Object> {
 		try {
 			delegateShifts();
 		} catch(DataAccessException e1) {
-			e1.printStackTrace();
+			errorMessageInCaseOfException(textAreaTakeNewShiftErrorHandling);
 		}
 	}
 	
@@ -805,7 +812,7 @@ public class GUI extends SwingWorker<String, Object> {
 		try {
 			addShift();
 		} catch (DataAccessException e1) {
-			e1.printStackTrace();
+			errorMessageInCaseOfException(textAreaReleaseNewShiftsErrorHandling);
 		}
 	}
 	
@@ -817,7 +824,7 @@ public class GUI extends SwingWorker<String, Object> {
 		try {
 			completeReleaseNewShifts();
 		} catch (DataAccessException e1) {
-			e1.printStackTrace();
+			errorMessageInCaseOfException(textAreaCompleteReleaseNewShifts);
 		}
 	}
 	
@@ -859,7 +866,7 @@ public class GUI extends SwingWorker<String, Object> {
 		try {
 			deleteShiftCopy();
 		} catch (DataAccessException e1) {
-			e1.printStackTrace();
+			errorMessageInCaseOfException(textAreaReleaseNewShiftsErrorHandling);
 		}
 	}
 	
@@ -867,12 +874,12 @@ public class GUI extends SwingWorker<String, Object> {
 	 * Internal method call to implementation of startTakePlannedShift.
 	 * @param e
 	 */
-	private void takePlannedShiftButtonClicked(ActionEvent e) { // TODO skal implementeres
+	private void takePlannedShiftButtonClicked(ActionEvent e) {
 		getThisCard("TakePlannedShift");
 		try {
 			startTakePlannedShift();
 		} catch (DataAccessException e1) {
-			e1.printStackTrace();
+			errorMessageInCaseOfException(textAreaTakePlannedShiftErrorHandling);
 		}
 	}
 	
@@ -880,12 +887,11 @@ public class GUI extends SwingWorker<String, Object> {
 	 * Internal method call to implementation of takePlannedShift.
 	 * @param e
 	 */
-	private void takeThisPlannedShiftButtonClicked(ActionEvent e) { // TODO skal implementeres
+	private void takeThisPlannedShiftButtonClicked(ActionEvent e) {
 		try {
 			takePlannedShift();
 		} catch (DataAccessException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			errorMessageInCaseOfException(textAreaTakePlannedShiftErrorHandling);
 		}
 	}
 	
