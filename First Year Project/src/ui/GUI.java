@@ -933,17 +933,26 @@ public class GUI extends SwingWorker<String, Object> {
 	private void takeNewShift() throws DataAccessException {
 		/* Finds chosen copy on list and takes the copy.*/
 		int index = getIndexOnSelectedListValue(listOfNewShiftsToTake);
-		ShiftCopy shiftCopy = shiftController.getShiftCopies().get(index);
-		boolean taken = shiftController.takeNewShift(shiftCopy);
+		ShiftCopy shiftCopy;
+		boolean taken;
 		
-		/* Checks if successfully taken.*/ 
-		if(taken) {
-			textAreaTakeNewShiftErrorHandling.setText("Shift was successfully taken");
-			showCopies(shiftController.getShiftCopiesAgain(CopyState.RELEASED.getState()), listModelTakeNew); 	// Displaying the copies.
+		/* Checks if a list value has been chosen.*/
+		if(index >= 0) {
+			shiftCopy = shiftController.getShiftCopies().get(index);
+			taken = shiftController.takeNewShift(shiftCopy);
+			
+			/* Checks if successfully taken.*/ 
+			if(taken) {
+				textAreaTakeNewShiftErrorHandling.setText("Shift was successfully taken");
+				showCopies(shiftController.getShiftCopiesAgain(CopyState.RELEASED.getState()), listModelTakeNew); 	// Displaying the copies.
+			}
+			else {
+				textAreaTakeNewShiftErrorHandling.setText("Error! Shift has already been taken");
+				showCopies(shiftController.getShiftCopiesAgain(CopyState.RELEASED.getState()), listModelTakeNew); 	// Displaying the copies.
+			}
 		}
 		else {
-			textAreaTakeNewShiftErrorHandling.setText("Error! Shift has already been taken");
-			showCopies(shiftController.getShiftCopiesAgain(CopyState.RELEASED.getState()), listModelTakeNew); 	// Displaying the copies.
+			textAreaTakeNewShiftErrorHandling.setText("Error! Mark a shift to take");
 		}
 	}
 	
@@ -970,30 +979,40 @@ public class GUI extends SwingWorker<String, Object> {
 	private void addShift() throws DataAccessException {
 		/* Gets the picked date, and parses it to a LocalDate object with given format.*/
 		String dateString = datePicker.getJFormattedTextField().getText();
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-		LocalDate date = LocalDate.parse(dateString, formatter);
+		DateTimeFormatter formatter;
+		LocalDate date;
 		
 		/* Gets selected times, and parses the strings to LocalTime objects.*/
 		String fromHourString = (String) comboBoxShiftFrom.getSelectedItem();
-		LocalTime fromHour = LocalTime.parse(fromHourString);
 		String toHourString = (String) comboBoxShiftTo.getSelectedItem();
-		LocalTime toHour = LocalTime.parse(toHourString);
+		LocalTime fromHour;
+		LocalTime toHour;
 		
 		textAreaReleaseNewShiftsErrorHandling.setText("");
 		
 		/* Defensive programming to verify input.*/
-		if(fromHour.getHour() >= toHour.getHour()) {
-			textAreaReleaseNewShiftsErrorHandling.setText("Invalid time period has been chosen");
-		}
-		else if(toHour.getHour() - fromHour.getHour() > 8) {
-			textAreaReleaseNewShiftsErrorHandling.setText("A shift can be no longer than 8 hours");
-		}
-		else if(date.isBefore(LocalDate.now())) {
-			textAreaReleaseNewShiftsErrorHandling.setText("Invalid date has been chosen");
+		if(!dateString.equals("") && !fromHourString.equals("") && !toHourString.equals("")) {
+			formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+			date = LocalDate.parse(dateString, formatter);
+			fromHour = LocalTime.parse(fromHourString);
+			toHour = LocalTime.parse(toHourString);
+			
+			if(fromHour.getHour() >= toHour.getHour()) {
+				textAreaReleaseNewShiftsErrorHandling.setText("Invalid time period has been chosen");
+			}
+			else if(toHour.getHour() - fromHour.getHour() > 8) {
+				textAreaReleaseNewShiftsErrorHandling.setText("A shift can be no longer than 8 hours");
+			}
+			else if(date.isBefore(LocalDate.now())) {
+				textAreaReleaseNewShiftsErrorHandling.setText("Invalid date has been chosen");
+			}
+			else {
+				ArrayList<ShiftCopy> shiftCopies = shiftController.addShift(date, fromHour, toHour);
+				showCopies(shiftCopies, listModelRelease);
+			}
 		}
 		else {
-			ArrayList<ShiftCopy> shiftCopies = shiftController.addShift(date, fromHour, toHour);
-			showCopies(shiftCopies, listModelRelease);
+			textAreaReleaseNewShiftsErrorHandling.setText("Please fill all fields with values");
 		}
 	}
 	
@@ -1021,11 +1040,16 @@ public class GUI extends SwingWorker<String, Object> {
 	private void deleteShiftCopy() throws DataAccessException {
 		int index = getIndexOnSelectedListValue(listOfShiftsToRelease);
 		
-		if(shiftController.deleteShiftCopy(index)) {
-			showCopies(shiftController.getShiftCopies(), listModelRelease);
+		if(index >= 0) {
+			if(shiftController.deleteShiftCopy(index)) {
+				showCopies(shiftController.getShiftCopies(), listModelRelease);
+			}
+			else {
+				textAreaReleaseNewShiftsErrorHandling.setText("Error! Shift could not be deleted");
+			}
 		}
 		else {
-			textAreaReleaseNewShiftsErrorHandling.setText("Error! Shift could not be deleted");
+			textAreaReleaseNewShiftsErrorHandling.setText("Error! Mark a shift to delete");
 		}
 	}
 	
@@ -1060,13 +1084,16 @@ public class GUI extends SwingWorker<String, Object> {
 	 */
 	private int getIndexOnSelectedListValue(JList<String> list) {
 		String copyList = (String) list.getSelectedValue();
-		String substr = copyList.substring(7, 9);
-		int index;
+		String substr = null;
+		int index = -1;
 		
-		if(substr.substring(1,2).equals(" ")) {
-			substr = substr.substring(0,1);
+		if(copyList != null) {
+			substr = copyList.substring(7, 9);
+			if(substr.substring(1,2).equals(" ")) {
+				substr = substr.substring(0,1);
+			}
+			index = Integer.parseInt(substr) - 1;
 		}
-		index = Integer.parseInt(substr) - 1;
 		return index;
 	}
 	

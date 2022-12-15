@@ -199,10 +199,10 @@ public class ShiftController {
 	 */
 	public boolean deleteShiftCopy(int index) {
 		boolean deleted = false;
-		ShiftCopy shiftCopy = shiftCopies.get(index);
-		shiftCopies.remove(index);
+		ShiftCopy shiftCopy = shiftCopiesToBeReleased.get(index);
+		shiftCopiesToBeReleased.remove(index);
 		
-		if(!shiftCopies.contains(shiftCopy)) {
+		if(!shiftCopiesToBeReleased.contains(shiftCopy)) {
 			deleted = true;
 		}
 		return deleted;
