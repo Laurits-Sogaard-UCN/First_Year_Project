@@ -12,6 +12,7 @@ import utility.EmployeeType;
 import model.WorkSchedule;
 import utility.DBMessages;
 import utility.DataAccessException;
+import utility.DatabaseType;
 
 public class WorkScheduleDB implements WorkScheduleDBIF {
 
@@ -36,28 +37,36 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 			+ "and e.EmployeeType = ?");
 	private PreparedStatement getAllPartTimeWorkSchedules;
 	
+	private static final String GET_EMPLOYEE_CPR_ON_ID = ("SELECT EmployeeCPR\r\n"
+			+ "FROM WorkSchedule\r\n"
+			+ "WHERE ID = ?");
+	private PreparedStatement getEmployeeCPROnID;
+	
+	private DBConnection dbConnection;
 	private Connection con;
 	
 	/**
 	 * Constructor to initialize instance variables.
 	 * @throws DataAccessException
 	 */
-	public WorkScheduleDB() throws DataAccessException {
-		init();
+	public WorkScheduleDB(DatabaseType databaseType) throws DataAccessException {
+		init(databaseType);
 	}
 	
 	/**
 	 * Initialization of Connection and PreparedStatements.
 	 * @throws DataAccessException
 	 */
-	private void init() throws DataAccessException {
-		con = DBConnection.getInstance().getConnection();
+	private void init(DatabaseType databaseType) throws DataAccessException {
+		dbConnection = ConnectionFactory.createDatabase(databaseType);
+		con = dbConnection.getConnection();
 		
 		try {
 			findWorkScheduleIDOnCPR = con.prepareStatement(FIND_WORK_SCHEDULE_ID_ON_CPR, PreparedStatement.RETURN_GENERATED_KEYS);
 			getCurrentHours = con.prepareStatement(GET_CURRENT_HOURS);
 			setTotalHours = con.prepareStatement(SET_TOTAL_HOURS);
 			getAllPartTimeWorkSchedules = con.prepareStatement(GET_ALL_PART_TIME_WORK_SCHEDULES);
+			getEmployeeCPROnID = con.prepareStatement(GET_EMPLOYEE_CPR_ON_ID);
 			
 		} catch(SQLException e) {
 			throw new DataAccessException(DBMessages.COULD_NOT_PREPARE_STATEMENT, e);
@@ -70,12 +79,12 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 	 * @return workScheduleID
 	 * @throws DataAccessException
 	 */
-	public int findWorkScheduleIDOnEmployeeCPR(String CPR) throws DataAccessException {
+	public int findWorkScheduleIDOnEmployeeCPR(String employeeCPR) throws DataAccessException {
 		int workScheduleID = 0;
 		ResultSet rs;
 		
 		try {
-			findWorkScheduleIDOnCPR.setString(1, CPR);
+			findWorkScheduleIDOnCPR.setString(1, employeeCPR);
 			rs = findWorkScheduleIDOnCPR.executeQuery();
 			if(rs.next()) {
 				workScheduleID = rs.getInt("ID");
@@ -100,14 +109,14 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 		
 		try {
 			con.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ); 	// Sets isolation level on transaction.
-			DBConnection.getInstance().startTransaction(); 
+			dbConnection.startTransaction(); 
 			currentHours = getCurrentHours(employeeCPR);
 			setTotalHours(currentHours, hours, employeeCPR);
-			DBConnection.getInstance().commitTransaction();
+			dbConnection.commitTransaction();
 			set = true;
 			
 		} catch(Exception e) {
-			DBConnection.getInstance().rollbackTransaction();
+			dbConnection.rollbackTransaction();
 			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
 		}
 		return set;
@@ -151,6 +160,22 @@ public class WorkScheduleDB implements WorkScheduleDBIF {
 			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
 		}
 		return currentHours;
+	}
+	
+	public String getEmployeeCPROnID(int id) throws DataAccessException {
+		ResultSet rs;
+		String employeeCPR = "";
+		
+		try {
+			getEmployeeCPROnID.setInt(1, id);
+			rs = getEmployeeCPROnID.executeQuery();
+			if(rs.next()) {
+				employeeCPR = rs.getString("EmployeeCPR");
+			}
+		} catch (SQLException e) {
+			throw new DataAccessException(DBMessages.COULD_NOT_BIND_OR_EXECUTE_QUERY, e);
+		}
+		return employeeCPR;
 	}
 	
 	/**

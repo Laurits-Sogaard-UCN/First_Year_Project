@@ -7,30 +7,31 @@ import java.util.ArrayList;
 
 import database.ShiftDB;
 import database.ShiftDBIF;
-import model.Copy;
+import model.ShiftCopy;
 import model.Shift;
 import model.WorkSchedule;
 import utility.CopyState;
 import utility.DataAccessException;
+import utility.DatabaseType;
 
 public class ShiftController {
 	
 	private EmployeeController employeeController;
 	private WorkScheduleController workScheduleController;
 	private ShiftDBIF shiftDB;
-	private ArrayList<Copy> shiftCopies;
-	private ArrayList<Copy> releasedShiftCopies;
+	private ArrayList<ShiftCopy> shiftCopies;
+	private ArrayList<ShiftCopy> shiftCopiesToBeReleased;
 	
 	/**
 	 * Constructor to initialize instance variables. 
 	 * @throws DataAccessException
 	 */
-	public ShiftController() throws DataAccessException {
+	public ShiftController(DatabaseType databaseType) throws DataAccessException {
 		employeeController = new EmployeeController();
-		workScheduleController = new WorkScheduleController();
-		shiftDB = new ShiftDB();
+		workScheduleController = new WorkScheduleController(databaseType);
+		shiftDB = new ShiftDB(databaseType);
 		shiftCopies = new ArrayList<>();
-		releasedShiftCopies = new ArrayList<>();
+		shiftCopiesToBeReleased = new ArrayList<>();
 	}
 	
 	/**
@@ -38,9 +39,9 @@ public class ShiftController {
 	 * @return releasedShiftCopies
 	 * @throws DataAccessException
 	 */
-	public ArrayList<Copy> startTakeNewShift() throws DataAccessException {
-		releasedShiftCopies = shiftDB.findShiftCopiesOnState(CopyState.RELEASED.getState());
-		return releasedShiftCopies;
+	public ArrayList<ShiftCopy> startTakeNewShift() throws DataAccessException {
+		shiftCopies = shiftDB.findShiftCopiesOnState(CopyState.RELEASED.getState());
+		return shiftCopies;
 	}
 	
 	/**
@@ -51,14 +52,16 @@ public class ShiftController {
 	 * @return success
 	 * @throws DataAccessException
 	 */
-	public boolean takeNewShift(Copy copy) throws DataAccessException {
+	public boolean takeNewShift(ShiftCopy shiftCopy) throws DataAccessException {
 		boolean success = false;
+		int hours = calculateTotalHours(shiftCopy);
 		String employeeCPR = employeeController.getLoggedInEmployee().getCPR();
 		int workScheduleID = workScheduleController.findWorkScheduleIDOnEmployeeCPR(employeeCPR);
 		String state = CopyState.OCCUPIED.getState();
 		
-		if(shiftDB.takeNewShift(copy, workScheduleID, state)) {
-			calculateAndSetTotalHours(copy, employeeCPR);
+		if(shiftDB.takeShift(shiftCopy, workScheduleID, state)) {
+			workScheduleController.setTotalHoursOnWorkSchedule(hours, employeeCPR);
+			shiftCopies.remove(shiftCopy);
 			success = true;
 		}
 		return success;
@@ -75,12 +78,17 @@ public class ShiftController {
 		ArrayList<WorkSchedule> workSchedules;
 		workSchedules = workScheduleController.getAllPartTimeWorkSchedules();
 		int delegated;
-		
-		releasedShiftCopies = shiftDB.findShiftCopiesOnState(CopyState.RELEASED.getState());
+		int size = 0;
+
+		shiftCopies = shiftDB.findShiftCopiesOnState(CopyState.RELEASED.getState());
+		size = shiftCopies.size();
 		delegate(workSchedules);
 		
-		if(releasedShiftCopies.isEmpty()) {
+		if(shiftCopies.isEmpty()) {
 			delegated = 0;
+		}
+		else if(size == shiftCopies.size()) {
+			delegated = 1;
 		}
 		else {
 			delegated = -1;
@@ -95,55 +103,45 @@ public class ShiftController {
 	 * @throws DataAccessException
 	 */
 	private void delegate(ArrayList<WorkSchedule> workSchedules) throws DataAccessException {
+		workSchedules = workScheduleController.getAllPartTimeWorkSchedules();
+		workSchedules.sort((w1,  w2) -> w1.getTotalHours().compareTo(w2.getTotalHours()));	// Sorts the list of work schedules.
 		int workScheduleID;
 		int workScheduleIndex = 0;
 		int copyIndex = 0;
 		int lastWorkScheduleIndex = workSchedules.size() - 1;
-		int lastCopyIndex = releasedShiftCopies.size() - 1;
+		int lastCopyIndex = shiftCopies.size() - 1;
+		int hours = 0;
 		String employeeCPR;
-		Copy copy;
+		ShiftCopy shiftCopy;
 		String state = CopyState.DELEGATED.getState();
-		workSchedules.sort((w1,  w2) -> w1.getTotalHours().compareTo(w2.getTotalHours()));	// Sorts the list of work schedules.
 		
 		/* Looping through the copies, and trying to delegate them one by one.*/
 		
-		while (!releasedShiftCopies.isEmpty()) {
-			copy = releasedShiftCopies.get(copyIndex);
+		while (!shiftCopies.isEmpty()) {
+			shiftCopy = shiftCopies.get(copyIndex);
 			workScheduleID = workSchedules.get(workScheduleIndex).getID();
 			employeeCPR = workSchedules.get(workScheduleIndex).getEmployeeCPR();
 			
-			if(shiftDB.takeNewShift(copy, workScheduleID, state)) {
-				calculateAndSetTotalHours(copy, employeeCPR);
-				if(releasedShiftCopies.size() == 0) {							// Checks if the list of copies is now empty.
-					releasedShiftCopies = shiftDB.findShiftCopiesOnState(CopyState.RELEASED.getState());	// Populates the list again, in case some delegable copies have been removed.
+			if(shiftDB.takeShift(shiftCopy, workScheduleID, state)) {
+				hours = calculateTotalHours(shiftCopy);
+				workScheduleController.setTotalHoursOnWorkSchedule(hours, employeeCPR);
+				shiftCopies.remove(shiftCopy);
+				if(shiftCopies.size() == 0) {							// Checks if the list of copies is now empty.
+					shiftCopies = shiftDB.findShiftCopiesOnState(CopyState.RELEASED.getState());	// Populates the list again, in case some delegable copies have been removed.
 				}
 				delegate(workSchedules);
 			}
-			else if(workScheduleIndex == lastWorkScheduleIndex && copyIndex == lastCopyIndex) { 	// Checks if both the last copy and work schedule have been reached.
-				releasedShiftCopies.clear();
+			else if(workScheduleIndex == lastWorkScheduleIndex && copyIndex == lastCopyIndex) { 	// If both the last copy and work schedule have been reached.
+				shiftCopies.clear();
 			}
-			else if(copyIndex == lastCopyIndex && workScheduleIndex < lastWorkScheduleIndex) { 		// Checks if only the last copy has been reached.
+			else if(copyIndex == lastCopyIndex && workScheduleIndex < lastWorkScheduleIndex) { 		// If only the last copy has been reached.
 				workScheduleIndex++;
 			}
 			else if(copyIndex < lastCopyIndex) { // Checks if there are more copies in the list.
-				releasedShiftCopies.remove(copyIndex);
+				shiftCopies.remove(copyIndex);
 			}
 		}
-		releasedShiftCopies = shiftDB.findShiftCopiesOnState(CopyState.RELEASED.getState());
-	}
-	
-
-	/**
-	 * Calculates and sets new total hours on work schedule for a given employee. 
-	 * @param copy
-	 * @param employeeCPR
-	 * @param index
-	 * @throws DataAccessException
-	 */
-	private void calculateAndSetTotalHours(Copy copy, String employeeCPR) throws DataAccessException {
-		int hours = calculateTotalHours(copy);
-		workScheduleController.setTotalHoursOnWorkSchedule(hours, employeeCPR);
-		releasedShiftCopies.remove(copy);
+		shiftCopies = shiftDB.findShiftCopiesOnState(CopyState.RELEASED.getState());
 	}
 	
 	/**
@@ -151,9 +149,9 @@ public class ShiftController {
 	 * @param copy
 	 * @return totalHours
 	 */
-	private int calculateTotalHours(Copy copy) {
-		LocalTime toHours = copy.getShift().getToHour();
-		LocalTime fromHours = copy.getShift().getFromHour();
+	private int calculateTotalHours(ShiftCopy shiftCopy) {
+		LocalTime toHours = shiftCopy.getShift().getToHour();
+		LocalTime fromHours = shiftCopy.getShift().getFromHour();
 		int toHoursToAdd = toHours.getHour();
 		int fromHoursToAdd = fromHours.getHour();
 		
@@ -170,11 +168,11 @@ public class ShiftController {
 	 * @return shiftCopies
 	 * @throws DataAccessException
 	 */
-	public ArrayList<Copy> addShift(LocalDate date, LocalTime fromHour, LocalTime toHour) throws DataAccessException {
+	public ArrayList<ShiftCopy> addShift(LocalDate date, LocalTime fromHour, LocalTime toHour) throws DataAccessException {
 		Shift shift = shiftDB.findShiftOnFromAndTo(fromHour, toHour);
-		Copy copy = shift.createCopy(shift, date);
-		shiftCopies.add(copy);
-		return shiftCopies;
+		ShiftCopy shiftCopy = shift.createCopy(shift, date);
+		shiftCopiesToBeReleased.add(shiftCopy);
+		return shiftCopiesToBeReleased;
 	}
 	
 	/**
@@ -186,9 +184,9 @@ public class ShiftController {
 	public boolean completeReleaseNewShifts() throws DataAccessException {
 		boolean completed = false;
 		
-		if(shiftDB.completeReleaseNewShifts(shiftCopies)) {
+		if(shiftDB.completeReleaseNewShifts(shiftCopiesToBeReleased)) {
 			completed = true;
-			shiftCopies.clear();
+			shiftCopiesToBeReleased.clear();
 		}
 		return completed;
 	}
@@ -201,10 +199,10 @@ public class ShiftController {
 	 */
 	public boolean deleteShiftCopy(int index) {
 		boolean deleted = false;
-		Copy copy = shiftCopies.get(index);
-		shiftCopies.remove(index);
+		ShiftCopy shiftCopy = shiftCopiesToBeReleased.get(index);
+		shiftCopiesToBeReleased.remove(index);
 		
-		if(!shiftCopies.contains(copy)) {
+		if(!shiftCopiesToBeReleased.contains(shiftCopy)) {
 			deleted = true;
 		}
 		return deleted;
@@ -213,12 +211,14 @@ public class ShiftController {
 	/**
 	 * Checks if 24 hours has passed since the shift copies were released.
 	 * @return canBeDelegated
+	 * @throws DataAccessException 
 	 */
-	public boolean checkReleasedAt() {
+	public boolean checkReleasedAt() throws DataAccessException {
 //		boolean canBeDelegated = false;
 		boolean canBeDelegated = true;	// Set to true in order to show GUI functionality.
+		shiftCopies = shiftDB.findShiftCopiesOnState(CopyState.RELEASED.getState());
 		
-		for(Copy element : releasedShiftCopies) {
+		for(ShiftCopy element : shiftCopies) {
 			LocalDateTime current = element.getReleasedAt();
 			LocalDateTime nowMinus24Hours = LocalDateTime.now().minusHours(24);
 			if(nowMinus24Hours.isAfter(current) || nowMinus24Hours.isEqual(current)) { 	// Checks if 24 hours or more has passed.
@@ -233,11 +233,19 @@ public class ShiftController {
 	 * @return shiftCopies
 	 * @throws DataAccessException
 	 */
-	public ArrayList<Copy> startTakePlannedShift() throws DataAccessException {
+	public ArrayList<ShiftCopy> startTakePlannedShift() throws DataAccessException {
+		String employeeCPR = "";
+		int id = 0;
 		shiftCopies = shiftDB.findShiftCopiesOnState(CopyState.TRADEABLE.getState());
+		
+		for(ShiftCopy element : shiftCopies) {
+			id = element.getWorkSchedule().getID();
+			employeeCPR = workScheduleController.getEmployeeCPROnID(id);
+			element.getWorkSchedule().setEmployeeCPR(employeeCPR);
+		}
 		return shiftCopies;
 	}
-	
+
 	/**
 	 * Associates a shift copy on a given index, with the work schedule belonging
 	 * to the logged in employee.
@@ -246,12 +254,22 @@ public class ShiftController {
 	 * @return success
 	 * @throws DataAccessException
 	 */
-	public boolean takePlannedShift(Copy copy) throws DataAccessException {
-		boolean succes = false; //TODO refaktorer
+	public boolean takePlannedShift(ShiftCopy shiftCopy) throws DataAccessException {
+		boolean succes = false;
+		int hours = 0;
+		hours = calculateTotalHours(shiftCopy) * -1;
+		String currentEmployeeCPR = shiftCopy.getWorkSchedule().getEmployeeCPR();
 		String employeeCPR = employeeController.getLoggedInEmployee().getCPR();
 		int workScheduleID = workScheduleController.findWorkScheduleIDOnEmployeeCPR(employeeCPR);
 		String state = CopyState.OCCUPIED.getState();
-		succes = shiftDB.takeNewShift(copy, workScheduleID, state);
+		
+		if(shiftDB.takeShift(shiftCopy, workScheduleID, state)) {
+			workScheduleController.setTotalHoursOnWorkSchedule(hours, currentEmployeeCPR);
+			hours = hours * -1;
+			workScheduleController.setTotalHoursOnWorkSchedule(hours, employeeCPR);
+			shiftCopies.remove(shiftCopy);
+			succes = true;
+		}
 		return succes;
 	}
 	
@@ -259,16 +277,8 @@ public class ShiftController {
 	 * Gets list of shift copies. 
 	 * @return shiftCopies. 
 	 */
-	public ArrayList<Copy> getShiftCopies() {
+	public ArrayList<ShiftCopy> getShiftCopies() {
 		return shiftCopies;
-	}
-	
-	/**
-	 * Gets list of released shift copies.
-	 * @return releasedShiftCopies
-	 */
-	public ArrayList<Copy> getReleasedShiftCopiesList() {
-		return releasedShiftCopies;
 	}
   
 	/**
@@ -282,8 +292,8 @@ public class ShiftController {
 	 * Adds a copy object to list of released shift copies. 
 	 * @param copy
 	 */
-	public void addCopyToReleasedShiftCopy(Copy copy) {
-		releasedShiftCopies.add(copy);
+	public void addCopyToShiftCopyList(ShiftCopy shiftCopy) {
+		shiftCopies.add(shiftCopy);
 	}
 	
 	/**
@@ -291,9 +301,9 @@ public class ShiftController {
 	 * @return releasedShiftCopies
 	 * @throws DataAccessException
 	 */
-	public ArrayList<Copy> getReleasedCopies() throws DataAccessException {
-		releasedShiftCopies = shiftDB.findShiftCopiesOnState(CopyState.RELEASED.getState());
-		return releasedShiftCopies;
+	public ArrayList<ShiftCopy> getShiftCopiesAgain(String state) throws DataAccessException {
+		shiftCopies = shiftDB.findShiftCopiesOnState(state);
+		return shiftCopies;
 	}
 
 }

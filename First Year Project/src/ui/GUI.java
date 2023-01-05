@@ -1,6 +1,7 @@
 package ui;
 
 import java.awt.BorderLayout;
+
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -18,6 +19,8 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.Font;
 import javax.swing.SwingConstants;
+import javax.swing.SwingWorker;
+
 import java.awt.FlowLayout;
 import javax.swing.JComboBox;
 
@@ -26,8 +29,10 @@ import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
 
 import controller.ShiftController;
-import model.Copy;
+import model.ShiftCopy;
+import utility.CopyState;
 import utility.DataAccessException;
+import utility.DatabaseType;
 import utility.DateLabelFormatter;
 
 import javax.swing.JScrollPane;
@@ -40,16 +45,16 @@ import java.util.Properties;
 import java.awt.event.ActionEvent;
 import javax.swing.JList;
 import javax.swing.JTextArea;
-import java.awt.event.ActionListener;
 
-public class GUI extends JFrame {
+public class GUI extends SwingWorker<String, Object> {
 
 	private CardLayout cardLayout;
+	private JFrame frame;
 	private JPanel contentPane;
 	private JPanel panelMainMenu;
 	private JPanel panelShiftMenu;
-	private JPanel panelReleaseNewShifts;
 	private JPanel panelTakeNewShift;
+	private JPanel panelReleaseNewShifts;
 	private JPanel panelCompleteReleaseNewShifts;
 	private JPanel panelTakePlannedShift;
 	
@@ -66,9 +71,13 @@ public class GUI extends JFrame {
 	private JList<String> listOfPlannedShiftsToTake;
 	private DefaultListModel<String> listModelTakePlanned;
 	
-	private JTextArea textAreaErrorHandling;
-	private JTextArea textAreaCompleteReleaseNewShifts;
 	private JTextArea textAreaTakeNewShiftErrorHandling;
+	private JTextArea textAreaReleaseNewShiftsErrorHandling;
+	private JTextArea textAreaCompleteReleaseNewShifts;
+	private JTextArea textAreaTakePlannedShiftErrorHandling;
+	
+	private int delegated;
+
 
 	/**
 	 * Launch the application.
@@ -77,8 +86,8 @@ public class GUI extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					GUI frame = new GUI();
-					frame.setVisible(true);
+					GUI window = new GUI();
+					window.frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -92,19 +101,20 @@ public class GUI extends JFrame {
 	 * @throws SQLException 
 	 */
 	public GUI() throws DataAccessException {
-		shiftController = new ShiftController();
+		shiftController = new ShiftController(DatabaseType.REALDATABASE);
+		frame = new JFrame();
 		
 		// Creating content pane panel.
 		
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 300);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		setContentPane(contentPane);
+		frame.setContentPane(contentPane);
 		
-		setPreferredSize(new Dimension(500, 400));
-	    pack();
-	    setLocationRelativeTo(null);
+		frame.setPreferredSize(new Dimension(500, 400));
+		frame.pack();
+		frame.setLocationRelativeTo(null);
 	    
 		cardLayout = new CardLayout(0, 0);
 		contentPane.setLayout(cardLayout);
@@ -416,7 +426,6 @@ public class GUI extends JFrame {
 		comboBoxShiftFrom.addItem("");
 		comboBoxShiftFrom.addItem("06:00:00");
 		comboBoxShiftFrom.addItem("14:00:00");
-		comboBoxShiftFrom.addItem("22:00:00");
 		
 		JLabel lblNewLabel_11 = new JLabel("To time:");
 		GridBagConstraints gbc_lblNewLabel_11 = new GridBagConstraints();
@@ -434,7 +443,6 @@ public class GUI extends JFrame {
 		gbc_comboBoxShiftTo.gridy = 7;
 		panel_13.add(comboBoxShiftTo, gbc_comboBoxShiftTo);
 		comboBoxShiftTo.addItem("");
-		comboBoxShiftTo.addItem("06:00:00");
 		comboBoxShiftTo.addItem("14:00:00");
 		comboBoxShiftTo.addItem("22:00:00");
 		
@@ -460,17 +468,16 @@ public class GUI extends JFrame {
 		gbc_btnDeleteShift.gridy = 9;
 		panel_13.add(btnDeleteShift, gbc_btnDeleteShift);
 		
-		textAreaErrorHandling = new JTextArea();
+		textAreaReleaseNewShiftsErrorHandling = new JTextArea();
 		GridBagConstraints gbc_textAreaErrorHandling = new GridBagConstraints();
 		gbc_textAreaErrorHandling.insets = new Insets(0, 0, 5, 0);
 		gbc_textAreaErrorHandling.fill = GridBagConstraints.BOTH;
 		gbc_textAreaErrorHandling.gridx = 0;
 		gbc_textAreaErrorHandling.gridy = 10;
-		panel_13.add(textAreaErrorHandling, gbc_textAreaErrorHandling);
+		panel_13.add(textAreaReleaseNewShiftsErrorHandling, gbc_textAreaErrorHandling);
 		
 		listModelRelease = new DefaultListModel<>();
 		listOfShiftsToRelease = new JList<>(listModelRelease);
-		
 		JScrollPane scrollPane = new JScrollPane();
 		panelReleaseNewShifts.add(scrollPane, BorderLayout.CENTER);
 		scrollPane.setViewportView(listOfShiftsToRelease);
@@ -565,11 +572,10 @@ public class GUI extends JFrame {
 		gbc_textAreaTakeNewShiftErrorHandling.gridy = 3;
 		panel_24.add(textAreaTakeNewShiftErrorHandling, gbc_textAreaTakeNewShiftErrorHandling);
 		
-		JScrollPane scrollPane_1 = new JScrollPane();
-		panel_22.add(scrollPane_1, BorderLayout.CENTER);
-		
 		listModelTakeNew = new DefaultListModel<>();
 		listOfNewShiftsToTake = new JList<>(listModelTakeNew);
+		JScrollPane scrollPane_1 = new JScrollPane();
+		panel_22.add(scrollPane_1, BorderLayout.CENTER);
 		scrollPane_1.setViewportView(listOfNewShiftsToTake);
 		
 		JPanel panel_23 = new JPanel();
@@ -623,9 +629,11 @@ public class GUI extends JFrame {
 		panelTakePlannedShift.add(panel_17, BorderLayout.SOUTH);
 		
 		JButton btnTakePlannedShiftBack = new JButton("Back");
+		btnTakePlannedShiftBack.addActionListener(this::takePlannedShiftBackButtonClicked);
 		panel_17.add(btnTakePlannedShiftBack);
 		
 		JButton btnTakePlannedShiftOK = new JButton("OK");
+		btnTakePlannedShiftOK.addActionListener(this::takePlannedShiftOKButtonClicked);
 		panel_17.add(btnTakePlannedShiftOK);
 		
 		JPanel panel_18 = new JPanel();
@@ -656,19 +664,19 @@ public class GUI extends JFrame {
 		gbc_btnTakeThisPlannedShift.gridy = 1;
 		panel_26.add(btnTakeThisPlannedShift, gbc_btnTakeThisPlannedShift);
 		
-		JTextArea textAreaErrorHandlingTakePlannedShift = new JTextArea();
+		textAreaTakePlannedShiftErrorHandling = new JTextArea();
 		GridBagConstraints gbc_textAreaErrorHandlingTakePlannedShift = new GridBagConstraints();
 		gbc_textAreaErrorHandlingTakePlannedShift.fill = GridBagConstraints.BOTH;
 		gbc_textAreaErrorHandlingTakePlannedShift.gridx = 0;
 		gbc_textAreaErrorHandlingTakePlannedShift.gridy = 2;
-		panel_26.add(textAreaErrorHandlingTakePlannedShift, gbc_textAreaErrorHandlingTakePlannedShift);
+		panel_26.add(textAreaTakePlannedShiftErrorHandling, gbc_textAreaErrorHandlingTakePlannedShift);
 		
 		JScrollPane scrollPane_2 = new JScrollPane();
 		panel_18.add(scrollPane_2, BorderLayout.CENTER);
 		
 		listModelTakePlanned = new DefaultListModel<>();
 		listOfPlannedShiftsToTake = new JList<>(listModelTakePlanned);
-		scrollPane_1.setViewportView(listOfPlannedShiftsToTake);
+		scrollPane_2.setViewportView(listOfPlannedShiftsToTake);
 		
 		// Adds all panels to the cardlayout of the JFrame.
 		
@@ -683,7 +691,7 @@ public class GUI extends JFrame {
 	 * Adds all created panels to card layout. 
 	 */
 	private void addPanelsToCardLayout() {
-		Container container = getContentPane();
+		Container container = frame.getContentPane();
 		container.add("MainMenu", panelMainMenu);
 		container.add("ShiftsMenu", panelShiftMenu);
 		container.add("ReleaseNewShifts", panelReleaseNewShifts);
@@ -698,6 +706,22 @@ public class GUI extends JFrame {
 	 */
 	private void getThisCard(String cardName) {
 		cardLayout.show(contentPane, cardName);
+	}
+	
+	/**
+	 * Goes to given card in cardLayout, and clears given text area.
+	 * @param card
+	 * @param textArea
+	 */
+	private void goToThisCardAndClearThisTextArea(String card, JTextArea textArea) {
+		getThisCard(card);
+		textArea.setText("");
+	}
+	
+	private void errorMessageInCaseOfException(JTextArea textArea) {
+		textArea.append("An unexpected error ocurred.");
+		textArea.append(" \n");
+		textArea.append("Please restart system and try again.");
 	}
 	
 	// Methods to handle action events.
@@ -727,7 +751,8 @@ public class GUI extends JFrame {
 		try {
 			startTakeNewShift();
 		} catch (DataAccessException e1) {
-			e1.printStackTrace();
+			errorMessageInCaseOfException(textAreaTakeNewShiftErrorHandling);
+			
 		}
 	}
 	
@@ -739,7 +764,7 @@ public class GUI extends JFrame {
 		try {
 			takeNewShift();
 		} catch(DataAccessException e1) {
-			e1.printStackTrace();
+			errorMessageInCaseOfException(textAreaTakeNewShiftErrorHandling);
 		}
 	}
 	
@@ -751,24 +776,24 @@ public class GUI extends JFrame {
 		try {
 			delegateShifts();
 		} catch(DataAccessException e1) {
-			e1.printStackTrace();
+			errorMessageInCaseOfException(textAreaTakeNewShiftErrorHandling);
 		}
 	}
 	
 	/**
-	 * Goes to Main Menu card.
+	 * Goes to Main Menu card and clears text area.
 	 * @param e
 	 */
 	private void takeNewShiftOKButtonClicked(ActionEvent e) {
-		getThisCard("MainMenu");
+		goToThisCardAndClearThisTextArea("MainMenu", textAreaTakeNewShiftErrorHandling);
 	}
 	
 	/**
-	 * Goes to Shifts Menu card.
+	 * Goes to Shifts Menu card and clears text area.
 	 * @param e
 	 */
 	private void takeNewShiftBackButtonClicked(ActionEvent e) {
-		getThisCard("ShiftsMenu");
+		goToThisCardAndClearThisTextArea("ShiftsMenu", textAreaTakeNewShiftErrorHandling);
 	}
 	
 	/**
@@ -787,7 +812,7 @@ public class GUI extends JFrame {
 		try {
 			addShift();
 		} catch (DataAccessException e1) {
-			e1.printStackTrace();
+			errorMessageInCaseOfException(textAreaReleaseNewShiftsErrorHandling);
 		}
 	}
 	
@@ -799,16 +824,17 @@ public class GUI extends JFrame {
 		try {
 			completeReleaseNewShifts();
 		} catch (DataAccessException e1) {
-			e1.printStackTrace();
+			errorMessageInCaseOfException(textAreaCompleteReleaseNewShifts);
 		}
 	}
 	
 	/**
-	 * Goes to MainMenu card.
+	 * Goes to MainMenu card and clears panel.
 	 * @param e
 	 */
 	private void completeReleaseNewShiftsOKButtonClicked(ActionEvent e) {
 		getThisCard("MainMenu");
+		clearReleaseNewShiftPanel();
 	}
 	
 	/**
@@ -818,10 +844,18 @@ public class GUI extends JFrame {
 	private void cancelReleaseShiftButtonClicked(ActionEvent e) {
 		getThisCard("ShiftsMenu");
 		shiftController.clearShiftCopies();
+		clearReleaseNewShiftPanel();
+	}
+	
+	/**
+	 * Clears text fields and combo box fields in panel ReleaseNewShifts.
+	 */
+	private void clearReleaseNewShiftPanel() {
 		listModelRelease.clear();
 		datePicker.getJFormattedTextField().setText("");
 		comboBoxShiftFrom.setSelectedIndex(0);
 		comboBoxShiftTo.setSelectedIndex(0);
+		textAreaReleaseNewShiftsErrorHandling.setText("");
 	}
 	
 	/**
@@ -832,7 +866,7 @@ public class GUI extends JFrame {
 		try {
 			deleteShiftCopy();
 		} catch (DataAccessException e1) {
-			e1.printStackTrace();
+			errorMessageInCaseOfException(textAreaReleaseNewShiftsErrorHandling);
 		}
 	}
 	
@@ -840,25 +874,41 @@ public class GUI extends JFrame {
 	 * Internal method call to implementation of startTakePlannedShift.
 	 * @param e
 	 */
-	private void takePlannedShiftButtonClicked(ActionEvent e) { // TODO skal implementeres
-//		getThisCard("TakePlannedShift");
-//		try {
-//			startTakePlannedShift();
-//		} catch (DataAccessException e1) {
-//			e1.printStackTrace();
-//		}
+	private void takePlannedShiftButtonClicked(ActionEvent e) {
+		getThisCard("TakePlannedShift");
+		try {
+			startTakePlannedShift();
+		} catch (DataAccessException e1) {
+			errorMessageInCaseOfException(textAreaTakePlannedShiftErrorHandling);
+		}
 	}
 	
 	/**
 	 * Internal method call to implementation of takePlannedShift.
 	 * @param e
 	 */
-	private void takeThisPlannedShiftButtonClicked(ActionEvent e) { // TODO skal implementeres
-//		try {
-//			takePlannedShift();
-//		} catch (DataAccessException e1) {
-//			e1.printStackTrace();
-//		}
+	private void takeThisPlannedShiftButtonClicked(ActionEvent e) {
+		try {
+			takePlannedShift();
+		} catch (DataAccessException e1) {
+			errorMessageInCaseOfException(textAreaTakePlannedShiftErrorHandling);
+		}
+	}
+	
+	/**
+	 * Goes to Main Menu card and clears text area.
+	 * @param e
+	 */
+	private void takePlannedShiftOKButtonClicked(ActionEvent e) {
+		goToThisCardAndClearThisTextArea("MainMenu", textAreaTakePlannedShiftErrorHandling);
+	}
+	
+	/**
+	 * Goes to Main Menu card and clears text area.
+	 * @param e
+	 */
+	private void takePlannedShiftBackButtonClicked(ActionEvent e) {
+		goToThisCardAndClearThisTextArea("ShiftsMenu", textAreaTakePlannedShiftErrorHandling);
 	}
 	
 	// Implementation of use case methods.
@@ -868,10 +918,10 @@ public class GUI extends JFrame {
 	 * @throws DataAccessException
 	 */
 	private void startTakeNewShift() throws DataAccessException {
-		ArrayList<Copy> releasedCopies = shiftController.startTakeNewShift();
+		ArrayList<ShiftCopy> shiftCopies = shiftController.startTakeNewShift();
 		
-		if(!releasedCopies.isEmpty()) {
-			showCopies(releasedCopies, listModelTakeNew); 	// Displaying the copies.
+		if(!shiftCopies.isEmpty()) {
+			showCopies(shiftCopies, listModelTakeNew); 	// Displaying the copies.
 		}
 	}
 	
@@ -883,16 +933,26 @@ public class GUI extends JFrame {
 	private void takeNewShift() throws DataAccessException {
 		/* Finds chosen copy on list and takes the copy.*/
 		int index = getIndexOnSelectedListValue(listOfNewShiftsToTake);
-		Copy copy = shiftController.getReleasedShiftCopiesList().get(index);
-		boolean taken = shiftController.takeNewShift(copy);
+		ShiftCopy shiftCopy;
+		boolean taken;
 		
-		/* Checks if successfully taken.*/ 
-		if(taken) {
-			textAreaTakeNewShiftErrorHandling.setText("Shift was successfully taken");
-			showCopies(shiftController.getReleasedCopies(), listModelTakeNew); 	// Displaying the copies.
+		/* Checks if a list value has been chosen.*/
+		if(index >= 0) {
+			shiftCopy = shiftController.getShiftCopies().get(index);
+			taken = shiftController.takeNewShift(shiftCopy);
+			
+			/* Checks if successfully taken.*/ 
+			if(taken) {
+				textAreaTakeNewShiftErrorHandling.setText("Shift was successfully taken");
+				showCopies(shiftController.getShiftCopiesAgain(CopyState.RELEASED.getState()), listModelTakeNew); 	// Displaying the copies.
+			}
+			else {
+				textAreaTakeNewShiftErrorHandling.setText("Error! Shift has already been taken");
+				showCopies(shiftController.getShiftCopiesAgain(CopyState.RELEASED.getState()), listModelTakeNew); 	// Displaying the copies.
+			}
 		}
 		else {
-			textAreaTakeNewShiftErrorHandling.setText("Error! Shift has already been taken");
+			textAreaTakeNewShiftErrorHandling.setText("Error! Mark a shift to take");
 		}
 	}
 	
@@ -903,22 +963,9 @@ public class GUI extends JFrame {
 	 */
 	private void delegateShifts() throws DataAccessException {
 		boolean canBeDelegated = shiftController.checkReleasedAt();
-		int delegated;
 		
 		if(canBeDelegated) { 	// Checks if 24 hours or more has passed. 
-			delegated = shiftController.delegateShifts();
-			if(delegated == 0) {
-				textAreaTakeNewShiftErrorHandling.append("All shifts were");
-				textAreaTakeNewShiftErrorHandling.append(" \n");
-				textAreaTakeNewShiftErrorHandling.append("delegated successfully");
-				showCopies(shiftController.getReleasedCopies(), listModelTakeNew); 	// Displaying the copies.
-			}
-			else if(delegated == -1) {
-				textAreaTakeNewShiftErrorHandling.append("All possible shifts were delegated.");
-				textAreaTakeNewShiftErrorHandling.append(" \n");
-				textAreaTakeNewShiftErrorHandling.append("Some may be left");
-				showCopies(shiftController.getReleasedCopies(), listModelTakeNew);	// Displaying the copies.
-			}
+			GUI.this.execute();
 		}
 		else {
 			textAreaTakeNewShiftErrorHandling.setText("Error! 24 hours hasn't passed.");
@@ -932,30 +979,40 @@ public class GUI extends JFrame {
 	private void addShift() throws DataAccessException {
 		/* Gets the picked date, and parses it to a LocalDate object with given format.*/
 		String dateString = datePicker.getJFormattedTextField().getText();
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-		LocalDate date = LocalDate.parse(dateString, formatter);
+		DateTimeFormatter formatter;
+		LocalDate date;
 		
 		/* Gets selected times, and parses the strings to LocalTime objects.*/
 		String fromHourString = (String) comboBoxShiftFrom.getSelectedItem();
-		LocalTime fromHour = LocalTime.parse(fromHourString);
 		String toHourString = (String) comboBoxShiftTo.getSelectedItem();
-		LocalTime toHour = LocalTime.parse(toHourString);
+		LocalTime fromHour;
+		LocalTime toHour;
 		
-		textAreaErrorHandling.setText("");
+		textAreaReleaseNewShiftsErrorHandling.setText("");
 		
 		/* Defensive programming to verify input.*/
-		if(fromHour.getHour() >= toHour.getHour()) {
-			textAreaErrorHandling.setText("Invalid time period has been chosen");
-		}
-		else if(toHour.getHour() - fromHour.getHour() > 8) {
-			textAreaErrorHandling.setText("A shift can be no longer than 8 hours");
-		}
-		else if(date.isBefore(LocalDate.now())) {
-			textAreaErrorHandling.setText("Invalid date has been chosen");
+		if(!dateString.equals("") && !fromHourString.equals("") && !toHourString.equals("")) {
+			formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+			date = LocalDate.parse(dateString, formatter);
+			fromHour = LocalTime.parse(fromHourString);
+			toHour = LocalTime.parse(toHourString);
+			
+			if(fromHour.getHour() >= toHour.getHour()) {
+				textAreaReleaseNewShiftsErrorHandling.setText("Invalid time period has been chosen");
+			}
+			else if(toHour.getHour() - fromHour.getHour() > 8) {
+				textAreaReleaseNewShiftsErrorHandling.setText("A shift can be no longer than 8 hours");
+			}
+			else if(date.isBefore(LocalDate.now())) {
+				textAreaReleaseNewShiftsErrorHandling.setText("Invalid date has been chosen");
+			}
+			else {
+				ArrayList<ShiftCopy> shiftCopies = shiftController.addShift(date, fromHour, toHour);
+				showCopies(shiftCopies, listModelRelease);
+			}
 		}
 		else {
-			ArrayList<Copy> shiftCopies = shiftController.addShift(date, fromHour, toHour);
-			showCopies(shiftCopies, listModelRelease);
+			textAreaReleaseNewShiftsErrorHandling.setText("Please fill all fields with values");
 		}
 	}
 	
@@ -983,36 +1040,41 @@ public class GUI extends JFrame {
 	private void deleteShiftCopy() throws DataAccessException {
 		int index = getIndexOnSelectedListValue(listOfShiftsToRelease);
 		
-		if(shiftController.deleteShiftCopy(index)) {
-			showCopies(shiftController.getShiftCopies(), listModelRelease);
+		if(index >= 0) {
+			if(shiftController.deleteShiftCopy(index)) {
+				showCopies(shiftController.getShiftCopies(), listModelRelease);
+			}
+			else {
+				textAreaReleaseNewShiftsErrorHandling.setText("Error! Shift could not be deleted");
+			}
 		}
 		else {
-			textAreaErrorHandling.setText("Error! Shift could not be deleted");
+			textAreaReleaseNewShiftsErrorHandling.setText("Error! Mark a shift to delete");
 		}
 	}
 	
-	private void startTakePlannedShift() { // TODO skal implementeres
-//		ArrayList<Copy> tradeableCopies = shiftController.startTakePlannedShift();
-//		
-//		if(!tradeableCopies.isEmpty()) {
-//			showCopies(tradeableCopies, listModelTakePlanned); 	// Displaying the copies.
-//		}
+	private void startTakePlannedShift() throws DataAccessException {
+		ArrayList<ShiftCopy> shiftCopies = shiftController.startTakePlannedShift();
+		
+		if(!shiftCopies.isEmpty()) {
+			showCopies(shiftCopies, listModelTakePlanned); 	// Displaying the copies.
+		}
 	}
 	
-	private void takePlannedShift() { // TODO skal implementeres
-//		/* Finds chosen copy on list and takes the copy.*/
-//		int index = getIndexOnSelectedListValue(listOfPlannedShiftsToTake);
-//		Copy copy = shiftController.getTradeableShiftCopiesList().get(index);
-//		boolean taken = shiftController.takePlannedShift(copy);
-//		
-//		/* Checks if successfully taken.*/ 
-//		if(taken) {
-//			textAreaTakeNewShiftErrorHandling.setText("Shift was successfully taken");
-//			showCopies(shiftController.getTradeableCopies(), listModelTakePlanned); 	// Displaying the copies.
-//		}
-//		else {
-//			textAreaTakeNewShiftErrorHandling.setText("Error! Shift has already been taken");
-//		}
+	private void takePlannedShift() throws DataAccessException {
+		/* Finds chosen copy on list and takes the copy.*/
+		int index = getIndexOnSelectedListValue(listOfPlannedShiftsToTake);
+		ShiftCopy shiftCopy = shiftController.getShiftCopies().get(index);
+		boolean taken = shiftController.takePlannedShift(shiftCopy);
+		
+		/* Checks if successfully taken.*/ 
+		if(taken) {
+			textAreaTakePlannedShiftErrorHandling.setText("Shift was successfully taken");
+			showCopies(shiftController.startTakePlannedShift(), listModelTakePlanned); 	// Displaying the copies.
+		}
+		else {
+			textAreaTakePlannedShiftErrorHandling.setText("Error! Shift has already been taken");
+		}
 	}
 	
 	/**
@@ -1022,13 +1084,16 @@ public class GUI extends JFrame {
 	 */
 	private int getIndexOnSelectedListValue(JList<String> list) {
 		String copyList = (String) list.getSelectedValue();
-		String substr = copyList.substring(7, 9);
-		int index;
+		String substr = null;
+		int index = -1;
 		
-		if(substr.substring(1,2).equals(" ")) {
-			substr = substr.substring(0,1);
+		if(copyList != null) {
+			substr = copyList.substring(7, 9);
+			if(substr.substring(1,2).equals(" ")) {
+				substr = substr.substring(0,1);
+			}
+			index = Integer.parseInt(substr) - 1;
 		}
-		index = Integer.parseInt(substr) - 1;
 		return index;
 	}
 	
@@ -1038,9 +1103,9 @@ public class GUI extends JFrame {
 	 * @param listModel
 	 * @throws DataAccessException
 	 */
-	private void showCopies(ArrayList<Copy> shiftCopies, DefaultListModel<String> listModel) throws DataAccessException {
+	private void showCopies(ArrayList<ShiftCopy> shiftCopies, DefaultListModel<String> listModel) throws DataAccessException {
 		listModel.clear();
-		Copy copy;
+		ShiftCopy shiftCopy;
 		String copyDate;
 		String day;
 		String month;
@@ -1052,16 +1117,51 @@ public class GUI extends JFrame {
 		/* Loops through list of copies, and for each adds a string containing info about the copy
 		 * to the given DefaultListmodel.*/
 		for(int i = 0 ; i < shiftCopies.size() ; i++) {
-			copy = shiftCopies.get(i);
-			copyDate = copy.getDate().toString();
+			shiftCopy = shiftCopies.get(i);
+			copyDate = shiftCopy.getDate().toString();
 			day = copyDate.substring(copyDate.length() - 2);
 			month = copyDate.substring(5, 7);
 			year = copyDate.substring(0, 4);
 			copyDateFormatted = day + "-" + month + "-" + year;
-			fromHour = copy.getShift().getFromHour();
-			toHour = copy.getShift().getToHour();
+			fromHour = shiftCopy.getShift().getFromHour();
+			toHour = shiftCopy.getShift().getToHour();
 			
 			listModel.addElement("Shift: " + (i + 1) + " Date: " + copyDateFormatted + " From: " + fromHour + " To: " + toHour);
+		}
+	}
+
+	@Override
+	protected String doInBackground() throws Exception {
+		String returnString = "Delegating in background...";
+		textAreaTakeNewShiftErrorHandling.setText(returnString);
+		delegated = shiftController.delegateShifts();
+		return returnString;
+	}
+	
+	@Override
+	protected void done() {
+		textAreaTakeNewShiftErrorHandling.setText("");
+		try {
+			if(delegated == 0) {
+				textAreaTakeNewShiftErrorHandling.append("All shifts were");
+				textAreaTakeNewShiftErrorHandling.append(" \n");
+				textAreaTakeNewShiftErrorHandling.append("delegated successfully");
+				showCopies(shiftController.getShiftCopiesAgain(CopyState.RELEASED.getState()), listModelTakeNew); 	// Displaying the copies.
+			}
+			else if(delegated == 1) {
+				textAreaTakeNewShiftErrorHandling.append("None of the shifts");
+				textAreaTakeNewShiftErrorHandling.append(" \n");
+				textAreaTakeNewShiftErrorHandling.append("could be delegated");
+				showCopies(shiftController.getShiftCopiesAgain(CopyState.RELEASED.getState()), listModelTakeNew);	// Displaying the copies.
+			}
+			else if(delegated == -1) {
+				textAreaTakeNewShiftErrorHandling.append("All possible shifts were delegated.");
+				textAreaTakeNewShiftErrorHandling.append(" \n");
+				textAreaTakeNewShiftErrorHandling.append("Some may be left");
+				showCopies(shiftController.getShiftCopiesAgain(CopyState.RELEASED.getState()), listModelTakeNew);	// Displaying the copies.
+			}
+		} catch(DataAccessException e) {
+			e.printStackTrace();
 		}
 	}
 }

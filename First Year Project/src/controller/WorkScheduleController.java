@@ -6,6 +6,7 @@ import database.WorkScheduleDB;
 import database.WorkScheduleDBIF;
 import model.WorkSchedule;
 import utility.DataAccessException;
+import utility.DatabaseType;
 
 public class WorkScheduleController {
 	
@@ -15,8 +16,8 @@ public class WorkScheduleController {
 	 * Constructor to initialize instance variables. 
 	 * @throws DataAccessException
 	 */
-	public WorkScheduleController() throws DataAccessException {
-		workScheduleDB = new WorkScheduleDB();
+	public WorkScheduleController(DatabaseType databaseType) throws DataAccessException {
+		workScheduleDB = new WorkScheduleDB(databaseType);
 	}
 	
 	/**
@@ -29,7 +30,7 @@ public class WorkScheduleController {
 		int workScheduleID = workScheduleDB.findWorkScheduleIDOnEmployeeCPR(employeeCPR);
 		return workScheduleID;
 	}
-	
+
 	/**
 	 * Sets a given new total hours on a work schedule belonging to an employee
 	 * with given CPR number. 
@@ -55,6 +56,11 @@ public class WorkScheduleController {
 	public ArrayList<WorkSchedule> getAllPartTimeWorkSchedules() throws DataAccessException {
 		ArrayList<WorkSchedule> workSchedules = workScheduleDB.getAllPartTimeWorkSchedules();
 		return workSchedules;
+	}
+
+	public String getEmployeeCPROnID(int id) throws DataAccessException {
+		String employeeCPR = workScheduleDB.getEmployeeCPROnID(id);
+		return employeeCPR;
 	}
 	
 	
